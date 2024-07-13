@@ -1,0 +1,9 @@
+{
+    "name": "serialPort",
+    "includedFiles": ["src/top.v", 
+                        "verilog-uart/rtl/uart_rx.v", 
+                        "verilog-uart/rtl/uart_tx.v", 
+                        "verilog-uart/rtl/uart.v" ],
+    "constraintsFile": "tangnano9k.cst",
+    "top": "top"
+}
