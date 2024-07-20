@@ -1,0 +1,8 @@
+
+https://juj.github.io/gowin_fpga_code_generators/pll_calculator.html
+setting up a pll
+
+http://download.bl602.fun/BL702_%E5%AE%98%E6%96%B9%E8%8A%AF%E7%89%87%E6%89%8B%E5%86%8C.pdf
+The working clock of the UART
+module can be selected as FCLK or 96M, and the maximum baud rate is 8M
+
