@@ -1,3 +1,9 @@
 [submodule "SerialLED/verilog-uart"]
 	path = SerialLED/verilog-uart
 	url = https://github.com/alexforencich/verilog-uart
+[submodule "SerialWishbone/verilog-uart"]
+	path = SerialWishbone/verilog-uart
+	url = https://github.com/alexforencich/verilog-uart
+[submodule "SerialWishbone/verilog-wishbone"]
+	path = SerialWishbone/verilog-wishbone
+	url = https://github.com/alexforencich/verilog-wishbone.git
