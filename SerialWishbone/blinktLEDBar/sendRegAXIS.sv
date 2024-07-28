@@ -7,7 +7,7 @@ module sendRegAXIS
     input wire i_clk,
     input wire i_reset,
 
-        //AXIS slave
+     //AXIS slave
     input wire [31:0] s_axis_data,
     input wire s_axis_tvalid,
     output wire s_axis_tready,
@@ -16,7 +16,6 @@ module sendRegAXIS
     output wire o_led_clk,
     output wire o_led_data
 );
-
 
 reg [31:0] o_shift_data;
 reg [31:0] clk_div;

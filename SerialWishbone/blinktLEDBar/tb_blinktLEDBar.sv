@@ -12,17 +12,17 @@ reg reset;
 reg clk;
 reg [ADDR_WIDTH-1:0]    o_wb_adr=0;
 reg [DATA_WIDTH-1:0]    o_wb_dat=0;
-wire [DATA_WIDTH-1:0]   i_wb_dat;   // DAT_O() data out
-reg                     o_wb_we=0;    // WE_I write enable input
-reg [SELECT_WIDTH-1:0]  o_wb_sel=0;   // SEL_I() select input
+wire [DATA_WIDTH-1:0]   i_wb_dat;   
+reg                     o_wb_we=0;   
+reg [SELECT_WIDTH-1:0]  o_wb_sel=0;   
 reg                    o_wb_stb=0;
-wire                    i_wb_ack;   // ACK_O acknowledge output
-wire                    i_wb_err;   // ERR_O error output
-wire                    i_wb_rty;   // RTY_O retry output
-reg                     o_wb_cyc=0;   // CYC_I cycle input
+wire                    i_wb_ack; 
+wire                    i_wb_err; 
+wire                    i_wb_rty;   
+reg                     o_wb_cyc=0;   
 
 wire o_led_clk, o_led_data;
-
+/*
 blinktLEDBar dut(
 (   
     .i_clk(clk),
@@ -41,9 +41,8 @@ blinktLEDBar dut(
     .wb_cyc_i(o_wb_cyc),   // CYC_I cycle input
 
     .o_led_clk(o_led_clk),
-    .o_led_data(o_led_data)
-);
-
+    .o_led_data(o_led_data));
+*/
 initial begin
 
     reset = 1'b1;

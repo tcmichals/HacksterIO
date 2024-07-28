@@ -28,9 +28,7 @@ module blinktLEDBar
     reg [31:0] led [7:0];
     reg [31:0] shift_data;
     reg tvalid;
-    wire ready
-
-
+    wire ready;
 
 sendRegAXIS axis(
         .i_clk(i_clk),
@@ -43,8 +41,7 @@ sendRegAXIS axis(
 
         //LED 
         .o_led_clk(o_led_clk),
-        .o_led_data(o_led_data)
-);
+        .o_led_data(o_led_data));
 
 initial begin
 
@@ -73,7 +70,7 @@ localparam  IDLE_STATE = 0,
 
 assign wb_rty_o = 0;
 assign wb_err_o = 0;
-assign wb_dat_o = {27'h0,  , state};
+assign wb_dat_o = {27'h0,  state};
 assign  wb_ack_o = ack;
 
 
@@ -125,10 +122,10 @@ always @(posedge i_clk or negedge i_rst) begin
                 tvalid <=1;
                 send_state <= send_state + 1'b1;
                 shift_data <= led[index];
-                index <= index +_1'b1;
+                index <= index + 1'b1;
             end
             else 
-                tvalid <= 0;s
+                tvalid <= 0;
 
 
         end
