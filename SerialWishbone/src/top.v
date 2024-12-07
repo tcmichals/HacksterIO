@@ -1,47 +1,47 @@
 module top
 (
     input clk,
-    output [5:0] led,
+    output [5:0] o_led,
 
     input uartRx,
     output uartTx,
 
     output led_clk,
-    output led_data
-);
+    output led_data,
+    output debug_0,
+    output debug_1);
 
-localparam  clkRate = 27000000;
-localparam baudrate = 115200;
+
+
+localparam  clkRate = 120_000_000;
+localparam baudrate = 3_000_000;
 localparam uartPreScale = (clkRate)/(baudrate*8);
-reg rst;
+localparam   WB_DATA_WIDTH = 32,                    // width of data bus in bits (8, 16, 32, or 64)
+            WB_ADDR_WIDTH = 32,                    // width of address bus in bits
+            WB_SELECT_WIDTH = (WB_DATA_WIDTH/8);
 
-initial begin 
-    rst = 0;
-    uart_tx_axis_tdata = 8'haa;
-    counter = 0;
-end 
-
-reg [7:0] uart_tx_axis_tdata;
-reg uart_tx_axis_tvalid;
+wire [7:0] uart_tx_axis_tdata;
+wire uart_tx_axis_tvalid;
 wire uart_tx_axis_tready;
-
-reg [31:0] counter;
 
 wire [7:0] uart_rx_axis_tdata;
 wire uart_rx_axis_tvalid;
-reg uart_rx_axis_tready;
+wire uart_rx_axis_tready;
+wire pll_clk, clk_lock;
+reg rst;
+reg sync_rx_0, sync_rx_1;
+reg [3:0] div;
+reg lock_rx;
 
-wire led_clk;
-wire pll_clk;
-wire clk_lock;
-wire led_data;
+initial begin 
+    rst = 0;
+    sync_rx_0 = 0;
+    sync_rx_1 = 0;
+end 
 
-reg div_by_1000;
-assign led_data = counter[10];
-assign led_clk = div_by_1000;
 
 uart uart_inst(
-     .clk(clk),
+    .clk(pll_clk),
     .rst(rst),
     // AXI input
     .s_axis_tdata(uart_tx_axis_tdata),
@@ -52,7 +52,7 @@ uart uart_inst(
     .m_axis_tvalid(uart_rx_axis_tvalid),
     .m_axis_tready(uart_rx_axis_tready),
     // uart
-    .rxd(uartRx),
+    .rxd(sync_rx_1),
     .txd(uartTx),
     // status
     .tx_busy(),
@@ -75,50 +75,43 @@ rPLL #( // For GW1NR-9C C6/I5 (Tang Nano 9K proto dev board)
   .LOCK(clk_lock)
 );
 
-//assign led = sw;
-assign {led[3], led[2], led[1], led[0]} = ~uart_tx_axis_tdata;
-
-always @( posedge pll_clk) begin
 
 
-    counter <= counter + 1;
-    if (counter == 1000) begin
-        counter <= 0;
-        div_by_1000 <= ~div_by_1000;
+middle wb(
+    
+    .i_clk(pll_clk),
+    .i_rst(rst),
 
-    end
+    // AXIS input
+    .s_axis_tdata(uart_rx_axis_tdata),
+    .s_axis_tvalid(uart_rx_axis_tvalid),
+    .s_axis_tready(uart_rx_axis_tready),
+
+    //AXIS outout
+    .m_axis_tdata(uart_tx_axis_tdata),
+    .m_axis_tvalid(uart_tx_axis_tvalid),
+    .m_axis_tready(uart_tx_axis_tready),
+
+    .o_led(o_led),
+
+    .o_led_clk(led_clk),
+    .o_led_data(led_data));
+
+
+always @(posedge pll_clk ) begin
+
+   { sync_rx_1, sync_rx_0} <= { sync_rx_0, uartRx};
 
 end
-always @(posedge clk or posedge rst) begin
-    if (rst) begin
-        uart_tx_axis_tdata <= 0;
-        uart_tx_axis_tvalid <= 0;
-        uart_rx_axis_tready <= 0;
-    end else begin
 
-        if (uart_tx_axis_tvalid) begin
-            // attempting to transmit a byte
-            // so can't receive one at the moment
-            uart_rx_axis_tready <= 0;
-            // if it has been received, then clear the valid flag
-            if (uart_tx_axis_tready) begin
-                uart_tx_axis_tvalid <= 0;
-            end
-        end else begin
-            // ready to receive byte
-            uart_rx_axis_tready <= 1;
-            if (uart_rx_axis_tvalid) begin
-                // got one, so make sure it gets the correct ready signal
-                // (either clear it if it was set or set it if we just got a
-                // byte out of waiting for the transmitter to send one)
-                uart_rx_axis_tready <= ~uart_rx_axis_tready;
-                // send byte back out
-                uart_tx_axis_tdata <= uart_rx_axis_tdata;
-                uart_tx_axis_tvalid <= 1;
-            end
-        end
-    end
-end
 
+//assign debug_0=uart_rx_axis_tdata[0];
+//assign debug_1=uart_rx_axis_tdata[1];
+//assign debug_2=uart_rx_axis_tdata[2];
+//assign debug_3=uart_rx_axis_tdata[3];
+//assign debug_4=uart_rx_axis_tdata[4];
+//assign debug_5=uart_rx_axis_tdata[5];
+
+//assign debug_6=uart_rx_axis_tvalid;
 
 endmodule
