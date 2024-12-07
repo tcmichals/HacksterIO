@@ -9,3 +9,8 @@ module can be selected as FCLK or 96M, and the maximum baud rate is 8M
 apa102 protocol
 https://cpldcpu.wordpress.com/2014/11/30/understanding-the-apa102-superled/
 
+
+
+python verilog-wishbone/rtl/wb_arbiter.py -p 2 -n wishbone_arb -o wishbone_arb.sv
+
+
