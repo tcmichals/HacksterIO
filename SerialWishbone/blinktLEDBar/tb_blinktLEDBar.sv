@@ -11,7 +11,7 @@ localparam SELECT_WIDTH = (DATA_WIDTH/8);     // width of word select bus (1, 2,
 reg reset;
 reg clk;
 reg [ADDR_WIDTH-1:0]    o_wb_adr=0;
-reg [DATA_WIDTH-1:0]    o_wb_dat=0;
+reg [DATA_WIDTH-1:0]    o_wb_dat= 32'h11223344;
 wire [DATA_WIDTH-1:0]   i_wb_dat;   
 reg                     o_wb_we=0;   
 reg [SELECT_WIDTH-1:0]  o_wb_sel=0;   
@@ -22,15 +22,20 @@ wire                    i_wb_rty;
 reg                     o_wb_cyc=0;   
 
 wire o_led_clk, o_led_data;
-/*
-blinktLEDBar dut(
+
+reg [4:0] counter =0;
+reg write_state =0;
+
+
+
+blinktLEDBar dut
 (   
     .i_clk(clk),
     .i_rst(reset),
 
      // master side
     .wb_adr_i(o_wb_adr),   // ADR_I() address
-    .wb_dat_i(i_wb_dat),   // DAT_I() data in
+    .wb_dat_i(o_wb_dat),   // DAT_I() data in
     .wb_dat_o(i_wb_dat),   // DAT_O() data out
     .wb_we_i(o_wb_we),    // WE_I write enable input
     .wb_sel_i(o_wb_sel),   // SEL_I() select input
@@ -42,7 +47,7 @@ blinktLEDBar dut(
 
     .o_led_clk(o_led_clk),
     .o_led_data(o_led_data));
-*/
+
 initial begin
 
     reset = 1'b1;
@@ -52,7 +57,7 @@ initial begin
 
     $display ("reset done");
     #50  reset = 0;
-    #1000000 $finish;
+    #100000 $finish;
     
 end
 
@@ -60,7 +65,28 @@ always  #2 clk = ~clk;
 
 always @(posedge clk ) begin
     
-        if ( !reset) begin
+    if ( reset) begin
+    end
+    else begin
+
+        if (write_state == 0)  begin
+            o_wb_we <= 1;
+            o_wb_cyc <= 1;
+            o_wb_stb <= 1'b1;
+            o_wb_adr  <= counter;
+            write_state <= 1;
+ 
+        end
+        else if (write_state) begin
+            if (i_wb_ack) begin
+                write_state <= 0;
+                o_wb_we <= 0;
+                o_wb_cyc <= 0;
+                o_wb_stb <= 0;
+                counter <= counter + 1'b1;
+                o_wb_dat <= o_wb_dat + 1'b1;
+            end
+        end
 
     end
 

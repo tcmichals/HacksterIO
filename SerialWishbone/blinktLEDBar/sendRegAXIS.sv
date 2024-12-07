@@ -81,6 +81,7 @@ always @( posedge i_clk) begin
             if (s_axis_tvalid) begin
                 o_shift_data <= s_axis_data;
                 state <= START;
+                $display("Start");
             end
         end
         DONE: begin

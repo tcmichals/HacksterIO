@@ -31,7 +31,7 @@ initial begin
 	$dumpvars(0,tb_sendRegAXIS);
 
     #50  reset = 0;
-    #100000 $finish;
+    #1000000 $finish;
     
 end
 
