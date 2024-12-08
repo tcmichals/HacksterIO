@@ -1,0 +1,3 @@
+
+Create a new mux file
+python3 ../verilog-wishbone/rtl/wb_mux.py -p 3 -n gen_mux_wb -o gen_mux_wb.sv
