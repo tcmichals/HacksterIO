@@ -107,8 +107,8 @@ always @(posedge pll_clk ) begin
 end
 
 
-//assign debug_0=uart_rx_axis_tdata[0];
-//assign debug_1=uart_rx_axis_tdata[1];
+assign debug_0=sync_rx_1;
+assign debug_1=uart_rx_axis_tvalid;
 //assign debug_2=uart_rx_axis_tdata[2];
 //assign debug_3=uart_rx_axis_tdata[3];
 //assign debug_4=uart_rx_axis_tdata[4];

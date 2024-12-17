@@ -177,7 +177,7 @@ always @(posedge i_clk) begin
 end
 
 //always return led settings 
-assign wb_dat_o= { 2'd0, tvalid, state, o_data[23:0] };
+assign wb_dat_o= { 6'd0, tvalid, state, o_data[23:0] };
 assign wb_err_o = 0;
 assign wb_rty_o = 0;
 assign m_axis_data = (count < LEDCOUNT)?ledData[count]:0;

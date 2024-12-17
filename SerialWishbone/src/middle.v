@@ -37,37 +37,7 @@ wire  wb_cyc_o;   // CYC_O cycle output
 wire  busy;
 
 
-//blk
-wire [WB_ADDR_WIDTH-1:0]   blk_wb_adr_o;
-wire [WB_DATA_WIDTH-1:0]   blk_wb_dat_i;   // DAT_I() data in
-wire [WB_DATA_WIDTH-1:0]   blk_wb_dat_o;   // DAT_O() data out
-wire                       blk_wb_we_i;    // WE_I write enable input
-wire [WB_SELECT_WIDTH-1:0] blk_wb_sel_i;   // SEL_I() select input
-wire                       blk_wb_stb_i;   // STB_I strobe input
-wire                       blk_wb_ack_o;   // ACK_O acknowledge output
-wire                       blk_wb_err_o;   // ERR_O error output
-wire                       blk_wb_rty_o;   // RTY_O retry output
-wire                       blk_wb_cyc_i;   // CYC_I cycle input
 
-blinktLEDBar blinktinst
-(   
-    .i_clk(i_clk),
-    .i_rst(i_rst),
-
-     // master side
-    .wb_adr_i(blk_wb_adr_o),   // ADR_I() address
-    .wb_dat_i(blk_wb_dat_i),   // DAT_I() data in
-    .wb_dat_o(blk_wb_dat_0),   // DAT_O() data out
-    .wb_we_i(blk_wb_we_i),    // WE_I write enable input
-    .wb_sel_i(blk_wb_sel_i),   // SEL_I() select input
-    .wb_stb_i(blk_wb_stb_i),   // STB_I strobe input
-    .wb_ack_o(blk_wb_ack_o),   // ACK_O acknowledge output
-    .wb_err_o(blk_wb_err_o),   // ERR_O error output
-    .wb_rty_o(blk_wb_rty_o),   // RTY_O retry output
-    .wb_cyc_i(blk_wb_cyc_i),   // CYC_I cycle input
-
-    .o_led_clk(led_clk),
-    .o_led_data(led_data));
 
 
 wire [31:0] neoPx_axis_data;
@@ -216,16 +186,16 @@ gen_mux_wb mux(
     /*
      * Wishbone slave 1 output
      */
-    .wbs1_adr_o(),    // ADR_O() address output
-    .wbs1_dat_i(),    // DAT_I() data in
-    .wbs1_dat_o(),    // DAT_O() data out
-    .wbs1_we_o(),     // WE_O write enable output
-    .wbs1_sel_o(),    // SEL_O() select output
-    .wbs1_stb_o(),    // STB_O strobe output
-    .wbs1_ack_i(),    // ACK_I acknowledge. input
-    .wbs1_err_i(),    // ERR_I error inpu.t
+    .wbs1_adr_o(neo_wb_adr_o),    // ADR_O() address output
+    .wbs1_dat_i(neo_wb_dat_o),    // DAT_I() data in
+    .wbs1_dat_o(neo_wb_dat_i),    // DAT_O() data out
+    .wbs1_we_o(neo_wb_we_i),     // WE_O write enable output
+    .wbs1_sel_o(neo_wb_sel_i),    // SEL_O() select output
+    .wbs1_stb_o(neo_wb_stb_i),    // STB_O strobe output
+    .wbs1_ack_i(neo_wb_ack_o),    // ACK_I acknowledge. input
+    .wbs1_err_i(neo_wb_err_o),    // ERR_I error inpu.t
     .wbs1_rty_i(),    // RTY_I retry inpu.t
-    .wbs1_cyc_o(),    // CYC_O cycle output.
+    .wbs1_cyc_o(neo_wb_cyc_i),    // CYC_O cycle output.
 
     /*
      * Wishbone slave 1 address configuration
