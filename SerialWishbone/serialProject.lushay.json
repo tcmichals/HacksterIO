@@ -11,7 +11,10 @@
                         "verilog-wishbone/rtl/priority_encoder.v",
                         "src/gen_mux_wb.sv",
                         "src/middle.v",
-                        "tang9kleds/wb_leds.sv"
+                        "tang9kleds/wb_leds.sv",
+                        "neoPXStrip/neopixels.v",
+                        "neoPXStrip/sendPx.v",
+                        "neoPXStrip/wb_neoPx.v"
                     ],
     "constraintsFile": "tangnano9k.cst",
     "top": "top"

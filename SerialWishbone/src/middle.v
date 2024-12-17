@@ -17,15 +17,7 @@ module middle
 
     output wire o_led_clk,
     output wire o_led_data,
-    output wire o_debug_0,
-    output wire o_debug_1,
-    output wire o_debug_2,
-    output wire o_debug_3,
-    output wire o_debug_4,    
-    output wire o_debug_5,
- output wire o_debug_6,
-  output wire o_debug_7
-);
+    output wire o_neoPx);
 
 
 localparam  WB_DATA_WIDTH = 32,                    // width of data bus in bits (8, 16, 32, or 64)
@@ -45,25 +37,84 @@ wire  wb_cyc_o;   // CYC_O cycle output
 wire  busy;
 
 
+//blk
+wire [WB_ADDR_WIDTH-1:0]   blk_wb_adr_o;
+wire [WB_DATA_WIDTH-1:0]   blk_wb_dat_i;   // DAT_I() data in
+wire [WB_DATA_WIDTH-1:0]   blk_wb_dat_o;   // DAT_O() data out
+wire                       blk_wb_we_i;    // WE_I write enable input
+wire [WB_SELECT_WIDTH-1:0] blk_wb_sel_i;   // SEL_I() select input
+wire                       blk_wb_stb_i;   // STB_I strobe input
+wire                       blk_wb_ack_o;   // ACK_O acknowledge output
+wire                       blk_wb_err_o;   // ERR_O error output
+wire                       blk_wb_rty_o;   // RTY_O retry output
+wire                       blk_wb_cyc_i;   // CYC_I cycle input
+
 blinktLEDBar blinktinst
 (   
     .i_clk(i_clk),
     .i_rst(i_rst),
 
      // master side
-    .wb_adr_i(),   // ADR_I() address
-    .wb_dat_i(),   // DAT_I() data in
-    .wb_dat_o(),   // DAT_O() data out
-    .wb_we_i(),    // WE_I write enable input
-    .wb_sel_i(),   // SEL_I() select input
-    .wb_stb_i(),   // STB_I strobe input
-    .wb_ack_o(),   // ACK_O acknowledge output
-    .wb_err_o(),   // ERR_O error output
-    .wb_rty_o(),   // RTY_O retry output
-    .wb_cyc_i(),   // CYC_I cycle input
+    .wb_adr_i(blk_wb_adr_o),   // ADR_I() address
+    .wb_dat_i(blk_wb_dat_i),   // DAT_I() data in
+    .wb_dat_o(blk_wb_dat_0),   // DAT_O() data out
+    .wb_we_i(blk_wb_we_i),    // WE_I write enable input
+    .wb_sel_i(blk_wb_sel_i),   // SEL_I() select input
+    .wb_stb_i(blk_wb_stb_i),   // STB_I strobe input
+    .wb_ack_o(blk_wb_ack_o),   // ACK_O acknowledge output
+    .wb_err_o(blk_wb_err_o),   // ERR_O error output
+    .wb_rty_o(blk_wb_rty_o),   // RTY_O retry output
+    .wb_cyc_i(blk_wb_cyc_i),   // CYC_I cycle input
 
     .o_led_clk(led_clk),
     .o_led_data(led_data));
+
+
+wire [31:0] neoPx_axis_data;
+wire neoPx_axis_valid, neoPx_axis_ready;
+
+sendPx  neoPx
+(
+    .axis_aclk(i_clk),
+    .axis_reset(i_rst),
+    
+    /* AXIS slave */
+    .s_axis_data(neoPx_axis_data),
+    .s_axis_valid(neoPx_axis_valid),
+    .s_axis_ready(neoPx_axis_ready),
+    
+    /* output stream */
+    .o_serial(o_neoPx));
+
+wire [WB_ADDR_WIDTH-1:0]   neo_wb_adr_o;
+wire [WB_DATA_WIDTH-1:0]   neo_wb_dat_i;   // DAT_I() data in
+wire [WB_DATA_WIDTH-1:0]   neo_wb_dat_o;   // DAT_O() data out
+wire                       neo_wb_we_i;    // WE_I write enable input
+wire [WB_SELECT_WIDTH-1:0] neo_wb_sel_i;   // SEL_I() select input
+wire                       neo_wb_stb_i;   // STB_I strobe input
+wire                       neo_wb_ack_o;   // ACK_O acknowledge output
+wire                       neo_wb_err_o;   // ERR_O error output
+wire                       neo_wb_rty_o;   // RTY_O retry output
+wire                       neo_wb_cyc_i;   // CYC_I cycle input
+wb_neoPx neopixels
+(
+    .i_clk(i_clk),
+    .i_rst(i_rst),
+     // master side
+    .wb_adr_i(neo_wb_adr_o),   // ADR_I() address
+    .wb_dat_i(neo_wb_dat_i),   // DAT_I() data in
+    .wb_dat_o(neo_wb_dat_o),   // DAT_O() data out
+    .wb_we_i(neo_wb_we_i),    // WE_I write enable input
+    .wb_sel_i(neo_wb_sel_i),   // SEL_I() select input
+    .wb_stb_i(neo_wb_stb_i),   // STB_I strobe input
+    .wb_ack_o(neo_wb_ack_o),   // ACK_O acknowledge output
+    .wb_err_o(neo_wb_err_o),   // ERR_O error output
+    .wb_rty_o(neo_wb_rty_o),   // RTY_O retry output
+    .wb_cyc_i(neo_wb_cyc_i),   // CYC_I cycle input
+
+    .m_axis_data(neoPx_axis_data),
+    .m_axis_valid(neoPx_axis_valid),
+    .s_axis_ready(neoPx_axis_ready));
 
 axis_wb_master  #(.IMPLICIT_FRAMING(1))
  master  (

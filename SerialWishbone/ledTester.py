@@ -17,6 +17,7 @@ def writeLEDTang9K(ser, led_0_5):
            led_val,0,0,0 ]
     reply = ser.write(msg)
     
+    print("writing out")
     while (ser.in_waiting == 0):
         pass
   
@@ -85,8 +86,8 @@ def loop(ser, count = 1000):
             
 def main():
     ser = serial.Serial(port='/dev/ttyUSB1', bytesize= serial.EIGHTBITS, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE)  # open serial port
-    ser.baudrate = 3000000
-    time.sleep(1)
+    ser.baudrate = 500000
+    time.sleep(.1)
     loop(ser,50)
 
     ser.close()

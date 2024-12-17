@@ -1,0 +1,375 @@
+{
+  "creator": "Yosys 0.43+22 (git sha1 28ebefda4, clang++ 14.0.0-1ubuntu1.1 -fPIC -Os)",
+  "modules": {
+    "top": {
+      "attributes": {
+        "cells_not_processed": 1,
+        "src": "/media/tcmichals/projects/Tang9K/hacksterio/HacksterIO/SerialWishbone/src/top.v:1.1-119.10"
+      },
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "o_led": {
+          "direction": "output",
+          "bits": [ 3, 4, 5, 6, 7, 8 ]
+        },
+        "uartRx": {
+          "direction": "input",
+          "bits": [ 9 ]
+        },
+        "uartTx": {
+          "direction": "output",
+          "bits": [ 10 ]
+        },
+        "led_clk": {
+          "direction": "output",
+          "bits": [ 11 ]
+        },
+        "led_data": {
+          "direction": "output",
+          "bits": [ 12 ]
+        },
+        "neoPxD": {
+          "direction": "output",
+          "bits": [ 13 ]
+        },
+        "debug_0": {
+          "direction": "output",
+          "bits": [ 14 ]
+        },
+        "debug_1": {
+          "direction": "output",
+          "bits": [ 15 ]
+        }
+      },
+      "cells": {
+        "$procdff$4": {
+          "hide_name": 1,
+          "type": "$dff",
+          "parameters": {
+            "CLK_POLARITY": 1,
+            "WIDTH": 1
+          },
+          "attributes": {
+            "src": "/media/tcmichals/projects/Tang9K/hacksterio/HacksterIO/SerialWishbone/src/top.v:103.1-107.4"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "CLK": [ 16 ],
+            "D": [ 9 ],
+            "Q": [ 17 ]
+          }
+        },
+        "$procdff$5": {
+          "hide_name": 1,
+          "type": "$dff",
+          "parameters": {
+            "CLK_POLARITY": 1,
+            "WIDTH": 1
+          },
+          "attributes": {
+            "src": "/media/tcmichals/projects/Tang9K/hacksterio/HacksterIO/SerialWishbone/src/top.v:103.1-107.4"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "CLK": [ 16 ],
+            "D": [ 17 ],
+            "Q": [ 18 ]
+          }
+        },
+        "pll": {
+          "hide_name": 0,
+          "type": "rPLL",
+          "parameters": {
+            "FBDIV_SEL": 39,
+            "FCLKIN": "27",
+            "IDIV_SEL": 8,
+            "ODIV_SEL": 4
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "/media/tcmichals/projects/Tang9K/hacksterio/HacksterIO/SerialWishbone/src/top.v:73.3-77.2"
+          },
+          "connections": {
+            "CLKFB": [ "0" ],
+            "CLKIN": [ 2 ],
+            "CLKOUT": [ 16 ],
+            "CLKOUTD": [ ],
+            "CLKOUTD3": [ ],
+            "CLKOUTP": [ ],
+            "DUTYDA": [ "0", "0", "0", "0" ],
+            "FBDSEL": [ "0", "0", "0", "0", "0", "0" ],
+            "FDLY": [ "0", "0", "0", "0" ],
+            "IDSEL": [ "0", "0", "0", "0", "0", "0" ],
+            "LOCK": [ 19 ],
+            "ODSEL": [ "0", "0", "0", "0", "0", "0" ],
+            "PSDA": [ "0", "0", "0", "0" ],
+            "RESET": [ "0" ],
+            "RESET_P": [ "0" ]
+          }
+        },
+        "uart_inst": {
+          "hide_name": 0,
+          "type": "uart",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "/media/tcmichals/projects/Tang9K/hacksterio/HacksterIO/SerialWishbone/src/top.v:44.6-66.2"
+          },
+          "connections": {
+            "clk": [ 16 ],
+            "m_axis_tdata": [ 20, 21, 22, 23, 24, 25, 26, 27 ],
+            "m_axis_tready": [ 28 ],
+            "m_axis_tvalid": [ 29 ],
+            "prescale": [ "0", "1", "1", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0" ],
+            "rst": [ "0" ],
+            "rx_busy": [ ],
+            "rx_frame_error": [ ],
+            "rx_overrun_error": [ ],
+            "rxd": [ 18 ],
+            "s_axis_tdata": [ 30, 31, 32, 33, 34, 35, 36, 37 ],
+            "s_axis_tready": [ 38 ],
+            "s_axis_tvalid": [ 39 ],
+            "tx_busy": [ ],
+            "txd": [ 10 ]
+          }
+        },
+        "wb": {
+          "hide_name": 0,
+          "type": "middle",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "/media/tcmichals/projects/Tang9K/hacksterio/HacksterIO/SerialWishbone/src/top.v:81.8-100.22"
+          },
+          "connections": {
+            "i_clk": [ 16 ],
+            "i_rst": [ "0" ],
+            "m_axis_tdata": [ 30, 31, 32, 33, 34, 35, 36, 37 ],
+            "m_axis_tready": [ 38 ],
+            "m_axis_tvalid": [ 39 ],
+            "o_led": [ 3, 4, 5, 6, 7, 8 ],
+            "o_led_clk": [ 11 ],
+            "o_led_data": [ 12 ],
+            "o_neoPx": [ 13 ],
+            "s_axis_tdata": [ 20, 21, 22, 23, 24, 25, 26, 27 ],
+            "s_axis_tready": [ 28 ],
+            "s_axis_tvalid": [ 29 ]
+          }
+        }
+      },
+      "netnames": {
+        "$0\\rst[0:0]": {
+          "hide_name": 1,
+          "bits": [ "0" ],
+          "attributes": {
+            "src": "/media/tcmichals/projects/Tang9K/hacksterio/HacksterIO/SerialWishbone/src/top.v:0.0-0.0"
+          }
+        },
+        "$0\\sync_rx_0[0:0]": {
+          "hide_name": 1,
+          "bits": [ 9 ],
+          "attributes": {
+            "src": "/media/tcmichals/projects/Tang9K/hacksterio/HacksterIO/SerialWishbone/src/top.v:103.1-107.4"
+          }
+        },
+        "$0\\sync_rx_1[0:0]": {
+          "hide_name": 1,
+          "bits": [ 17 ],
+          "attributes": {
+            "src": "/media/tcmichals/projects/Tang9K/hacksterio/HacksterIO/SerialWishbone/src/top.v:103.1-107.4"
+          }
+        },
+        "$1\\sync_rx_0[0:0]": {
+          "hide_name": 1,
+          "bits": [ "0" ],
+          "attributes": {
+            "src": "/media/tcmichals/projects/Tang9K/hacksterio/HacksterIO/SerialWishbone/src/top.v:0.0-0.0"
+          }
+        },
+        "$1\\sync_rx_1[0:0]": {
+          "hide_name": 1,
+          "bits": [ "0" ],
+          "attributes": {
+            "src": "/media/tcmichals/projects/Tang9K/hacksterio/HacksterIO/SerialWishbone/src/top.v:0.0-0.0"
+          }
+        },
+        "$auto$genrtlil.cc:2136:genRTLIL$1": {
+          "hide_name": 1,
+          "bits": [ "0", "1", "1", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0" ],
+          "signed": 1,
+          "attributes": {
+          }
+        },
+        "clk": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "/media/tcmichals/projects/Tang9K/hacksterio/HacksterIO/SerialWishbone/src/top.v:3.11-3.14"
+          }
+        },
+        "clk_lock": {
+          "hide_name": 0,
+          "bits": [ 19 ],
+          "attributes": {
+            "src": "/media/tcmichals/projects/Tang9K/hacksterio/HacksterIO/SerialWishbone/src/top.v:31.15-31.23"
+          }
+        },
+        "debug_0": {
+          "hide_name": 0,
+          "bits": [ 14 ],
+          "attributes": {
+            "src": "/media/tcmichals/projects/Tang9K/hacksterio/HacksterIO/SerialWishbone/src/top.v:12.12-12.19"
+          }
+        },
+        "debug_1": {
+          "hide_name": 0,
+          "bits": [ 15 ],
+          "attributes": {
+            "src": "/media/tcmichals/projects/Tang9K/hacksterio/HacksterIO/SerialWishbone/src/top.v:13.12-13.19"
+          }
+        },
+        "div": {
+          "hide_name": 0,
+          "bits": [ 40, 41, 42, 43 ],
+          "attributes": {
+            "src": "/media/tcmichals/projects/Tang9K/hacksterio/HacksterIO/SerialWishbone/src/top.v:34.11-34.14"
+          }
+        },
+        "led_clk": {
+          "hide_name": 0,
+          "bits": [ 11 ],
+          "attributes": {
+            "src": "/media/tcmichals/projects/Tang9K/hacksterio/HacksterIO/SerialWishbone/src/top.v:9.12-9.19"
+          }
+        },
+        "led_data": {
+          "hide_name": 0,
+          "bits": [ 12 ],
+          "attributes": {
+            "src": "/media/tcmichals/projects/Tang9K/hacksterio/HacksterIO/SerialWishbone/src/top.v:10.12-10.20"
+          }
+        },
+        "lock_rx": {
+          "hide_name": 0,
+          "bits": [ 44 ],
+          "attributes": {
+            "src": "/media/tcmichals/projects/Tang9K/hacksterio/HacksterIO/SerialWishbone/src/top.v:35.5-35.12"
+          }
+        },
+        "neoPxD": {
+          "hide_name": 0,
+          "bits": [ 13 ],
+          "attributes": {
+            "src": "/media/tcmichals/projects/Tang9K/hacksterio/HacksterIO/SerialWishbone/src/top.v:11.12-11.18"
+          }
+        },
+        "o_led": {
+          "hide_name": 0,
+          "bits": [ 3, 4, 5, 6, 7, 8 ],
+          "attributes": {
+            "src": "/media/tcmichals/projects/Tang9K/hacksterio/HacksterIO/SerialWishbone/src/top.v:4.18-4.23"
+          }
+        },
+        "pll_clk": {
+          "hide_name": 0,
+          "bits": [ 16 ],
+          "attributes": {
+            "src": "/media/tcmichals/projects/Tang9K/hacksterio/HacksterIO/SerialWishbone/src/top.v:31.6-31.13"
+          }
+        },
+        "rst": {
+          "hide_name": 0,
+          "bits": [ "0" ],
+          "attributes": {
+            "src": "/media/tcmichals/projects/Tang9K/hacksterio/HacksterIO/SerialWishbone/src/top.v:32.5-32.8"
+          }
+        },
+        "sync_rx_0": {
+          "hide_name": 0,
+          "bits": [ 17 ],
+          "attributes": {
+            "init": 0,
+            "src": "/media/tcmichals/projects/Tang9K/hacksterio/HacksterIO/SerialWishbone/src/top.v:33.5-33.14"
+          }
+        },
+        "sync_rx_1": {
+          "hide_name": 0,
+          "bits": [ 18 ],
+          "attributes": {
+            "init": 0,
+            "src": "/media/tcmichals/projects/Tang9K/hacksterio/HacksterIO/SerialWishbone/src/top.v:33.16-33.25"
+          }
+        },
+        "uartRx": {
+          "hide_name": 0,
+          "bits": [ 9 ],
+          "attributes": {
+            "src": "/media/tcmichals/projects/Tang9K/hacksterio/HacksterIO/SerialWishbone/src/top.v:6.11-6.17"
+          }
+        },
+        "uartTx": {
+          "hide_name": 0,
+          "bits": [ 10 ],
+          "attributes": {
+            "src": "/media/tcmichals/projects/Tang9K/hacksterio/HacksterIO/SerialWishbone/src/top.v:7.12-7.18"
+          }
+        },
+        "uart_rx_axis_tdata": {
+          "hide_name": 0,
+          "bits": [ 20, 21, 22, 23, 24, 25, 26, 27 ],
+          "attributes": {
+            "src": "/media/tcmichals/projects/Tang9K/hacksterio/HacksterIO/SerialWishbone/src/top.v:28.12-28.30"
+          }
+        },
+        "uart_rx_axis_tready": {
+          "hide_name": 0,
+          "bits": [ 28 ],
+          "attributes": {
+            "src": "/media/tcmichals/projects/Tang9K/hacksterio/HacksterIO/SerialWishbone/src/top.v:30.6-30.25"
+          }
+        },
+        "uart_rx_axis_tvalid": {
+          "hide_name": 0,
+          "bits": [ 29 ],
+          "attributes": {
+            "src": "/media/tcmichals/projects/Tang9K/hacksterio/HacksterIO/SerialWishbone/src/top.v:29.6-29.25"
+          }
+        },
+        "uart_tx_axis_tdata": {
+          "hide_name": 0,
+          "bits": [ 30, 31, 32, 33, 34, 35, 36, 37 ],
+          "attributes": {
+            "src": "/media/tcmichals/projects/Tang9K/hacksterio/HacksterIO/SerialWishbone/src/top.v:24.12-24.30"
+          }
+        },
+        "uart_tx_axis_tready": {
+          "hide_name": 0,
+          "bits": [ 38 ],
+          "attributes": {
+            "src": "/media/tcmichals/projects/Tang9K/hacksterio/HacksterIO/SerialWishbone/src/top.v:26.6-26.25"
+          }
+        },
+        "uart_tx_axis_tvalid": {
+          "hide_name": 0,
+          "bits": [ 39 ],
+          "attributes": {
+            "src": "/media/tcmichals/projects/Tang9K/hacksterio/HacksterIO/SerialWishbone/src/top.v:25.6-25.25"
+          }
+        }
+      }
+    }
+  }
+}

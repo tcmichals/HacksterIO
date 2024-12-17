@@ -8,13 +8,14 @@ module top
 
     output led_clk,
     output led_data,
+    output neoPxD,
     output debug_0,
     output debug_1);
 
 
 
 localparam  clkRate = 120_000_000;
-localparam baudrate = 3_000_000;
+localparam baudrate = 500_000;
 localparam uartPreScale = (clkRate)/(baudrate*8);
 localparam   WB_DATA_WIDTH = 32,                    // width of data bus in bits (8, 16, 32, or 64)
             WB_ADDR_WIDTH = 32,                    // width of address bus in bits
@@ -95,7 +96,8 @@ middle wb(
     .o_led(o_led),
 
     .o_led_clk(led_clk),
-    .o_led_data(led_data));
+    .o_led_data(led_data),
+    .o_neoPx(neoPxD));
 
 
 always @(posedge pll_clk ) begin

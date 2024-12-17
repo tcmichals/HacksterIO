@@ -27,7 +27,7 @@ reg [5:0] led_reg;
 initial begin
 
     ack = 0;
-    led_reg = 6'h2F;
+    led_reg = 6'h3F;
 end
 
 assign  wb_ack_o = ack;
