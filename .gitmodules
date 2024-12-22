@@ -7,3 +7,6 @@
 [submodule "SerialWishbone/verilog-wishbone"]
 	path = SerialWishbone/verilog-wishbone
 	url = https://github.com/alexforencich/verilog-wishbone.git
+[submodule "SerialPIO/fpga_pio"]
+	path = SerialPIO/fpga_pio
+	url = https://github.com/lawrie/fpga_pio.git
