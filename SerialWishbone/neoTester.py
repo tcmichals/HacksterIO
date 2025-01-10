@@ -112,7 +112,7 @@ def loop(ser, count = 1000):
        
 def openSerialPort():
     ser = serial.Serial(port='/dev/ttyUSB1', bytesize= serial.EIGHTBITS, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE)  # open serial port
-    ser.baudrate = 500000            
+    ser.baudrate = 1000000            
     return ser
 
 def main():

@@ -34,13 +34,13 @@ module sendPx(
     output wire o_serial 
     );
     
-/* 120_000_000 .008333 us = 10_000_000   */ 
+/* 72_000_000 0.013888889us   */ 
      
                         // WS2812B timings
-localparam T0H_count =     16'd48,  // .4us 
-           T1H_count =     16'd96,  // .8us
-           T0L_count =     16'd102, // .85us
-           T1L_count =     16'd66,  //  .45us
+localparam T0H_count =     16'd28,  // .4us 
+           T1H_count =     16'd57,  // .8us
+           T0L_count =     16'd61, // .85us
+           T1L_count =     16'd32,  //  .45us
            GAP_count =     16'd15,
            RESET    =      16'd6600;// above 55us
     

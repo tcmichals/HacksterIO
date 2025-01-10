@@ -14,8 +14,8 @@ module top
 
 
 
-localparam  clkRate = 120_000_000;
-localparam baudrate = 500_000;
+localparam  clkRate = 72_000_000;
+localparam baudrate = 1_000_000;
 localparam uartPreScale = (clkRate)/(baudrate*8);
 localparam   WB_DATA_WIDTH = 32,                    // width of data bus in bits (8, 16, 32, or 64)
             WB_ADDR_WIDTH = 32,                    // width of address bus in bits
@@ -67,15 +67,14 @@ uart uart_inst(
 
 rPLL #( // For GW1NR-9C C6/I5 (Tang Nano 9K proto dev board)
   .FCLKIN("27"),
-  .IDIV_SEL(8), // -> PFD = 3 MHz (range: 3-400 MHz)
-  .FBDIV_SEL(39), // -> CLKOUT = 120 MHz (range: 3.125-600 MHz)
-  .ODIV_SEL(4) // -> VCO = 480 MHz (range: 400-1200 MHz)
+  .IDIV_SEL(2), // -> PFD = 9 MHz (range: 3-400 MHz)
+  .FBDIV_SEL(7), // -> CLKOUT = 72 MHz (range: 3.125-600 MHz)
+  .ODIV_SEL(8) // -> VCO = 576 MHz (range: 400-1200 MHz)
 ) pll (.CLKOUTP(), .CLKOUTD(), .CLKOUTD3(), .RESET(1'b0), .RESET_P(1'b0), .CLKFB(1'b0), .FBDSEL(6'b0), .IDSEL(6'b0), .ODSEL(6'b0), .PSDA(4'b0), .DUTYDA(4'b0), .FDLY(4'b0),
   .CLKIN(clk), // 27 MHz
-  .CLKOUT(pll_clk), // 120 MHz
+  .CLKOUT(pll_clk), // 72 MHz
   .LOCK(clk_lock)
 );
-
 
 
 middle wb(
