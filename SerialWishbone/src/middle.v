@@ -32,13 +32,10 @@ wire                       wb_we_o;    // WE_O write enable output
 wire [WB_SELECT_WIDTH-1:0] wb_sel_o;   // SEL_O() select output
 wire  wb_stb_o;   // STB_O strobe output
 reg   wb_ack_i;   // ACK_I acknowledge input
-reg   wb_err_i;   // ERR_I error input
+wire  wb_err;
+wire   wb_err_o;   // ERR_I error input
 wire  wb_cyc_o;   // CYC_O cycle output
 wire  busy;
-
-
-
-
 
 wire [31:0] neoPx_axis_data;
 wire neoPx_axis_valid, neoPx_axis_ready;
@@ -86,6 +83,53 @@ wb_neoPx neopixels
     .m_axis_valid(neoPx_axis_valid),
     .s_axis_ready(neoPx_axis_ready));
 
+
+wire [WB_ADDR_WIDTH-1:0]   blinkt_wb_adr_o;
+wire [WB_DATA_WIDTH-1:0]   blinkt_wb_dat_i;   // DAT_I() data in
+wire [WB_DATA_WIDTH-1:0]   blinkt_wb_dat_o;   // DAT_O() data out
+wire                       blinkt_wb_we_i;    // WE_I write enable input
+wire [WB_SELECT_WIDTH-1:0] blinkt_wb_sel_i;   // SEL_I() select input
+wire                       blinkt_wb_stb_i;   // STB_I strobe input
+wire                       blinkt_wb_ack_o;   // ACK_O acknowledge output
+wire                       blinkt_wb_err_o;   // ERR_O error output
+wire                       blinkt_wb_rty_o;   // RTY_O retry output
+wire                       blinkt_wb_cyc_i;   // CYC_I cycle input
+
+wire [31:0] blinkt_axis_data;
+wire blinkt_axis_valid, blinkt_axis_ready;
+
+sendRegAXIS blinktAxis
+(
+    .axis_aclk(i_clk),
+    .axis_reset(i_rst),
+    
+    /* AXIS slave */
+    .s_axis_data(blinkt_axis_data),
+    .s_axis_valid(blinkt_axis_valid),
+    .s_axis_ready(blinkt_axis_ready),
+     //LED 
+    .o_clk(o_led_clk),
+    .o_data(o_led_data)
+    );
+
+blinktLEDBar  blinkt
+(   .i_clk(i_clk),
+    .i_rst(i_rst),
+
+    .wb_adr_i(blinkt_wb_adr_o),   
+    .wb_dat_i(blinkt_wb_dat_i),  
+    .wb_dat_o(blinkt_wb_dat_o),   
+    .wb_we_i(blinkt_wb_we_i),    
+    .wb_sel_i(blinkt_wb_sel_i),   
+    .wb_stb_i(blinkt_wb_stb_i),   
+    .wb_ack_o(blinkt_wb_ack_o),   
+    .wb_err_o(blinkt_wb_err_o),   
+    .wb_rty_o(blinkt_wb_rty_o),  
+    .wb_cyc_i(blinkt_wb_cyc_i),  
+    .m_axis_data(blinkt_axis_data),
+    .m_axis_valid(blinkt_axis_valid),
+    .s_axis_ready(blinkt_axis_ready));
+
 axis_wb_master  #(.IMPLICIT_FRAMING(1))
  master  (
     .clk(i_clk),
@@ -94,7 +138,7 @@ axis_wb_master  #(.IMPLICIT_FRAMING(1))
     .input_axis_tkeep(),
     .input_axis_tvalid(s_axis_tvalid),
     .input_axis_tready(s_axis_tready),
-    .input_axis_tlast(0),
+    .input_axis_tlast(1'h0),
     .input_axis_tuser(),
     .output_axis_tdata(m_axis_tdata),
     .output_axis_tkeep(),
@@ -109,7 +153,7 @@ axis_wb_master  #(.IMPLICIT_FRAMING(1))
     .wb_sel_o(wb_sel_o),
     .wb_stb_o(wb_stb_o),
     .wb_ack_i(wb_ack_i),
-    .wb_err_i(wb_err_i),
+    .wb_err_i(wb_err_o),
     .wb_cyc_o(wb_cyc_o),
     .busy(busy));
 
@@ -159,7 +203,7 @@ gen_mux_wb mux(
    .wbm_sel_i(wb_sel_o),     // SEL_I() select input
    .wbm_stb_i(wb_stb_o),     // STB_I strobe input
    .wbm_ack_o(wb_ack_i),     // ACK_O acknowledge output
-   .wbm_err_o(wb_err_i),     // ERR_O error output
+   .wbm_err_o(wb_err_o),     // ERR_O error output
    .wbm_rty_o(),     // RTY_O retry output
    .wbm_cyc_i(wb_cyc_o),     // CYC_I cycle input
 
@@ -201,7 +245,27 @@ gen_mux_wb mux(
      * Wishbone slave 1 address configuration
      */
     .wbs1_addr(32'h0000_0100),     // Slave address prefix
-    .wbs1_addr_msk(32'hFFFF_FF00) 
+    .wbs1_addr_msk(32'hFFFF_FF00),
+
+    /*
+     * Wishbone slave 2 output
+     */
+    .wbs2_adr_o(blinkt_wb_adr_o),    // ADR_O() address output
+    .wbs2_dat_i(blinkt_wb_dat_o),    // DAT_I() data in
+    .wbs2_dat_o(blinkt_wb_dat_i),    // DAT_O() data out
+    .wbs2_we_o(blinkt_wb_we_i),     // WE_O write enable output
+    .wbs2_sel_o(blinkt_wb_sel_i),    // SEL_O() select output
+    .wbs2_stb_o(blinkt_wb_stb_i),    // STB_O strobe output
+    .wbs2_ack_i(blinkt_wb_ack_o),    // ACK_I acknowledge input
+    .wbs2_err_i(blinkt_wb_err_o),    // ERR_I error input
+    .wbs2_rty_i(),    // RTY_I retry input
+    .wbs2_cyc_o(blinkt_wb_cyc_i),    // CYC_O cycle output
+
+    /*
+     * Wishbone slave 2 address configuration
+     */
+    .wbs2_addr(32'h0000_0200),     // Slave address prefix
+    .wbs2_addr_msk(32'hFFFF_FF00)  // Slave address prefix mask    
 );
 always @(posedge i_clk) begin
 

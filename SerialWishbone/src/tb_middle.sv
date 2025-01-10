@@ -10,7 +10,7 @@ wire s_axis_tready;
 wire [7:0] m_axis_tdata;
 wire m_axis_tvalid;
 reg m_axis_tready = 1;
-
+wire debug_0;
 
 middle dut (
     .i_clk(clk),
@@ -28,20 +28,16 @@ middle dut (
 
     .o_led(),
     .o_led_clk(),
-    .o_led_data());
+    .o_led_data(),
+    .o_debug_0(debug_0));
 
 
 always  #1 clk = ~clk;
 
-initial begin
-
-    rst = 1'b1;
-    clk = 0;
-    $dumpfile("tb_middle.vcd");
-	$dumpvars(0,tb_middle);
-
-    $display ("reset done");
-    #50  rst = 0;
+  task do_write;
+    input [31:0] i_addr, i_data; 
+    begin
+      // demonstrates driving external Global Reg
 
     // Write 
      @(posedge clk); 
@@ -50,37 +46,35 @@ initial begin
       @(posedge clk); 
         s_axis_tvalid = 1'b0;
 
- /*  #1  @(posedge clk); 
-        s_axis_tdata = 8'hFF;
-        s_axis_tvalid = 1'b1;
-    #1  @(posedge clk); 
-        s_axis_tvalid = 1'b0;
-
-*/
     // Address
     #1  @(posedge clk); 
-        s_axis_tdata = 8'h0;
+        s_axis_tdata = i_addr[31:24];
         s_axis_tvalid = 1'b1;
     #1  @(posedge clk); 
         s_axis_tvalid = 1'b0;
 
     #1  @(posedge clk); 
+        s_axis_tdata = i_addr[23:16];
         s_axis_tvalid = 1'b1;
     #1  @(posedge clk); 
         s_axis_tvalid = 1'b0;
 
     #1  @(posedge clk); 
+         s_axis_tdata = i_addr[15:8];
         s_axis_tvalid = 1'b1;
     #1  @(posedge clk); 
         s_axis_tvalid = 1'b0;
 
     #1  @(posedge clk); 
+        s_axis_tdata = i_addr[7:0];
         s_axis_tvalid = 1'b1;
     #1  @(posedge clk); 
         s_axis_tvalid = 1'b0;
+
 
     //Count
     #1  @(posedge clk); 
+      s_axis_tdata = 8'h0;
         s_axis_tvalid = 1'b1;
     #1  @(posedge clk); 
         s_axis_tvalid = 1'b0;
@@ -93,36 +87,50 @@ initial begin
 
     //LED 
     #1  @(posedge clk); 
-        s_axis_tdata = 8'h11;
+        s_axis_tdata = i_data[7:0];
         s_axis_tvalid = 1'b1;
     #1  @(posedge clk); 
         s_axis_tvalid = 1'b0;
 
     #1  @(posedge clk); 
-        s_axis_tdata = 8'h22;
+        s_axis_tdata = i_data[15:8];
         s_axis_tvalid = 1'b1;
     #1  @(posedge clk); 
         s_axis_tvalid = 1'b0;
 
     #1  @(posedge clk); 
-      s_axis_tdata = 8'h33;
+      s_axis_tdata = i_data[23:16];
         s_axis_tvalid = 1'b1;
     #1  @(posedge clk); 
         s_axis_tvalid = 1'b0;
 
     #1  @(posedge clk); 
-          s_axis_tdata = 8'h44;
+          s_axis_tdata = i_data[31:24];
         s_axis_tvalid = 1'b1;
     #1  @(posedge clk); 
         s_axis_tvalid = 1'b0;
 
-    #1  @(posedge clk); 
-          s_axis_tdata = 8'h0;
-        s_axis_tvalid = 1'b1;
-    #1  @(posedge clk); 
-        s_axis_tvalid = 1'b0;
 
-    #100000 $finish;
+
+    end
+  endtask
+
+
+
+initial begin
+
+    rst = 1'b1;
+    clk = 0;
+    $dumpfile("tb_middle.vcd");
+	$dumpvars(0,tb_middle);
+
+    $display ("reset done");
+    #50  rst = 0;
+    #10 do_write(32'h0000_0004, 32'h4433_2211);
+    $display("write next");
+    #10 do_write(32'h0000_0200, 32'h4433_2211);
+
+   #1000 $finish;
     
 end
 

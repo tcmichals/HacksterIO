@@ -11,7 +11,7 @@ localparam SELECT_WIDTH = (DATA_WIDTH/8);     // width of word select bus (1, 2,
 reg reset;
 reg clk;
 reg [ADDR_WIDTH-1:0]    o_wb_adr=0;
-reg [DATA_WIDTH-1:0]    o_wb_dat= 32'h11223344;
+reg [DATA_WIDTH-1:0]    o_wb_dat= 32'hE0223344;
 wire [DATA_WIDTH-1:0]   i_wb_dat;   
 reg                     o_wb_we=0;   
 reg [SELECT_WIDTH-1:0]  o_wb_sel=0;   
@@ -23,10 +23,27 @@ reg                     o_wb_cyc=0;
 
 wire o_led_clk, o_led_data;
 
-reg [4:0] counter =0;
+reg [5:0] counter =0;
 reg write_state =0;
 
 
+wire [31:0] blinkt_axis_data;
+wire blinkt_axis_valid, blinkt_axis_ready;
+
+
+sendRegAXIS blinktAxis
+(
+    .axis_aclk(clk),
+    .axis_reset(reset),
+    
+    /* AXIS slave */
+    .s_axis_data(blinkt_axis_data),
+    .s_axis_valid(blinkt_axis_valid),
+    .s_axis_ready(blinkt_axis_ready),
+     //LED 
+    .o_led_clk(o_led_clk),
+    .o_led_data(o_led_data)
+    );
 
 blinktLEDBar dut
 (   
@@ -44,9 +61,9 @@ blinktLEDBar dut
     .wb_err_o(i_wb_err),   // ERR_O error output
     .wb_rty_o(i_wb_rty),   // RTY_O retry output
     .wb_cyc_i(o_wb_cyc),   // CYC_I cycle input
-
-    .o_led_clk(o_led_clk),
-    .o_led_data(o_led_data));
+    .m_axis_data(blinkt_axis_data),
+    .m_axis_valid(blinkt_axis_valid),
+    .s_axis_ready(blinkt_axis_ready));
 
 initial begin
 
@@ -57,7 +74,7 @@ initial begin
 
     $display ("reset done");
     #50  reset = 0;
-    #100000 $finish;
+      #1000000 $finish;
     
 end
 
@@ -70,11 +87,13 @@ always @(posedge clk ) begin
     else begin
 
         if (write_state == 0)  begin
+              if (o_wb_adr < 32'h0000_0024) begin
             o_wb_we <= 1;
             o_wb_cyc <= 1;
             o_wb_stb <= 1'b1;
             o_wb_adr  <= counter;
             write_state <= 1;
+              end
  
         end
         else if (write_state) begin
@@ -83,8 +102,10 @@ always @(posedge clk ) begin
                 o_wb_we <= 0;
                 o_wb_cyc <= 0;
                 o_wb_stb <= 0;
-                counter <= counter + 1'b1;
-                o_wb_dat <= o_wb_dat + 1'b1;
+                if (o_wb_adr < 32'h0000_0024) begin
+                    counter <= counter + 4'h4;
+                    o_wb_dat <= o_wb_dat + 1'b1;
+                end
             end
         end
 

@@ -8,20 +8,20 @@ module tb_sendRegAXIS();
 reg reset;
 reg clk;
 reg send_write =0 ;
-reg [31:0] led_val =32'h8000_0000;
+reg [31:0] led_val =32'h8000_0001;
 wire led_clk, led_data, tready;
 reg tvalid = 1;
 
 
 sendRegAXIS send(
-        .i_clk(clk),
-        .i_reset(reset),
+        .axis_aclk(clk),
+        .axis_reset(reset),
 
         .s_axis_data(led_val),
-        .s_axis_tvalid(tvalid),
-        .s_axis_tready(tready),
-        .o_led_clk(led_clk),
-        .o_led_data(led_data));
+        .s_axis_valid(tvalid),
+        .s_axis_ready(tready),
+        .o_clk(led_clk),
+        .o_data(led_data));
 
 initial begin
 
