@@ -10,3 +10,6 @@
 [submodule "SerialPIO/fpga_pio"]
 	path = SerialPIO/fpga_pio
 	url = https://github.com/lawrie/fpga_pio.git
+[submodule "SPIQuadCopter/verilog-wishbone"]
+	path = SPIQuadCopter/verilog-wishbone
+	url = https://github.com/alexforencich/verilog-wishbone
