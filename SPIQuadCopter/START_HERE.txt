@@ -29,8 +29,8 @@ This file guides you to the right documentation for your task.
    → Run: ./build.sh
    → It does everything automatically
 
-6. UNDERSTAND LED BLINKER?
-   → Read: LED_BLINKER.md
+6. UNDERSTAND EXAMPLES?
+  → Read: INDEX.md (see available examples and archived demos)
 
 7. CONFUSED ABOUT ALL DOCUMENTATION?
    → Read: INDEX.md (navigation guide)
@@ -77,12 +77,9 @@ This file guides you to the right documentation for your task.
    - Performance metrics
    ➜ USE THIS: For technical reference
 
-📖 LED_BLINKER.md (5.2 KB)
-   - LED blinker implementation
-   - Clock divider details
-   - PWM breathing effect
-   - Testing procedures
-   ➜ USE THIS: To understand LED control
+📖 Example documentation
+  - Examples are listed in INDEX.md. The old LED blinker demo was removed and archived.
+  ➜ USE THIS: To find current example guides
 
 📖 INDEX.md (7 KB)
    - Document navigation
@@ -127,7 +124,7 @@ This is the recommended way for beginners!
 
 src/
   ├── tang9k_top.sv        - Top-level module
-  ├── led_blinker.sv       - LED control with clock dividers
+  ├── (examples archived)  - See INDEX.md for current examples
   ├── pll.sv               - PLL configuration
   └── Makefile             - Simulation targets
 
@@ -170,8 +167,8 @@ Program:
 Test SPI Slave:
   cd spiSlave && make simulate && make wave
 
-Test LED Blinker:
-  cd src && make simulate && make wave
+Test examples (see INDEX.md):
+  cd spiSlave && make simulate && make wave
 
 Automated (recommended):
   ./build.sh
@@ -263,7 +260,6 @@ Test before building:
 
 View waveforms:
   gtkwave spiSlave/spi_slave_tb.vcd &
-  gtkwave src/led_blinker_tb.vcd &
 
 Verify installation:
   apio system-info

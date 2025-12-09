@@ -153,7 +153,7 @@ step_syntax_check() {
     log_output "Running syntax check"
     
     if command -v iverilog &> /dev/null; then
-        if iverilog -g2009 -t null src/tang9k_top.sv src/led_blinker.sv src/pll.sv spiSlave/spi_slave.sv 2>&1 | tee -a "$LOG_FILE"; then
+    if iverilog -g2009 -t null src/tang9k_top.sv src/pll.sv spiSlave/spi_slave.sv 2>&1 | tee -a "$LOG_FILE"; then
             print_success "Syntax check passed!"
             log_output "Syntax check: PASSED"
         else

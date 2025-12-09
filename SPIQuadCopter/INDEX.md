@@ -13,7 +13,7 @@ This project includes comprehensive documentation for building, testing, and pro
 - **[BUILD_AND_PROGRAM.md](BUILD_AND_PROGRAM.md)** - Complete build & programming guide
 - **[README.md](README.md)** - Project overview and features
 - **[PROJECT_SUMMARY.md](PROJECT_SUMMARY.md)** - Technical summary
-- **[LED_BLINKER.md](LED_BLINKER.md)** - LED blinker module documentation
+- (LED blinker documentation and example removed)
 
 **Automation:**
 - **[build.sh](build.sh)** - Complete automated build script
@@ -95,23 +95,10 @@ Contains:
 
 ---
 
-### LED_BLINKER.md (5.2 KB)
-**Best for:** Understanding LED control
-
-Contains:
-- Feature overview
-- Module interface
-- Implementation details
-- Clock dividers explanation
-- PWM breathing effect
-- Integration with top module
-- PLL module documentation
-- Testing procedure
-- Synthesis considerations
-- Debugging tips
-- References
-
-**Use this if:** You want details about the LED blinker implementation
+### LED blinker example (removed)
+The LED blinker example and its documentation were removed from the project to
+reduce example code surface. See repository history if you need the original
+files.
 
 ---
 
@@ -171,7 +158,7 @@ SPIQuadCopter/
 │   ├── BUILD_AND_PROGRAM.md        ← Detailed guide (30 min)
 │   ├── README.md                   ← Project overview
 │   ├── PROJECT_SUMMARY.md          ← Technical reference
-│   ├── LED_BLINKER.md              ← LED module docs
+│   ├── (LED blinker docs removed)
 │   └── INDEX.md                    ← This file
 │
 ├── Configuration Files
@@ -184,7 +171,7 @@ SPIQuadCopter/
 │
 ├── Source Code (src/)
 │   ├── tang9k_top.sv               ← Top module
-│   ├── led_blinker.sv              ← LED control
+│   ├── pll.sv                      ← Clock generation
 │   ├── pll.sv                      ← Clock generation
 │   └── Makefile
 │
@@ -213,7 +200,7 @@ SPIQuadCopter/
 | Program the board | BUILD_AND_PROGRAM.md (step 4-5) | 10 min |
 | Fix a build error | BUILD_AND_PROGRAM.md (troubleshooting) | 10 min |
 | Fix a programming error | BUILD_AND_PROGRAM.md (troubleshooting) | 10 min |
-| Understand LED blinker | LED_BLINKER.md | 15 min |
+| Understand LED blinker | (removed) | -- |
 | Understand SPI slave | README.md or PROJECT_SUMMARY.md | 20 min |
 | Use automated build | build.sh (just run it) | 5 min |
 | Full system understanding | All documents | 60 min |
@@ -257,7 +244,7 @@ cd ../src && make simulate && make wave
 - Pin errors → BUILD_AND_PROGRAM.md (Troubleshooting #6)
 - Module not found → BUILD_AND_PROGRAM.md (Troubleshooting #4)
 - Programming fails → BUILD_AND_PROGRAM.md (Troubleshooting #5)
-- Want to debug → LED_BLINKER.md (Debugging Tips)
+- Want to debug → BUILD_AND_PROGRAM.md (Debugging Tips)
 - Performance issues → BUILD_AND_PROGRAM.md (Performance Optimization)
 
 ---
@@ -270,7 +257,7 @@ cd ../src && make simulate && make wave
 | BUILD_AND_PROGRAM.md | 16 KB | 12 | 30 min |
 | README.md | 4.8 KB | 13 | 10 min |
 | PROJECT_SUMMARY.md | 6.3 KB | 12 | 15 min |
-| LED_BLINKER.md | 5.2 KB | 14 | 15 min |
+| (LED blinker docs removed) | - | - | - |
 | **Total** | **37 KB** | **61** | **75 min** |
 
 ---
@@ -286,7 +273,7 @@ cd ../src && make simulate && make wave
 ### For Developers
 1. README.md (10 min)
 2. PROJECT_SUMMARY.md (15 min)
-3. LED_BLINKER.md (15 min)
+3. (LED blinker example removed)
 4. Explore source code (30 min)
 
 ### For Integration
@@ -303,7 +290,7 @@ cd ../src && make simulate && make wave
 - **Build errors** → BUILD_AND_PROGRAM.md section 4 & troubleshooting
 - **Programming issues** → BUILD_AND_PROGRAM.md section 5 & troubleshooting
 - **Hardware connections** → README.md or PROJECT_SUMMARY.md pin assignments
-- **LED blinker details** → LED_BLINKER.md
+- **LED blinker details** → (removed)
 
 ### Online Resources
 - Apio: https://apiodocs.readthedocs.io/

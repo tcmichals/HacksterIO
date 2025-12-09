@@ -7,7 +7,6 @@ SPIQuadCopter/
 ├── apio.ini                    # Apio project configuration for Tang9K
 ├── tang9k.cst                  # Pin constraints (LQFP144)
 ├── README.md                   # Main project documentation
-├── LED_BLINKER.md              # LED blinker detailed docs
 ├── Makefile                    # Top-level build targets
 │
 ├── spiSlave/                   # SPI Slave IP Core
@@ -16,8 +15,8 @@ SPIQuadCopter/
 │   └── Makefile                # Simulation targets
 │
 └── src/                        # Application Layer
-    ├── led_blinker.sv          # LED blinker using clock dividers
-    ├── led_blinker_tb.sv       # LED blinker testbench
+  ├── tang9k_top.sv           # Top-level integration
+  ├── pll.sv                  # PLL module (for future enhancement)
     ├── tang9k_top.sv           # Top-level integration
     ├── pll.sv                  # PLL module (for future enhancement)
     └── Makefile                # Source compilation targets
@@ -35,13 +34,9 @@ SPIQuadCopter/
   - Configurable data width
   - RX/TX interfaces
 
-### 2. LED Blinker (src/led_blinker.sv)
-**Purpose**: Generates multiple LED blinking patterns using clock dividers
-- **LED0**: Slow blink (~0.5 Hz) - 1 second period
-- **LED1**: Medium blink (~1 Hz) - 0.5 second period
-- **LED2**: Fast blink (~2 Hz) - 0.25 second period
-- **LED3**: Breathing effect (PWM) - smooth brightness variation
-- **Implementation**: Pure synchronous, no external PLL required
+### 2. Archived Example: LED Blinker
+The LED blinker example was removed from the active source tree. See `INDEX.md`
+for current examples and archived demos.
 
 ### 3. Top Module (src/tang9k_top.sv)
 **Purpose**: Integrates all components for Tang9K board
@@ -110,11 +105,13 @@ make simulate
 make wave    # View waveform in GTKWave
 ```
 
-### Simulate LED Blinker
+### Simulate examples
+See `INDEX.md` for current example simulations. The SPI slave example is available in
+`spiSlave/` and can be simulated with:
 ```bash
-cd src
+cd spiSlave
 make simulate
-make wave    # View blinking patterns
+make wave
 ```
 
 ### Build FPGA Image

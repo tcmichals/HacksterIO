@@ -104,7 +104,7 @@ SPIQuadCopter/
 ├── Makefile                    # Build automation
 ├── README.md                   # Project documentation
 ├── PROJECT_SUMMARY.md          # Project overview
-├── LED_BLINKER.md              # LED blinker documentation
+├── (example LED blinker removed)
 │
 ├── spiSlave/                   # SPI Slave IP Core
 │   ├── spi_slave.sv            # SPI slave implementation
@@ -113,10 +113,8 @@ SPIQuadCopter/
 │
 ├── src/                        # FPGA Source Files (synthesis target)
 │   ├── tang9k_top.sv           # Top-level module (MUST EXIST)
-│   ├── led_blinker.sv          # LED control module
 │   ├── pll.sv                  # PLL configuration
-│   ├── led_blinker_tb.sv       # LED testbench
-│   ├── Makefile                # Simulation targets
+│   ├── Makefile                # Simulation targets (module-specific)
 │   └── *.vcd                   # Waveform files (generated)
 │
 └── build/                      # Generated output files (apio creates this)
@@ -170,9 +168,8 @@ Ensure all Verilog files are in the `src/` directory:
 ls -la src/
 ```
 
-Expected files:
+- Expected files:
 - `tang9k_top.sv` (top-level module - **required**)
-- `led_blinker.sv`
 - `pll.sv`
 - Any other supporting modules
 
@@ -434,7 +431,7 @@ apio system-info
 
 # Step 2: Check syntax
 echo "[2/4] Running syntax checks..."
-iverilog -g2009 -t null src/tang9k_top.sv src/led_blinker.sv spiSlave/spi_slave.sv
+iverilog -g2009 -t null src/tang9k_top.sv src/pll.sv spiSlave/spi_slave.sv
 
 # Step 3: Build design
 echo "[3/4] Building FPGA design..."
@@ -525,7 +522,7 @@ Error: Cannot find module 'spi_slave'
 
 2. Check that `tang9k_top.sv` includes all modules:
    ```bash
-   grep "spi_slave\|led_blinker" src/tang9k_top.sv
+   grep "spi_slave" src/tang9k_top.sv
    ```
 
 3. Verify module names match:

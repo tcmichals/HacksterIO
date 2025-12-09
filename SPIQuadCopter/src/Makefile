@@ -4,26 +4,21 @@ IVERILOG = iverilog
 VVP = vvp
 GTK = gtkwave
 
-RTL_FILES = led_blinker.sv pll.sv
-TB_FILES = led_blinker_tb.sv
-VVP_FILE = led_blinker_tb.vvp
-VCD_FILE = led_blinker_tb.vcd
+RTL_FILES = pll.sv
+TB_FILES =
+VVP_FILE = pll.vvp
+VCD_FILE = pll.vcd
 
 IVERILOG_FLAGS = -g2009 -o $(VVP_FILE)
 
 .PHONY: all compile simulate wave view clean help
 
-all: simulate
+all: compile
 
 compile:
-	@echo "Compiling LED blinker module and testbench..."
-	$(IVERILOG) $(IVERILOG_FLAGS) $(RTL_FILES) $(TB_FILES)
+	@echo "Compiling RTL files..."
+	$(IVERILOG) $(IVERILOG_FLAGS) $(RTL_FILES)
 	@echo "Compilation complete!"
-
-simulate: compile
-	@echo "Running simulation..."
-	$(VVP) $(VVP_FILE)
-	@echo "Simulation complete!"
 
 wave: simulate
 	@echo "Opening GTKWave..."

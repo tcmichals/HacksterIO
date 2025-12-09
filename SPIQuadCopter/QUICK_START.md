@@ -235,7 +235,6 @@ chmod +x build.sh
 SPIQuadCopter/
 ├── src/
 │   ├── tang9k_top.sv        ← TOP LEVEL (synthesized)
-│   ├── led_blinker.sv
 │   └── pll.sv
 ├── spiSlave/
 │   ├── spi_slave.sv
