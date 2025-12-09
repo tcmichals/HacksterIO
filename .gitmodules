@@ -13,3 +13,6 @@
 [submodule "SPIQuadCopter/verilog-wishbone"]
 	path = SPIQuadCopter/verilog-wishbone
 	url = https://github.com/alexforencich/verilog-wishbone
+[submodule "SPIQuadCopter/verilog-uart"]
+	path = SPIQuadCopter/verilog-uart
+	url = https://github.com/alexforencich/verilog-uart.git

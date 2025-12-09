@@ -1,0 +1,84 @@
+# Makefile for UART Passthrough Bridge Testbench
+
+# Tools
+IVERILOG = iverilog
+VVP = vvp
+GTKWAVE = gtkwave
+
+# Directories
+SRC_DIR = .
+BUILD_DIR = build
+
+# Source files
+TB_SRC = uart_passthrough_bridge_tb.sv
+DUT_SRC = uart_passthrough_bridge.sv
+
+# UART wrapper modules (SystemVerilog wrappers)
+UART_WRAPPERS = uart_rx.sv uart_tx.sv
+
+# Alex Forencich's verilog-uart modules
+VERILOG_UART_DIR = ../verilog-uart/rtl
+UART_CORE_MODULES = $(VERILOG_UART_DIR)/uart_rx.v $(VERILOG_UART_DIR)/uart_tx.v
+
+# Output files
+VVP_FILE = $(BUILD_DIR)/uart_passthrough_bridge_tb.vvp
+VCD_FILE = uart_passthrough_bridge_tb.vcd
+GTKW_FILE = uart_passthrough_bridge_tb.gtkw
+
+# Compiler flags
+IVERILOG_FLAGS = -g2012 -Wall -Wno-timescale
+
+.PHONY: all sim clean view help
+
+all: sim
+
+# Create build directory
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
+
+# Compile
+compile: $(BUILD_DIR)
+	@echo "Compiling testbench..."
+	$(IVERILOG) $(IVERILOG_FLAGS) -o $(VVP_FILE) \
+		$(TB_SRC) \
+		$(DUT_SRC) \
+		$(UART_WRAPPERS) \
+		$(UART_CORE_MODULES)
+
+# Simulate
+sim: compile
+	@echo "Running simulation..."
+	$(VVP) $(VVP_FILE)
+	@echo "Simulation complete. VCD file: $(VCD_FILE)"
+
+# View waveforms
+view: $(VCD_FILE)
+	@echo "Opening waveform viewer..."
+	@if [ -f $(GTKW_FILE) ]; then \
+		echo "Loading saved signal configuration..."; \
+		$(GTKWAVE) $(VCD_FILE) $(GTKW_FILE) & \
+	else \
+		$(GTKWAVE) $(VCD_FILE) & \
+	fi
+
+# Clean build artifacts
+clean:
+	rm -rf $(BUILD_DIR)
+	rm -f $(VCD_FILE)
+	rm -f *.vcd
+	rm -f *.vvp
+
+# Help
+help:
+	@echo "UART Passthrough Bridge Testbench Makefile"
+	@echo ""
+	@echo "Targets:"
+	@echo "  all      - Compile and run simulation (default)"
+	@echo "  compile  - Compile testbench only"
+	@echo "  sim      - Compile and run simulation"
+	@echo "  view     - Open waveform in GTKWave"
+	@echo "  clean    - Remove build artifacts"
+	@echo "  help     - Show this help message"
+	@echo ""
+	@echo "Note: Ensure uart_rx.sv and uart_tx.sv are available"
+	@echo "      or update UART_MODULES path in this Makefile"

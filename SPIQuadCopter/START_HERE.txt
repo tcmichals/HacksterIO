@@ -1,0 +1,320 @@
+================================================================================
+                    TANG9K FPGA PROJECT - START HERE
+================================================================================
+
+Welcome to the Tang9K SPI Slave with LED Blinker project!
+
+This file guides you to the right documentation for your task.
+
+================================================================================
+                           QUICK NAVIGATION
+================================================================================
+
+1. WANT TO BUILD & PROGRAM QUICKLY?
+   → Read: QUICK_START.md (5 minutes)
+   → Then: ./build.sh
+
+2. FIRST TIME INSTALLING?
+   → Read: BUILD_AND_PROGRAM.md (sections 1-3, ~15 min)
+   → Follow all prerequisites
+
+3. NEED DETAILED GUIDANCE?
+   → Read: BUILD_AND_PROGRAM.md (full guide, ~30 min)
+   → Best for troubleshooting
+
+4. UNDERSTAND THE PROJECT?
+   → Read: README.md (10 min) or PROJECT_SUMMARY.md (15 min)
+
+5. WANT TO USE AUTOMATED SCRIPT?
+   → Run: ./build.sh
+   → It does everything automatically
+
+6. UNDERSTAND LED BLINKER?
+   → Read: LED_BLINKER.md
+
+7. CONFUSED ABOUT ALL DOCUMENTATION?
+   → Read: INDEX.md (navigation guide)
+
+================================================================================
+                         THE FASTEST PATH
+================================================================================
+
+  1. pip install apio
+  2. apio install gowin
+  3. ./build.sh
+  4. Watch LEDs blink!
+
+  Total time: 15 minutes (mostly waiting for tool download)
+
+================================================================================
+                       DOCUMENTATION FILES
+================================================================================
+
+📖 QUICK_START.md (5 KB)
+   - Quick reference card
+   - One-liners and quick commands
+   - Troubleshooting checklist
+   ➜ USE THIS: For quick reference while building
+
+📖 BUILD_AND_PROGRAM.md (16 KB)
+   - Complete step-by-step guide
+   - Installation details
+   - Troubleshooting section
+   - Advanced topics
+   ➜ USE THIS: For detailed guidance or fixing problems
+
+📖 README.md (4.8 KB)
+   - Project overview
+   - Features and capabilities
+   - Pin assignments
+   - Module specifications
+   ➜ USE THIS: To understand what the project does
+
+📖 PROJECT_SUMMARY.md (6.3 KB)
+   - Technical summary
+   - Architecture overview
+   - Signal naming conventions
+   - Performance metrics
+   ➜ USE THIS: For technical reference
+
+📖 LED_BLINKER.md (5.2 KB)
+   - LED blinker implementation
+   - Clock divider details
+   - PWM breathing effect
+   - Testing procedures
+   ➜ USE THIS: To understand LED control
+
+📖 INDEX.md (7 KB)
+   - Document navigation
+   - Which doc to read for each task
+   - Command reference
+   - Learning paths
+   ➜ USE THIS: To find the right documentation
+
+================================================================================
+                        CONFIGURATION FILES
+================================================================================
+
+apio.ini
+   - Board configuration for Tang9K
+   - FPGA device settings
+
+tang9k.cst
+   - Pin assignments for LQFP144 package
+   - I/O standards (LVCMOS33)
+
+================================================================================
+                          BUILD SCRIPT
+================================================================================
+
+build.sh
+   - Fully automated build script
+   - Checks prerequisites
+   - Installs tools if needed
+   - Builds design
+   - Programs board
+   - Color-coded output with logging
+
+Usage:
+  chmod +x build.sh
+  ./build.sh
+
+This is the recommended way for beginners!
+
+================================================================================
+                        PROJECT CONTENTS
+================================================================================
+
+src/
+  ├── tang9k_top.sv        - Top-level module
+  ├── led_blinker.sv       - LED control with clock dividers
+  ├── pll.sv               - PLL configuration
+  └── Makefile             - Simulation targets
+
+spiSlave/
+  ├── spi_slave.sv         - SPI slave mode 0 implementation
+  ├── spi_slave_tb.sv      - Testbench with 4 test cases
+  └── Makefile             - Test/simulation targets
+
+build/
+  ├── project.gw           - FPGA bitstream (programmed to board)
+  ├── project.log          - Build log
+  └── [other temp files]
+
+================================================================================
+                        INSTALLATION SUMMARY
+================================================================================
+
+Minimum Installation (5 minutes):
+
+  1. Install Python 3: apt-get install python3 python3-pip
+  2. Install apio: pip install apio
+  3. Install Gowin tools: apio install gowin
+     (This takes 10-15 minutes for tool download)
+
+Verify:
+  apio system-info
+
+That's it! You're ready to build.
+
+================================================================================
+                         COMMON COMMANDS
+================================================================================
+
+Build:
+  apio build
+
+Program:
+  apio upload
+
+Test SPI Slave:
+  cd spiSlave && make simulate && make wave
+
+Test LED Blinker:
+  cd src && make simulate && make wave
+
+Automated (recommended):
+  ./build.sh
+
+Clean:
+  apio clean
+  make clean
+
+================================================================================
+                         NEXT STEPS
+================================================================================
+
+1. Choose your path:
+   a) Quick: Read QUICK_START.md → Run ./build.sh
+   b) Detailed: Read BUILD_AND_PROGRAM.md → Follow steps
+   c) Script: Just run ./build.sh
+
+2. Install apio and Gowin tools (if not already done)
+
+3. Build the design:
+   - Run: apio build
+   - Or: ./build.sh
+
+4. Connect Tang9K board via USB
+
+5. Program the board:
+   - Run: apio upload
+   - Or: ./build.sh (continues from step 3)
+
+6. Verify:
+   - LEDs should blink at different rates
+   - LED3 should show breathing pattern
+
+7. Optional: Test SPI interface with a master device
+
+================================================================================
+                         TROUBLESHOOTING
+================================================================================
+
+Problem: apio not found
+  → Run: pip install apio
+
+Problem: Gowin tools missing
+  → Run: apio install gowin
+
+Problem: Build fails
+  → Read: BUILD_AND_PROGRAM.md troubleshooting section
+  → Check: tail build/project.log
+
+Problem: USB device not found
+  → Run: lsusb | grep -i gowin
+  → Fix permissions: sudo chmod 666 /dev/ttyUSB0
+
+Problem: Pin errors
+  → Check: grep "output logic\|input logic" src/tang9k_top.sv
+  → Verify: tang9k.cst has all signals
+
+For more help:
+  → Read: BUILD_AND_PROGRAM.md (troubleshooting section)
+
+================================================================================
+                           TIME ESTIMATES
+================================================================================
+
+Installation: 20 minutes (mostly tool download)
+First build: 3 minutes
+Programming: 1 minute
+Total first run: ~25 minutes
+
+Subsequent builds: 3-5 minutes each
+
+================================================================================
+                          QUICK REFERENCE
+================================================================================
+
+Setup (one-time):
+  pip install apio
+  apio install gowin
+
+Build & Program:
+  apio build && apio upload
+
+Automated:
+  ./build.sh
+
+Test before building:
+  cd spiSlave && make simulate
+  cd ../src && make simulate
+
+View waveforms:
+  gtkwave spiSlave/spi_slave_tb.vcd &
+  gtkwave src/led_blinker_tb.vcd &
+
+Verify installation:
+  apio system-info
+
+Get help:
+  apio --help
+  apio build --help
+  apio upload --help
+
+================================================================================
+                         SUPPORT & RESOURCES
+================================================================================
+
+Apio Documentation:
+  https://apiodocs.readthedocs.io/
+
+Gowin FPGA:
+  http://www.gowinsemi.com/
+
+iverilog Simulator:
+  http://iverilog.icarus.com/
+
+GTKWave Waveform Viewer:
+  http://gtkwave.sourceforge.net/
+
+Questions or issues:
+  Check BUILD_AND_PROGRAM.md "Getting Help" section
+
+================================================================================
+                         PROJECT STATUS
+================================================================================
+
+✓ SPI Slave Module        - Tested with iverilog
+✓ LED Blinker Module      - Tested with iverilog  
+✓ Pin Configuration       - Ready for Tang9K
+✓ Build System            - Apio configured
+✓ Documentation           - Complete
+✓ Automation Script       - Ready to use
+
+Status: READY TO BUILD AND PROGRAM
+
+================================================================================
+
+                    👉 RECOMMENDED ACTION:
+
+                    1. Read: QUICK_START.md (5 min)
+                    2. Run: ./build.sh
+                    3. Watch LEDs blink! 🎉
+
+================================================================================
+
+Last Updated: December 7, 2025
+Project: Tang9K SPI Slave with LED Blinker
+
