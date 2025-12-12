@@ -1,174 +1,120 @@
-/**
- * SPI Slave Module (Mode 0)
- * 
- * Mode 0: CPOL=0, CPHA=0
- * - Clock idle state: LOW
- * - Data sampled on leading (rising) edge
- * - Data changed on trailing (falling) edge
- * 
- * Features:
- * - 8-bit data width
- * - 2-FF synchronizer for clock domain crossing
- * - Configurable clock polarity and phase (currently hardcoded to Mode 0)
- */
-
 module spi_slave #(
     parameter DATA_WIDTH = 8
-) (
-    // Clock and Reset
-    input  logic                    i_clk,
-    input  logic                    i_rst_n,
+)(
+    input  logic                   i_clk,
+    input  logic                   i_rst,
     
-    // SPI Interface
-    input  logic                    i_sclk,       // SPI Clock
-    input  logic                    i_cs_n,       // Chip Select (active low)
-    input  logic                    i_mosi,       // Master Out Slave In
-    output logic                    o_miso,       // Master In Slave Out
+    // SPI Physical Interface
+    input  logic                   i_sclk,
+    input  logic                   i_cs_n,
+    input  logic                   i_mosi,
+    output logic                   o_miso,
     
-    // Slave Interface (to internal module)
-    output logic [DATA_WIDTH-1:0]   o_rx_data,    // Received data
-    output logic                    o_rx_valid,   // Received data valid pulse
-    input  logic [DATA_WIDTH-1:0]   i_tx_data,    // Data to transmit
-    input  logic                    i_tx_valid,   // Load new transmit data
-    output logic                    o_busy        // SPI transaction in progress
+    // User / System Interface
+    input  logic [DATA_WIDTH-1:0]  i_tx_data,  // Data to send
+    input  logic                   i_tx_valid, // Pulse high to load data
+    output logic                   o_tx_ready, // High = Safe to load new data
+    output logic                   o_busy,     // High = SPI transaction in progress
+    
+    output logic [DATA_WIDTH-1:0]  o_rx_data,  // Received data
+    output logic                   o_data_valid // High = New rx_data available
 );
 
-    // =============================
-    // 2-FF Synchronizer for SCLK
-    // =============================
-    logic sclk_sync1, sclk_sync2;
-    logic sclk_r1, sclk_r2;
-    
-    always_ff @(posedge i_clk or negedge i_rst_n) begin
-        if (!i_rst_n) begin
-            sclk_sync1 <= 1'b0;
-            sclk_sync2 <= 1'b0;
+    // --- 1. Synchronization & Edge Detection ---
+    logic [2:0] sclk_sync;
+    logic [2:0] cs_n_sync;
+    logic [1:0] mosi_sync;
+
+    always_ff @(posedge i_clk or posedge i_rst) begin
+        if (i_rst) begin
+            sclk_sync <= 3'b000;
+            cs_n_sync <= 3'b111;
+            mosi_sync <= 2'b00;
         end else begin
-            sclk_sync1 <= i_sclk;
-            sclk_sync2 <= sclk_sync1;
+            sclk_sync <= {sclk_sync[1:0], i_sclk};
+            cs_n_sync <= {cs_n_sync[1:0], i_cs_n};
+            mosi_sync <= {mosi_sync[0], i_mosi};
         end
     end
+
+    // Derived signals from synchronizers
+    wire sclk_rising  = (sclk_sync[2:1] == 2'b01);
+    wire sclk_falling = (sclk_sync[2:1] == 2'b10);
+    wire cs_active    = ~cs_n_sync[1]; // Active Low CS
     
-    // =============================
-    // 2-FF Synchronizer for CS_N
-    // =============================
-    logic cs_n_sync1, cs_n_sync2;
-    
-    always_ff @(posedge i_clk or negedge i_rst_n) begin
-        if (!i_rst_n) begin
-            cs_n_sync1 <= 1'b1;
-            cs_n_sync2 <= 1'b1;
-        end else begin
-            cs_n_sync1 <= i_cs_n;
-            cs_n_sync2 <= cs_n_sync1;
-        end
-    end
-    
-    // =============================
-    // 2-FF Synchronizer for MOSI
-    // =============================
-    logic mosi_sync1, mosi_sync2;
-    
-    always_ff @(posedge i_clk or negedge i_rst_n) begin
-        if (!i_rst_n) begin
-            mosi_sync1 <= 1'b0;
-            mosi_sync2 <= 1'b0;
-        end else begin
-            mosi_sync1 <= i_mosi;
-            mosi_sync2 <= mosi_sync1;
-        end
-    end
-    
-    // Edge Detection for SCLK (detect rising edge for Mode 0)
-    always_ff @(posedge i_clk or negedge i_rst_n) begin
-        if (!i_rst_n) begin
-            sclk_r1 <= 1'b0;
-            sclk_r2 <= 1'b0;
-        end else begin
-            sclk_r1 <= sclk_sync2;
-            sclk_r2 <= sclk_r1;
-        end
-    end
-    
-    logic sclk_rising_edge;
-    assign sclk_rising_edge = sclk_r1 && !sclk_r2;
-    
-    logic sclk_falling_edge;
-    assign sclk_falling_edge = !sclk_r1 && sclk_r2;
-    
-    // =============================
-    // Shift Register and Control Logic
-    // =============================
-    logic [DATA_WIDTH-1:0] shift_reg;
-    logic [2:0]            bit_count;
+    // Output the Busy status immediately based on synchronized CS
+    assign o_busy = cs_active;
+
+    // --- 2. Data Path & Logic ---
+    logic [$clog2(DATA_WIDTH)-1:0] bit_cnt;
+    logic [DATA_WIDTH-1:0] rx_shift_reg;
     logic [DATA_WIDTH-1:0] tx_shift_reg;
-    
-    // Track previous CS state
-    logic cs_n_r;
-    always_ff @(posedge i_clk or negedge i_rst_n) begin
-        if (!i_rst_n)
-            cs_n_r <= 1'b1;
-        else
-            cs_n_r <= cs_n_sync2;
-    end
-    
-    logic cs_falling_edge;
-    assign cs_falling_edge = cs_n_r && !cs_n_sync2;
-    
-    // Main SPI Slave Logic
-    always_ff @(posedge i_clk or negedge i_rst_n) begin
-        if (!i_rst_n) begin
-            shift_reg     <= '0;
-            bit_count     <= '0;
-            o_rx_valid    <= 1'b0;
-            tx_shift_reg  <= '0;
-            o_miso        <= 1'b0;
-            o_busy        <= 1'b0;
+    logic [DATA_WIDTH-1:0] tx_holding_reg; 
+
+    always_ff @(posedge i_clk or posedge i_rst) begin
+        if (i_rst) begin
+            bit_cnt        <= DATA_WIDTH - 1;
+            o_rx_data      <= '0;
+            o_data_valid   <= 1'b0;
+            rx_shift_reg   <= '0;
+            tx_shift_reg   <= '0;
+            tx_holding_reg <= '0;
+            o_tx_ready     <= 1'b1;
         end else begin
-            o_rx_valid <= 1'b0;  // Default: pulse valid for one clock
-            
-            // CS goes low - start transaction
-            if (cs_falling_edge) begin
-                bit_count <= '0;
-                o_busy    <= 1'b1;
-                // Load transmit data if available
-                if (i_tx_valid)
-                    tx_shift_reg <= i_tx_data;
-                else
-                    tx_shift_reg <= '0;
-                // Set MISO to MSB of tx data
-                o_miso <= i_tx_valid ? i_tx_data[DATA_WIDTH-1] : 1'b0;
+            o_data_valid <= 1'b0;
+
+            // --- A. User Interface Logic (Safe Loading) ---
+            if (i_tx_valid && o_tx_ready) begin
+                tx_holding_reg <= i_tx_data;
+                o_tx_ready     <= 1'b0; // Lock buffer until SPI takes it
             end
-            // CS is high - transaction ended
-            else if (cs_n_sync2) begin
-                o_busy <= 1'b0;
-                o_miso <= 1'b0;
-            end
-            // CS is low and we see SCLK rising edge - sample MOSI
-            else if (sclk_rising_edge && !cs_n_sync2) begin
-                shift_reg <= {shift_reg[DATA_WIDTH-2:0], mosi_sync2};
-                bit_count <= bit_count + 1'b1;
+
+            // --- B. SPI Transaction Logic ---
+            if (!cs_active) begin
+                // IDLE STATE
+                bit_cnt <= DATA_WIDTH - 1; 
                 
-                // After 8 bits received
-                if (bit_count == (DATA_WIDTH - 1)) begin
-                    o_rx_data <= {shift_reg[DATA_WIDTH-2:0], mosi_sync2};
-                    o_rx_valid <= 1'b1;
-                    bit_count <= '0;
+                // If the user loaded data, move it to the shifter immediately
+                if (o_tx_ready == 1'b0) begin
+                    tx_shift_reg <= tx_holding_reg;
+                    o_tx_ready   <= 1'b1; // Unlock buffer
                 end
-            end
-            // SCLK falling edge - shift out next MISO bit
-            else if (sclk_falling_edge && !cs_n_sync2) begin
-                if (bit_count < DATA_WIDTH) begin
-                    tx_shift_reg <= {tx_shift_reg[DATA_WIDTH-2:0], 1'b0};
-                    o_miso <= tx_shift_reg[DATA_WIDTH-1];
+            end 
+            else begin
+                // ACTIVE STATE (Busy)
+                
+                // Sample MOSI (Rising Edge)
+                if (sclk_rising) begin
+                    rx_shift_reg <= {rx_shift_reg[DATA_WIDTH-2:0], mosi_sync[1]};
+                    if (bit_cnt == 0) begin
+                        o_rx_data    <= {rx_shift_reg[DATA_WIDTH-2:0], mosi_sync[1]};
+                        o_data_valid <= 1'b1;
+                    end
                 end
-            end
-            
-            // Load new transmit data when requested
-            if (i_tx_valid) begin
-                tx_shift_reg <= i_tx_data;
+
+                // Shift MISO (Falling Edge)
+                if (sclk_falling) begin
+                    if (bit_cnt > 0) begin
+                        bit_cnt      <= bit_cnt - 1;
+                        tx_shift_reg <= {tx_shift_reg[DATA_WIDTH-2:0], 1'b0};
+                    end else begin
+                        // Byte complete. Prepare for next byte in stream (if any).
+                        bit_cnt <= DATA_WIDTH - 1;
+                        
+                        // Check if user provided new data in holding register
+                        if (o_tx_ready == 1'b0) begin
+                            tx_shift_reg <= tx_holding_reg;
+                            o_tx_ready   <= 1'b1; // Unlock buffer
+                        end else begin
+                            tx_shift_reg <= '0; // Underflow: Send Zeros
+                        end
+                    end
+                end
             end
         end
     end
 
-endmodule
+    // Tri-state MISO
+    assign o_miso = (cs_active) ? tx_shift_reg[DATA_WIDTH-1] : 1'bZ;
+
+endmodule // SPI_Slave

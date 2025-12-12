@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run testApp",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/testApp.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "env": {},
+      "justMyCode": true
+    }
+  ]
+}

@@ -81,8 +81,8 @@ localparam IDLE_BIT_BSTATE = 4'd0,
            DONE_BIT_BSTATE=4'd3;
             
 localparam IDLE_STATE = 8'd0,
-          DONE_STATE = 8'd33,
-          WAIT_STATE=8'd34;
+          DONE_STATE = 8'd25,
+          WAIT_STATE=8'd26;
           
 initial begin
     ready = 0;
@@ -96,29 +96,26 @@ always @(posedge axis_aclk) begin
 
     case ( state)
         DONE_STATE: begin
-            $display("DONE_STATE ");
             bit_state <= IDLE_BIT_BSTATE;
             out_bit <= 1'b0;
             counter <= 0;
         end
         WAIT_STATE: begin
-            $display("WAIT_STATE ");
             bit_state <= IDLE_BIT_BSTATE;
             out_bit <= 1'b0;
             counter <= 0;
         end
 
         IDLE_STATE: begin
-            $display("IDLE_STATE ");
             bit_state <= IDLE_BIT_BSTATE;
             out_bit <= 1'b0;
             counter <= 0;
         end
 
         default: begin
-             $display("DEFAULT ");
             case (bit_state)
                 IDLE_BIT_BSTATE: begin
+                    // Send From MSB (Bit 31) because we shifted data << 8
                     if (shift_reg[31] == 1)
                         counter <= T1H_count;
                     else 
@@ -126,7 +123,6 @@ always @(posedge axis_aclk) begin
                     bit_state <= WAIT_HIGH_BSTATE;
                 end
                 WAIT_HIGH_BSTATE: begin     
-                    $display("counter %d", counter);     
                     out_bit <= 1'b1;
                     counter <= counter - 1'b1;
                     if (counter == 0) begin
@@ -183,7 +179,8 @@ always @(posedge axis_aclk) begin
             gapTimer <= 0;
             if ( s_axis_valid & ready) begin
                 ready <= 0;
-                shift_reg <= s_axis_data;
+                // Shift Left by 8 to put RGB (24 bits) at 31..8
+                shift_reg <= s_axis_data << 8;
                 state <= state + 1'b1;
             end
             else begin

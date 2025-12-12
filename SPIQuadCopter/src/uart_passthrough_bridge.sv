@@ -24,8 +24,10 @@ module uart_passthrough_bridge #(
     input  logic usb_uart_rx,
     output logic usb_uart_tx,
     
-    // Half-Duplex Serial Interface (to ESC)
-    inout  wire  serial,
+    // Half-Duplex Serial Interface (Split for external muxing)
+    output logic serial_tx_out, // The data to transmit
+    output logic serial_tx_oe,  // Output Enable (1 = Drive tx_out to pin)
+    input  logic serial_rx_in,  // Data read from pin
     
     // Control
     input  logic enable,        // 1: passthrough enabled, 0: disabled (tristated)
@@ -82,16 +84,13 @@ module uart_passthrough_bridge #(
     logic       serial_tx_ready;
     logic       serial_tx_active;
     
-    logic       serial_out;
-    logic       serial_oe;      // Output enable for tri-state
-    
     uart_rx_wrapper #(
         .CLK_FREQ_HZ(CLK_FREQ_HZ),
         .BAUD_RATE(BAUD_RATE)
     ) u_serial_rx (
         .clk(clk),
         .rst(rst),
-        .rx(serial),            // Read from tri-state when not transmitting
+        .rx(serial_rx_in),            // Read from input port
         .data_out(serial_rx_data),
         .valid(serial_rx_valid),
         .error(serial_rx_error)
@@ -103,16 +102,15 @@ module uart_passthrough_bridge #(
     ) u_serial_tx (
         .clk(clk),
         .rst(rst),
-        .tx(serial_out),
+        .tx(serial_tx_out),
         .data_in(serial_tx_data),
         .valid(serial_tx_valid),
         .ready(serial_tx_ready),
         .active(serial_tx_active)   // High when transmitting
     );
     
-    // Tri-state control: drive serial when transmitting, otherwise high-Z
-    assign serial_oe = serial_tx_active & enable;
-    assign serial = serial_oe ? serial_out : 1'bz;
+    // Output Enable Logic
+    assign serial_tx_oe = serial_tx_active & enable;
     
     // =============================
     // Bridging Logic

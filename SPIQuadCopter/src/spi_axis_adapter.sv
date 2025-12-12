@@ -15,7 +15,7 @@ module spi_axis_adapter #(
     parameter AXIS_DATA_WIDTH = 8
 ) (
     input  logic                       clk,
-    input  logic                       rst_n,
+    input  logic                       rst,
     
     // SPI Slave Interface
     input  logic [7:0]                 spi_rx_data,
@@ -24,6 +24,7 @@ module spi_axis_adapter #(
     output logic                       spi_tx_valid,
     input  logic                       spi_busy,
     input  logic                       spi_cs_n,      // Optional: can be used for debug/status
+    input  logic                       spi_tx_ready,  // Slave ready for new TX data
     
     // AXI Stream Output (to axis_wb_master input)
     output logic [AXIS_DATA_WIDTH-1:0] m_axis_tdata,
@@ -38,72 +39,40 @@ module spi_axis_adapter #(
     input  logic                       s_axis_tlast
 );
 
-    // =============================
-    // SPI RX to AXI Stream TX
-    // Simple pass-through
-    // =============================
-    always_ff @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
-            m_axis_tdata <= 8'h0;
-            m_axis_tvalid <= 1'b0;
-        end else begin
-            // Clear valid when data is accepted
-            if (m_axis_tvalid && m_axis_tready) begin
-                m_axis_tvalid <= 1'b0;
-            end
-            
-            // Forward SPI RX data to AXI Stream
-            if (spi_rx_valid && !m_axis_tvalid) begin
-                m_axis_tdata <= spi_rx_data;
-                m_axis_tvalid <= 1'b1;
-            end
-        end
-    end
-    
-    // tlast not used in implicit framing mode
-    assign m_axis_tlast = 1'b0;
-    
-    // =============================
-    // AXI Stream RX to SPI TX
-    // Simple pass-through
-    // =============================
-    always_ff @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
-            spi_tx_data <= 8'h0;
-            spi_tx_valid <= 1'b0;
-            s_axis_tready <= 1'b1;
-        end else begin
-            spi_tx_valid <= 1'b0;
-            s_axis_tready <= 1'b1;  // Always ready to receive
-            
-            // Forward AXI Stream data to SPI TX when not busy
-            if (s_axis_tvalid && s_axis_tready && !spi_busy) begin
-                spi_tx_data <= s_axis_tdata;
-                spi_tx_valid <= 1'b1;
-            end
-        end
-    end
 
-endmodule
+reg m_tvalid;
+reg [7:0] spiData;
+
+// Accept data from Wishbone Master whenever SPI slave can take it (holding register free)
+assign s_axis_tready = spi_tx_ready;
+assign spi_tx_valid = (s_axis_tready & s_axis_tvalid);
+assign spi_tx_data = (spi_tx_valid)? s_axis_tdata: 0;
+assign m_axis_tdata = spiData;
+assign m_axis_tvalid = m_tvalid;
+ 
+// tlast not used in implicit framing mode
+assign m_axis_tlast = 1'b0;
     
     // =============================
     // AXI Stream RX to SPI TX
+    // Forward data from the AXIS sink back to the SPI TX path so the
+    // SPI slave can shift out response bytes while CS is asserted.
     // =============================
-    always_ff @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
-            spi_tx_data <= 8'h0;
-            spi_tx_valid <= 1'b0;
-            s_axis_tready <= 1'b1;  // Always ready to receive
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            m_tvalid <= 1'b0;
+            spiData <= 8'h0;
         end else begin
-            spi_tx_valid <= 1'b0;
-            s_axis_tready <= 1'b1;
-            
-            // Forward AXI Stream data to SPI TX
-            if (s_axis_tvalid && s_axis_tready && !spi_busy) begin
-                spi_tx_data <= s_axis_tdata;
-                spi_tx_valid <= 1'b1;
+            if (~m_tvalid  & spi_rx_valid) begin
+                m_tvalid <= 1'b1;
+                spiData <= spi_rx_data;
+            end
+            else begin
+                m_tvalid <= 1'b0;
             end
         end
+
+
     end
 
 endmodule

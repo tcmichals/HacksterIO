@@ -65,60 +65,7 @@ write_word(LED_BASE + 0x00, 0x5);  // 0101 binary
 write_word(LED_BASE + 0x04, 0x2);  // Mode 1 for LED 1
 ```
 
-### 2. TTL Serial Controller (`wb_ttl_serial.sv`)
-
-Provides Wishbone interface to TTL Serial UART.
-
-**Parameters:**
-- `CLK_FREQ_HZ`: System clock frequency (default: 72 MHz)
-- `BAUD_RATE`: Serial baud rate (default: 115,200)
-- `HALF_DUPLEX`: Enable half-duplex mode (default: 1)
-- Standard Wishbone parameters
-
-**Address Map:**
-
-```
-0x00: TX Data Register (W)
-   Bits [7:0] = Data byte to transmit
-   Writing triggers transmission
-
-0x04: RX Data Register (R)
-   Bits [7:0] = Last received data byte
-   Bits [31:8] = Reserved
-
-0x08: Status Register (R)
-   Bit [0] = rx_valid (1=data ready to read)
-   Bit [1] = tx_ready (1=transmitter ready for new data)
-   Bits [31:2] = Reserved
-
-0x0C: Control Register (RW)
-   Bit [0] = half_duplex_en (1=enable TX, 0=RX mode)
-   Bit [1] = baud_rate_sel (reserved for future use)
-   Bits [31:2] = Reserved
-```
-
-**Example Usage (pseudo-C):**
-
-```c
-// Check if TX is ready
-uint32_t status = read_word(UART_BASE + 0x08);
-if (status & 0x2) {  // tx_ready bit
-    // Transmit a byte
-    write_word(UART_BASE + 0x00, 0x41);  // Send 'A'
-}
-
-// Check if RX has data
-if (status & 0x1) {  // rx_valid bit
-    uint32_t rx_data = read_word(UART_BASE + 0x04);
-    printf("Received: 0x%02X\n", rx_data & 0xFF);
-}
-
-// Set to RX mode (listen only)
-write_word(UART_BASE + 0x0C, 0x0);
-
-// Set to TX mode (drive line)
-write_word(UART_BASE + 0x0C, 0x1);
-```
+*Note:* The TTL Serial Controller (`wb_ttl_serial.sv`) was removed from this repository. Use the `ttlSerial/` module directly or restore from git history if needed.
 
 ## Integration with SPI Slave
 
@@ -243,10 +190,10 @@ Enhance TTL Serial with:
 Simulate the Wishbone interface:
 
 ```bash
-# Compile with Wishbone modules
+# Compile with Wishbone modules (TTL serial wrapper removed)
 cd src
-iverilog -g2012 -o tb_wb.vvp pll.sv ttl_serial.sv \
-    wb_led_controller.sv wb_ttl_serial.sv tang9k_top.sv
+iverilog -g2012 -o tb_wb.vvp pll.sv \
+   wb_led_controller.sv tang9k_top.sv
 
 # Run simulation
 vvp tb_wb.vvp

@@ -37,6 +37,16 @@ module uart_passthrough_bridge_tb;
     assign serial = serial_drive ? serial_drive_value : 1'bz;
     
     // DUT instantiation
+    // DUT instantiation
+    logic dut_tx_out;
+    logic dut_tx_oe;
+    logic dut_rx_in;
+    
+    // Emulate the mux/pad logic in the testbench
+    assign dut_rx_in = serial; // Read from the wire
+    // Drive the wire from DUT
+    assign serial = dut_tx_oe ? dut_tx_out : 1'bz;
+
     uart_passthrough_bridge #(
         .CLK_FREQ_HZ(72_000_000),
         .BAUD_RATE(115200)
@@ -45,7 +55,11 @@ module uart_passthrough_bridge_tb;
         .rst(rst),
         .usb_uart_rx(usb_uart_rx),
         .usb_uart_tx(usb_uart_tx),
-        .serial(serial),
+        
+        .serial_tx_out(dut_tx_out),
+        .serial_tx_oe(dut_tx_oe),
+        .serial_rx_in(dut_rx_in),
+        
         .enable(enable),
         .active(active)
     );

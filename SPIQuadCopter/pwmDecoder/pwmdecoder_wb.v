@@ -35,7 +35,7 @@ module pwmdecoder_wb #(
 )
 (
     input wire i_clk,
-    input wire i_rstn,
+    input wire i_rst,
     
     // Wishbone slave interface
     input  wire [ADDR_WIDTH-1:0]   wb_adr_i,
@@ -72,8 +72,11 @@ module pwmdecoder_wb #(
     assign wb_rty_o = 1'b0;
     
     // Wishbone read logic
-    always @(posedge i_clk or negedge i_rstn) begin
-        if (!i_rstn) begin
+    // Internal active-low reset for legacy pwmdecoder instances
+    wire i_rstn = ~i_rst;
+
+    always @(posedge i_clk or posedge i_rst) begin
+        if (i_rst) begin
             wb_dat_o <= 32'h0;
             wb_ack_o <= 1'b0;
         end else begin

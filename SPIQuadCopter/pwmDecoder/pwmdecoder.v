@@ -42,16 +42,6 @@ end
 
 assign o_pwm_ready = pwm_ready;
 
-always @(posedge i_clk) begin
-    if (i_resetn == 1) begin
-        if (clk_counter < CLK_DIVIDER )
-            clk_counter <= clk_counter + 1'b1;
-        else 
-             clk_counter <= 0;
-    end 
-                              
-end
-
 always @(posedge i_clk or negedge i_resetn) begin
 
     if (!i_resetn) begin
@@ -66,6 +56,16 @@ always @(posedge i_clk or negedge i_resetn) begin
     else begin
         //synchronize FF
         pwm_sig = {pwm_sig[0], i_pwm};
+
+        // Default counter increment (overridden in state machine if needed)
+        // But logic below relies on specific counter values. 
+        // Let's manage it strictly within the state machine or a single block.
+        
+        // Counter Logic merged here
+        if (clk_counter < CLK_DIVIDER)
+             clk_counter <= clk_counter + 1'b1;
+        else
+             clk_counter <= 0;
 
         case (state)
 
@@ -125,6 +125,5 @@ always @(posedge i_clk or negedge i_resetn) begin
         endcase 
     end
 end
-
 
 endmodule

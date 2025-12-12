@@ -80,7 +80,6 @@ SPIQuadCopter/
 │   ├── tang9k_top.sv           # Top-level integration
 │   ├── spi_axis_adapter.sv     # SPI to AXI Stream bridge
 │   ├── wb_led_controller.sv    # LED controller
-│   ├── wb_ttl_serial.sv        # Serial Wishbone wrapper
 │   ├── wb_dshot_controller.sv  # DSHOT Wishbone wrapper
 │   ├── wb_serial_dshot_mux.sv  # Mux register
 │   └── pll.sv                  # 72 MHz PLL

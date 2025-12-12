@@ -8,7 +8,7 @@ TOP := tang9k_top
 BUILD_DIR := _build/default
 
 # Sources used for synthesis (exclude testbenches)
-SRCS := spiSlave/spi_slave.sv src/pll.sv src/tang9k_top.sv \
+SRCS := spiSlave/spi_slave.sv src/pll.sv src/tang9k_top.sv src/coredesign.sv \
         src/spi_axis_adapter.sv \
         src/uart_passthrough_bridge.sv src/uart_rx.sv src/uart_tx.sv \
         verilog-uart/rtl/uart_rx.v verilog-uart/rtl/uart_tx.v \
@@ -18,8 +18,11 @@ SRCS := spiSlave/spi_slave.sv src/pll.sv src/tang9k_top.sv \
         verilog-wishbone/rtl/arbiter.v verilog-wishbone/rtl/axis_wb_master.v \
         verilog-wishbone/rtl/priority_encoder.v verilog-wishbone/rtl/wb_adapter.v \
         verilog-wishbone/rtl/wb_arbiter_2.v verilog-wishbone/rtl/wb_async_reg.v \
-        verilog-wishbone/rtl/wb_dp_ram.v verilog-wishbone/rtl/wb_mux_2.v \
-        verilog-wishbone/rtl/wb_ram.v verilog-wishbone/rtl/wb_reg.v
+        verilog-wishbone/rtl/wb_dp_ram.v src/wb_mux_6.v \
+        verilog-wishbone/rtl/wb_ram.v verilog-wishbone/rtl/wb_reg.v \
+		src/wb_serial_dshot_mux.sv \
+		neoPXStrip/wb_neoPx.v neoPXStrip/sendPx.v src/wb_neoPxString.sv \
+		version/wb_version.sv
 
 CST := tang9k.cst
 
@@ -108,6 +111,7 @@ help:
 	@echo ""
 	@echo "Individual testbench targets:"
 	@echo "  make tb-spi               - Run SPI slave testbench"
+	@echo "  make tb-tang9k            - Run tang9k_top full integration testbench"
 	@echo "  make tb-serial            - Run TTL Serial UART testbench"
 	@echo "  make tb-pwm               - Run PWM decoder testbench"
 	@echo "  make tb-dshot             - Run DSHOT motor controller testbench"
@@ -188,6 +192,9 @@ tb-spi:
 	@echo "=========================================="
 	@cd spiSlave && $(MAKE) simulate
 
+
+
+
 tb-serial:
 	@echo "=========================================="
 	@echo "Running TTL Serial Testbench"
@@ -211,6 +218,27 @@ tb-passthrough:
 	@echo "Running UART Passthrough Bridge Testbench"
 	@echo "=========================================="
 	@cd src && $(MAKE) -f Makefile.passthrough_tb sim
+
+.PHONY: tb-design
+tb-design:
+	@echo "=========================================="
+	@echo "Running design-focused testbench"
+	@echo "=========================================="
+	# Ensure generated mux exists (6-port in `src`)
+	@python3 verilog-wishbone/rtl/wb_mux.py -p 6 -o src/wb_mux_6.v || true
+	@iverilog -g2012 -o tb_design.vvp \
+		spiSlave/spi_slave.sv src/pll.sv src/coredesign.sv src/spi_axis_adapter.sv src/wb_led_controller.sv src/wb_serial_dshot_mux.sv \
+		src/uart_passthrough_bridge.sv src/uart_rx.sv src/uart_tx.sv verilog-uart/rtl/uart_rx.v verilog-uart/rtl/uart_tx.v \
+		pwmDecoder/pwmdecoder_wb.v pwmDecoder/pwmdecoder.v src/wb_dshot_controller.sv dshot/dshot_out.v neoPXStrip/wb_neoPx.v neoPXStrip/sendPx.v src/wb_neoPxString.sv \
+		version/wb_version.sv \
+		verilog-wishbone/rtl/axis_wb_master.v verilog-wishbone/rtl/wb_reg.v \
+		verilog-wishbone/rtl/wb_ram.v verilog-wishbone/rtl/wb_dp_ram.v \
+		verilog-wishbone/rtl/wb_async_reg.v verilog-wishbone/rtl/wb_arbiter_2.v \
+		src/wb_mux_6.v \
+		verilog-wishbone/rtl/wb_adapter.v verilog-wishbone/rtl/priority_encoder.v \
+		verilog-wishbone/rtl/arbiter.v \
+		tb/design_tb.sv -s design_tb || exit 1
+	@vvp tb_design.vvp
 
 # Run all testbenches
 .PHONY: test-tb
@@ -267,5 +295,6 @@ clean:
 	@find . -name "*.vvp" -delete
 	@find . -name "*.fst" -delete
 	@find . -name "*.out" -delete
+	@rm -f tb_tang9k.vvp
 	@echo "Cleanup complete!"
 

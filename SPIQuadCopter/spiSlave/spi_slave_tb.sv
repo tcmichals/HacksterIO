@@ -1,226 +1,191 @@
 /**
- * SPI Slave Testbench
+ * SPI Slave Testbench (Self-Checking)
  * 
- * Tests the SPI Slave module in Mode 0 operation
+ * Tests the SPI Slave module in Mode 0 operation with randomized data.
  */
 
 `timescale 1ns/1ps
 
 module spi_slave_tb;
 
-    // =============================
-    // Parameters and Signals
-    // =============================
+    // Parameters
     parameter DATA_WIDTH = 8;
-    parameter SYS_CLK_PERIOD = 10;  // 100 MHz system clock
-    parameter SPI_CLK_PERIOD = 40;  // 25 MHz SPI clock
+    parameter CLK_PERIOD = 10;     // 100 MHz System Clock
+    parameter SCLK_PERIOD = 50;    // 20 MHz SPI Clock (1/5 System Clock)
+
+    // System Signals
+    logic clk = 0;
+    logic rst = 1;
     
-    logic                    sys_clk;
-    logic                    rst_n;
-    logic                    i_sclk;
-    logic                    i_cs_n;
-    logic                    i_mosi;
-    logic                    o_miso;
-    logic [DATA_WIDTH-1:0]   o_rx_data;
-    logic                    o_rx_valid;
-    logic [DATA_WIDTH-1:0]   i_tx_data;
-    logic                    i_tx_valid;
-    logic                    o_busy;
+    // SPI Signals (Master Output)
+    logic sclk = 0;
+    logic cs_n = 1;
+    logic mosi = 0;
     
-    // =============================
-    // DUT Instantiation
-    // =============================
-    spi_slave dut (
-        .i_clk       (sys_clk),
-        .i_rst_n     (rst_n),
-        .i_sclk      (i_sclk),
-        .i_cs_n      (i_cs_n),
-        .i_mosi      (i_mosi),
-        .o_miso      (o_miso),
-        .o_rx_data   (o_rx_data),
-        .o_rx_valid  (o_rx_valid),
-        .i_tx_data   (i_tx_data),
-        .i_tx_valid  (i_tx_valid),
-        .o_busy      (o_busy)
+    // SPI Signal (Slave Output)
+    wire  miso;
+    
+    // User Interface Signals (Slave Side)
+    logic [DATA_WIDTH-1:0] tx_data_in; 
+    logic tx_valid = 0;
+    wire  tx_ready;
+    wire  busy;
+    wire  [DATA_WIDTH-1:0] rx_data;
+    wire  rx_valid;
+
+    // Verification Variables
+    int error_count = 0;
+
+    // Instantiate DUT
+    // Instantiate DUT
+    spi_slave #(.DATA_WIDTH(DATA_WIDTH)) dut (
+        .i_clk(clk),
+        .i_rst(rst),
+        .i_sclk(sclk),
+        .i_cs_n(cs_n),
+        .i_mosi(mosi),
+        .o_miso(miso),
+        .i_tx_data(tx_data_in),
+        .i_tx_valid(tx_valid),
+        .o_tx_ready(tx_ready),
+        .o_busy(busy),
+        .o_rx_data(rx_data),
+        .o_data_valid(rx_valid)
     );
-    
-    // =============================
-    // Clock Generation
-    // =============================
+
+    // System Clock Generation
+    always #(CLK_PERIOD/2) clk = ~clk;
+
+    // SPI Master Task (Mode 0: CPOL=0, CPHA=0)
+    // Returns the byte received from Slave (MISO)
+    task automatic spi_transfer(
+        input  logic [DATA_WIDTH-1:0] tx_byte,
+        output logic [DATA_WIDTH-1:0] rx_byte
+    );
+        integer i;
+        begin
+            rx_byte = 0;
+            cs_n = 0; // Assert CS
+            #(SCLK_PERIOD); // Setup time
+            
+            for (i = DATA_WIDTH-1; i >= 0; i--) begin
+                mosi = tx_byte[i]; // Master drives MOSI
+                
+                #(SCLK_PERIOD/2) sclk = 1; // Rising edge (Slave samples MOSI)
+                
+                // Sample MISO on Rising Edge (Mode 0) or slightly after
+                // We sample just before falling edge to be safe in simulation
+                rx_byte[i] = miso; 
+                
+                #(SCLK_PERIOD/2) sclk = 0; // Falling edge (Slave shifts MISO)
+            end
+            
+            #(SCLK_PERIOD/2);
+            cs_n = 1; // De-assert CS
+            mosi = 0;
+            #(SCLK_PERIOD);
+        end
+    endtask
+
+    // Main Test Sequence
     initial begin
-        sys_clk = 1'b0;
-        forever #(SYS_CLK_PERIOD/2) sys_clk = ~sys_clk;
-    end
-    
-    initial begin
-        i_sclk = 1'b0;
-        forever #(SPI_CLK_PERIOD/2) i_sclk = ~i_sclk;
-    end
-    
-    // =============================
-    // Testbench Stimulus
-    // =============================
-    initial begin
-        // File for waveform dump
+        logic [DATA_WIDTH-1:0] master_tx_data;
+        logic [DATA_WIDTH-1:0] slave_tx_data;
+        logic [DATA_WIDTH-1:0] master_rx_data;
+        
+        // Setup
         $dumpfile("spi_slave_tb.vcd");
         $dumpvars(0, spi_slave_tb);
         
-        // Initialize
-        rst_n = 1'b0;
-        i_cs_n = 1'b1;
-        i_mosi = 1'b0;
-        i_tx_data = 8'h00;
-        i_tx_valid = 1'b0;
+        $display("---------------------------------------");
+        $display("   Starting SPI Slave Self-Checking TB ");
+        $display("---------------------------------------");
         
-        // Wait for reset
-        repeat(10) @(posedge sys_clk);
-        rst_n = 1'b1;
+        // Reset
+        rst = 1;
+        #50 rst = 0;
+        #100;
         
-        repeat(10) @(posedge sys_clk);
+        // --- Test 1: Single Byte Exchange ---
+        master_tx_data = 8'hA5;
+        slave_tx_data  = 8'h55;
         
-        // ===========================
-        // Test 1: Simple SPI Transfer
-        // ===========================
-        $display("Test 1: Simple SPI Transfer");
-        $display("Master sends: 0xA5 (10100101)");
-        $display("Slave sends: 0x5A (01011010)");
+        $display("[Test 1] Loading Slave with 0x%h...", slave_tx_data);
         
-        // Load slave transmit data
-        @(posedge sys_clk) i_tx_data = 8'h5A;
-        @(posedge sys_clk) i_tx_valid = 1'b1;
-        @(posedge sys_clk) i_tx_valid = 1'b0;
+        // Load Slave
+        wait(tx_ready);
+        @(posedge clk);
+        tx_data_in = slave_tx_data;
+        tx_valid = 1;
+        @(posedge clk);
+        tx_valid = 0;
         
-        // Start SPI transaction
-        repeat(5) @(posedge sys_clk);
-        @(posedge sys_clk) i_cs_n = 1'b0;
+        // Run SPI transaction
+        spi_transfer(master_tx_data, master_rx_data);
         
-        // Wait for synchronization
-        repeat(10) @(posedge sys_clk);
-        
-        // Send byte: 0xA5
-        send_spi_byte(8'hA5);
-        
-        // Wait for synchronization
-        repeat(10) @(posedge sys_clk);
-        
-        // End transaction
-        @(posedge sys_clk) i_cs_n = 1'b1;
-        
-        repeat(20) @(posedge sys_clk);
-        
-        // ===========================
-        // Test 2: Multiple Transfers
-        // ===========================
-        $display("\nTest 2: Multiple Transfers");
-        
-        repeat(5) @(posedge sys_clk);
-        
-        // Transfer 1
-        $display("Transfer 1: Master sends 0x12, Slave sends 0x34");
-        @(posedge sys_clk) i_tx_data = 8'h34;
-        @(posedge sys_clk) i_tx_valid = 1'b1;
-        @(posedge sys_clk) i_tx_valid = 1'b0;
-        
-        repeat(5) @(posedge sys_clk);
-        @(posedge sys_clk) i_cs_n = 1'b0;
-        repeat(10) @(posedge sys_clk);
-        
-        send_spi_byte(8'h12);
-        
-        repeat(10) @(posedge sys_clk);
-        @(posedge sys_clk) i_cs_n = 1'b1;
-        
-        repeat(10) @(posedge sys_clk);
-        
-        // Transfer 2
-        $display("Transfer 2: Master sends 0xAB, Slave sends 0xCD");
-        @(posedge sys_clk) i_tx_data = 8'hCD;
-        @(posedge sys_clk) i_tx_valid = 1'b1;
-        @(posedge sys_clk) i_tx_valid = 1'b0;
-        
-        repeat(5) @(posedge sys_clk);
-        @(posedge sys_clk) i_cs_n = 1'b0;
-        repeat(10) @(posedge sys_clk);
-        
-        send_spi_byte(8'hAB);
-        
-        repeat(10) @(posedge sys_clk);
-        @(posedge sys_clk) i_cs_n = 1'b1;
-        
-        repeat(20) @(posedge sys_clk);
-        
-        // ===========================
-        // Test 3: All Zeros
-        // ===========================
-        $display("\nTest 3: Send All Zeros");
-        
-        repeat(5) @(posedge sys_clk);
-        @(posedge sys_clk) i_tx_data = 8'h00;
-        @(posedge sys_clk) i_tx_valid = 1'b1;
-        @(posedge sys_clk) i_tx_valid = 1'b0;
-        
-        repeat(5) @(posedge sys_clk);
-        @(posedge sys_clk) i_cs_n = 1'b0;
-        repeat(10) @(posedge sys_clk);
-        
-        send_spi_byte(8'hFF);
-        
-        repeat(10) @(posedge sys_clk);
-        @(posedge sys_clk) i_cs_n = 1'b1;
-        
-        repeat(20) @(posedge sys_clk);
-        
-        // ===========================
-        // Test 4: All Ones
-        // ===========================
-        $display("\nTest 4: Send All Ones");
-        
-        repeat(5) @(posedge sys_clk);
-        @(posedge sys_clk) i_tx_data = 8'hFF;
-        @(posedge sys_clk) i_tx_valid = 1'b1;
-        @(posedge sys_clk) i_tx_valid = 1'b0;
-        
-        repeat(5) @(posedge sys_clk);
-        @(posedge sys_clk) i_cs_n = 1'b0;
-        repeat(10) @(posedge sys_clk);
-        
-        send_spi_byte(8'h00);
-        
-        repeat(10) @(posedge sys_clk);
-        @(posedge sys_clk) i_cs_n = 1'b1;
-        
-        repeat(20) @(posedge sys_clk);
-        
-        $display("\nAll tests completed!");
-        $finish;
-    end
-    
-    // =============================
-    // Task: Send SPI Byte
-    // =============================
-    task send_spi_byte(input logic [7:0] byte_val);
-        for (int i = 7; i >= 0; i--) begin
-            // Set MOSI data bit
-            @(posedge sys_clk) i_mosi = byte_val[i];
-            
-            // Wait for SCLK to complete a cycle
-            @(posedge i_sclk);
-            @(negedge i_sclk);
-            
-            // Small delay before next bit
-            repeat(5) @(posedge sys_clk);
+        // Check Master received correct data from Slave
+        if (master_rx_data !== slave_tx_data) begin
+            $display("ERROR: Master Received 0x%h, Expected 0x%h", master_rx_data, slave_tx_data);
+            error_count++;
+        end else begin
+            $display("SUCCESS: Master Received 0x%h", master_rx_data);
         end
-    endtask
-    
-    // =============================
-    // Monitors
-    // =============================
-    always @(posedge o_rx_valid) begin
-        $display("  RX: Received 0x%02X at time %t", o_rx_data, $time);
-    end
-    
-    always @(o_miso) begin
-        $display("  MISO changed to: %b at time %t", o_miso, $time);
+
+        // Check Slave received correct data from Master
+        // We need to wait for rx_valid pulse or check it was set
+        @(posedge clk);
+        if (rx_data !== master_tx_data) begin
+            $display("ERROR: Slave Received 0x%h, Expected 0x%h", rx_data, master_tx_data);
+            error_count++;
+        end else begin
+             $display("SUCCESS: Slave Received 0x%h", rx_data);
+        end
+
+        // --- Test 2: Randomized Streaming ---
+        $display("\n[Test 2] Randomized Streaming Test (10 Iterations)");
+        
+        for (int k = 0; k < 10; k++) begin
+            master_tx_data = $random;
+            slave_tx_data  = $random;
+            
+            // 1. Load Slave with data for this turn
+            wait(tx_ready);
+            @(posedge clk);
+            tx_data_in = slave_tx_data;
+            tx_valid = 1;
+            @(posedge clk);
+            tx_valid = 0;
+            
+            // 2. Perform Transaction
+            spi_transfer(master_tx_data, master_rx_data);
+            
+            // 3. Verify Master RX (MISO)
+            if (master_rx_data !== slave_tx_data) begin
+                $display("ITER %0d FAIL: Master RX=0x%h Exp=0x%h", k, master_rx_data, slave_tx_data);
+                error_count++;
+            end
+            
+            // 4. Verify Slave RX (MOSI)
+            // Wait for data valid if needed, but the task waits long enough for the slave to latch
+            if (rx_data !== master_tx_data) begin
+                 $display("ITER %0d FAIL: Slave RX=0x%h Exp=0x%h", k, rx_data, master_tx_data);
+                 error_count++;
+            end
+            
+            // Short random delay between transactions
+            repeat($urandom_range(5, 20)) @(posedge clk);
+        end
+        
+        // Summary
+        $display("---------------------------------------");
+        if (error_count == 0) begin
+             $display("TEST PASSED: All checks successful.");
+        end else begin
+             $display("TEST FAILED: %0d errors found.", error_count);
+        end
+        $display("---------------------------------------");
+        
+        $finish;
     end
 
 endmodule

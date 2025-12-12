@@ -1,6 +1,9 @@
 #!/bin/bash
 # Tang9K Build and Program Script
 # This script automates the complete build and programming workflow
+# 
+# Prerequisites: OSS CAD Suite toolchain (yosys, nextpnr-himbaechel, gowin_pack)
+# Install toolchain with: make install-tools (or make install-tools-local)
 
 set -e  # Exit on any error
 
@@ -93,51 +96,52 @@ step_verify_prerequisites() {
 }
 
 # =====================================
-# Step 2: Install/Verify Apio
+# Step 2: Verify Toolchain
 # =====================================
-step_install_apio() {
-    print_header "Step 2: Installing/Verifying Apio"
+step_verify_toolchain() {
+    print_header "Step 2: Verifying FPGA Toolchain"
     
-    # Check if apio is installed
-    if command -v apio &> /dev/null; then
-        APIO_VERSION=$(apio --version 2>&1)
-        print_success "Apio found: $APIO_VERSION"
-        log_output "Apio version: $APIO_VERSION"
+    local missing_tools=0
+    
+    # Check for yosys
+    if command -v yosys &> /dev/null; then
+        YOSYS_VERSION=$(yosys -V 2>&1 | head -n1)
+        print_success "yosys found: $YOSYS_VERSION"
+        log_output "yosys version: $YOSYS_VERSION"
     else
-        print_status "Installing apio..."
-        log_output "Installing apio via pip"
-        pip install apio
-        print_success "Apio installed"
+        print_error "yosys not found"
+        missing_tools=1
     fi
     
-    # Verify Apio setup
-    print_status "Verifying apio system configuration..."
-    apio system-info > /tmp/apio_info.txt 2>&1
-    cat /tmp/apio_info.txt
-    log_output "Apio system info:"
-    log_output "$(cat /tmp/apio_info.txt)"
-}
-
-# =====================================
-# Step 3: Install Gowin Tools
-# =====================================
-step_install_gowin() {
-    print_header "Step 3: Installing/Verifying Gowin Tools"
-    
-    print_status "Checking for Gowin toolchain..."
-    
-    if apio system-info 2>&1 | grep -q "Gowin"; then
-        print_success "Gowin tools already installed"
-        log_output "Gowin tools found"
+    # Check for nextpnr-himbaechel
+    if command -v nextpnr-himbaechel &> /dev/null; then
+        print_success "nextpnr-himbaechel found"
+        log_output "nextpnr-himbaechel found"
     else
-        print_status "Gowin tools not found. Installing..."
-        print_warning "This may take 10-15 minutes. Please wait..."
-        log_output "Installing Gowin tools"
-        
-        apio install gowin 2>&1 | tee -a "$LOG_FILE"
-        
-        print_success "Gowin tools installed"
-        log_output "Gowin tools installation complete"
+        print_error "nextpnr-himbaechel not found"
+        missing_tools=1
+    fi
+    
+    # Check for gowin_pack
+    if command -v gowin_pack &> /dev/null; then
+        print_success "gowin_pack found"
+        log_output "gowin_pack found"
+    else
+        print_error "gowin_pack not found"
+        missing_tools=1
+    fi
+    
+    # Check for openFPGALoader
+    if command -v openFPGALoader &> /dev/null; then
+        print_success "openFPGALoader found"
+        log_output "openFPGALoader found"
+    else
+        print_warning "openFPGALoader not found (needed for programming)"
+    fi
+    
+    if [ $missing_tools -eq 1 ]; then
+        print_error "Missing required tools. Install with: make install-tools"
+        return 1
     fi
 }
 
@@ -169,23 +173,12 @@ step_syntax_check() {
 }
 
 # =====================================
-# Step 5: Configure Project
+# Step 3: Verify Project Files
 # =====================================
-step_configure_project() {
-    print_header "Step 5: Configuring Project"
+step_verify_project() {
+    print_header "Step 3: Verifying Project Files"
     
     cd "$PROJECT_DIR"
-    
-    # Check apio.ini exists
-    if [ ! -f "apio.ini" ]; then
-        print_error "apio.ini not found in project directory!"
-        exit 1
-    fi
-    
-    print_status "Project configuration:"
-    cat apio.ini
-    log_output "Project configuration:"
-    log_output "$(cat apio.ini)"
     
     # Check tang9k.cst exists
     if [ ! -f "tang9k.cst" ]; then
@@ -193,24 +186,22 @@ step_configure_project() {
         exit 1
     fi
     
-    print_success "Configuration files verified"
+    print_success "Constraint file verified: tang9k.cst"
+    log_output "Constraint file found: tang9k.cst"
 }
 
 # =====================================
-# Step 6: Build Project
+# Step 4: Build Project
 # =====================================
 step_build_project() {
-    print_header "Step 6: Building FPGA Design"
+    print_header "Step 4: Building FPGA Design"
     
     cd "$PROJECT_DIR"
     
-    # Create build directory
-    mkdir -p "$BUILD_DIR"
+    print_status "Starting build using Makefile (this may take 1-3 minutes)..."
+    log_output "Starting make build"
     
-    print_status "Starting build (this may take 1-3 minutes)..."
-    log_output "Starting apio build"
-    
-    if apio build 2>&1 | tee -a "$LOG_FILE"; then
+    if make build 2>&1 | tee -a "$LOG_FILE"; then
         print_success "Build completed successfully!"
         log_output "Build: SUCCESS"
     else
@@ -221,8 +212,8 @@ step_build_project() {
     fi
     
     # Verify bitstream generated
-    if [ -f "$BUILD_DIR/project.gw" ]; then
-        BITSTREAM_SIZE=$(ls -lh "$BUILD_DIR/project.gw" | awk '{print $5}')
+    if [ -f "_build/default/hardware.fs" ]; then
+        BITSTREAM_SIZE=$(ls -lh "_build/default/hardware.fs" | awk '{print $5}')
         print_success "Bitstream created: $BITSTREAM_SIZE"
         log_output "Bitstream size: $BITSTREAM_SIZE"
     else
@@ -232,10 +223,10 @@ step_build_project() {
 }
 
 # =====================================
-# Step 7: Check USB Connection
+# Step 5: Check USB Connection
 # =====================================
 step_check_usb() {
-    print_header "Step 7: Checking USB Connection"
+    print_header "Step 5: Checking USB Connection"
     
     print_status "Scanning for USB devices..."
     
@@ -262,10 +253,10 @@ step_check_usb() {
 }
 
 # =====================================
-# Step 8: Program Device
+# Step 6: Program Device
 # =====================================
 step_program_device() {
-    print_header "Step 8: Programming FPGA"
+    print_header "Step 6: Programming FPGA"
     
     cd "$PROJECT_DIR"
     
@@ -281,9 +272,9 @@ step_program_device() {
     fi
     
     print_status "Starting programming process..."
-    log_output "Starting apio upload"
+    log_output "Starting make upload"
     
-    if apio upload 2>&1 | tee -a "$LOG_FILE"; then
+    if make upload 2>&1 | tee -a "$LOG_FILE"; then
         print_success "Programming completed successfully!"
         log_output "Programming: SUCCESS"
     else
@@ -293,18 +284,18 @@ step_program_device() {
         # Provide troubleshooting
         print_warning "Troubleshooting:"
         print_warning "1. Verify USB connection: lsusb | grep -i gowin"
-        print_warning "2. Check permissions: sudo chmod 666 /dev/ttyUSB0"
-        print_warning "3. Try manual upload: apio upload --verbose"
+        print_warning "2. Check permissions: sudo chmod 666 /dev/ttyUSB*"
+        print_warning "3. Try manual upload: make upload"
         
         return 1
     fi
 }
 
 # =====================================
-# Step 9: Verification
+# Step 7: Verification
 # =====================================
 step_verification() {
-    print_header "Step 9: Verification"
+    print_header "Step 7: Verification"
     
     print_status "Post-programming verification:"
     print_status "1. Check LED behavior:"
@@ -380,16 +371,13 @@ main() {
     step_verify_prerequisites || error_handler "Prerequisites"
     echo ""
     
-    step_install_apio || error_handler "Apio Installation"
-    echo ""
-    
-    step_install_gowin || error_handler "Gowin Installation"
+    step_verify_toolchain || error_handler "Toolchain Verification"
     echo ""
     
     step_syntax_check || error_handler "Syntax Check"
     echo ""
     
-    step_configure_project || error_handler "Configuration"
+    step_verify_project || error_handler "Project Verification"
     echo ""
     
     step_build_project || error_handler "Build"

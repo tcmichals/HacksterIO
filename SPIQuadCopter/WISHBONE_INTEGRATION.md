@@ -9,11 +9,7 @@
    - Register-based interface for LED outputs and modes
    - 2 registers: LED_OUT (0x00) and LED_MODE (0x04)
 
-2. **`src/wb_ttl_serial.sv`**
-   - Wishbone B3 slave for TTL Serial UART
-   - Complete UART register interface (TX, RX, Status, Control)
-   - 4 registers: TX_DATA (0x00), RX_DATA (0x04), STATUS (0x08), CTRL (0x0C)
-   - Instantiates the ttl_serial core module
+*Note:* The TTL serial Wishbone wrapper has been removed from the `src/` directory. Use the `ttlSerial/` core or restore from git history if needed.
 
 ### Documentation
 
@@ -40,7 +36,7 @@
 │  ┌─────────────────────────────────────────┐
 │  │  Wishbone Devices (Future Integration)  │
 │  │  ├─ wb_led_controller (address: 0x00)  │
-│  │  └─ wb_ttl_serial (address: 0x04)      │
+│  │  └─ (TTL serial removed)               │
 │  │                                         │
 │  │  Traditional Interfaces (Current):      │
 │  │  ├─ LED Blinker (27 MHz)               │
@@ -99,7 +95,7 @@ To fully integrate the Wishbone bus:
 The new modules are included in the main Makefile:
 
 ```makefile
-SRCS := ... src/wb_led_controller.sv src/wb_ttl_serial.sv ...
+SRCS := ... src/wb_led_controller.sv ...
 ```
 
 Build normally:
