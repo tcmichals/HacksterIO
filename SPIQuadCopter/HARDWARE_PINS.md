@@ -12,14 +12,17 @@
 | 8-11 | o_led[0-3] | Output | Debug LEDs | LEDs with resistors |
 | 15  | i_btn0 | Input | Button 0 | Push button |
 | 16  | i_btn1 | Input | Button 1 | Push button |
-| 17  | i_uart_rx | Input | Debug UART RX | Optional console |
+| 17  | i_uart_rx | Input | Debug U ART RX | Optional console |
 | 18  | o_uart_tx | Output | Debug UART TX | Optional console |
-| **19** | **i_usb_uart_rx** | **Input** | **USB UART RX** | **USB adapter TX** |
-| **20** | **o_usb_uart_tx** | **Output** | **USB UART TX** | **USB adapter RX** |
-| **25** | **serial** | **Bidir** | **ESC Serial** | **ESC signal wire** |
+| 19 | i_usb_uart_rx | Input | USB UART RX | USB adapter TX |
+| 20 | o_usb_uart_tx | Output | USB UART TX | USB adapter RX |
+| ~~25~~ | ~~serial~~ | ~~Inout~~ | **REMOVED** - Serial passthrough now uses motor pins | ~~LVCMOS33~~ |
 | 26-29 | i_pwm_ch[0-3] | Input | PWM Inputs | RC receiver channels |
-| 30-33 | o_motor[1-4] | Output | DSHOT Outputs | ESC control signals |
-| 34  | o_neopixel | Output | NeoPixel Data | WS2812 LED strip |
+| 30-31 | i_pwm_ch[4-5] | Input | PWM Inputs (Aux) | RC receiver aux channels |
+| **32** | **o_motor1** | **Inout** | **DSHOT Motor 1 / Serial Passthrough** | **LVCMOS33 PULL_MODE=UP** |
+| **33** | **o_motor2** | **Inout** | **DSHOT Motor 2 / Serial Passthrough** | **LVCMOS33 PULL_MODE=UP** |
+| **34** | **o_motor3** | **Inout** | **DSHOT Motor 3 / Serial Passthrough** | **LVCMOS33 PULL_MODE=UP** |
+| **35** | **o_motor4** | **Inout** | **DSHOT Motor 4 / Serial Passthrough** | **LVCMOS33 PULL_MODE=UP** |
 | 51-54 | o_status_led[0-2] | Output | Status LEDs | Board status indicators |
 | 52  | i_sys_clk | Input | System Clock | 27 MHz oscillator |
 
@@ -52,7 +55,8 @@
                     │  Pin 20 (o_usb_uart_tx) ──► RX           │
                     │  GND ◄────────────────────── GND          │
                     │                                            │
-                    │  Pin 25 (serial) ◄──► ESC Signal         │
+                    │  **Pins 32-35 (o_motorX)** ◄──► **ESC Signal**    │
+                    │  (Select ONE motor pin via mux_ch)       │
                     │  GND ◄───────────────► ESC GND            │
                     └────────────────────────────────────────────┘
                                    │
@@ -78,9 +82,15 @@
 
 | ESC Wire    | Tang9K Pin | Notes |
 |-------------|------------|--------|
-| Signal      | Pin 25     | Half-duplex serial communication |
+| Signal      | **Pin 32, 33, 34, or 35** | **Connect to ONE motor pin**. Select which pin via mux register (bits 2:1) |
 | GND         | GND        | Common ground with Tang9K and adapter |
 | +5V (motor) | **DO NOT CONNECT** | ESC powered separately |
+
+**Mux Register Channel Selection (0x0400 bits 2:1)**:
+- `0x00`: Motor 1 (Pin 32) - Front Right
+- `0x02`: Motor 2 (Pin 33) - Rear Right
+- `0x04`: Motor 3 (Pin 34) - Rear Left
+- `0x06`: Motor 4 (Pin 35) - Front Left
 
 **Step 3: Power Connections**
 
@@ -91,7 +101,7 @@
 
 ## Hardware Passthrough Architecture
 
-The Tang9K contains a hardware UART bridge that operates independently of the Wishbone bus:
+The Tang9K routes serial passthrough through the motor pins using a mux:
 
 ```
 FPGA Internal Architecture:
@@ -102,33 +112,65 @@ FPGA Internal Architecture:
 │                        │                                    │
 │                        ├─▶ Passthrough  ──┐                │
 │                        │   Bridge          │                │
-│  Pin 20 ◄── UART TX ◄──┘   (mux_sel=0)   │                │
+│  Pin 20 ◄── UART TX ◄──┘   (enabled when │                │
+│                            mux_sel=0)     │                │
 │                                            ▼                │
-│                                    Half-Duplex Serial       │
+│                                    Serial TX/RX             │
 │                                            │                │
 │                                            ▼                │
-│  Pin 25 ◄───────────────────── Tri-State Buffer           │
-│                                                             │
-│  Wishbone Bus ──▶ Mux Control Register (0x0400)           │
-│                   └─▶ mux_sel signal                       │
+│  ┌────────────────────────────────────────────────┐        │
+│  │        wb_serial_dshot_mux (0x0400)            │        │
+│  │                                                 │        │
+│  │   mux_sel (bit 0): 0=Passthrough, 1=DSHOT      │        │
+│  │   mux_ch (bits 2:1): Which motor pin (0-3)     │        │
+│  └────────────────────────────────────────────────┘        │
+│                     │                │                      │
+│  ┌──────────────────┴────────────────┴──────────┐          │
+│  │                                                │          │
+│  │  If mux_sel=0: Route serial to motor[mux_ch]  │          │
+│  │  If mux_sel=1: Route DSHOT to all motors      │          │
+│  └────────────────────────────────────────────────┘          │
+│                     │           │                           │
+│  Pin 32 (Motor1) ◄──┤           │◄── DSHOT 1                │
+│  Pin 33 (Motor2) ◄──┤           │◄── DSHOT 2                │
+│  Pin 34 (Motor3) ◄──┤           │◄── DSHOT 3                │
+│  Pin 35 (Motor4) ◄──┴───────────┴◄── DSHOT 4                │
+│                  (bidirectional inout)                       │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 ### Operating Modes
 
 **Passthrough Mode (mux_sel = 0)**
-- Hardware bridge: USB UART ↔ ESC Serial
-- Python TUI: Writes 0 to address 0x0400
+- Hardware bridge: USB UART ↔ Motor Pin [mux_ch]
+- Python TUI: Writes `0x00-0x06` to address 0x0400
 - BLHeli Tool: Connects to /dev/ttyUSB0 (USB adapter)
+- Selected motor pin becomes bidirectional (1-wire serial)
+- Other motor pins are held low (idle)
 - Data flow: Pure hardware, no software intervention
 - Latency: Minimal (<1ms)
 
 **DSHOT Mode (mux_sel = 1)**
-- Passthrough bridge disabled (tri-stated)
-- DSHOT controller drives motor outputs
-- Python TUI: Writes 1 to address 0x0400
+- Passthrough bridge disabled
+- DSHOT controller drives all motor outputs
+- Python TUI: Writes `0x01` (or `0x03`, `0x05`, `0x07`) to address 0x0400
+- All motor pins are outputs
 - Data flow: Wishbone → DSHOT → Motors
 - Normal flight operations
+
+### Mux Register (0x0400) Format
+```
+Bit 31-3: Reserved (read as 0)
+Bit 2:1 : mux_ch (Channel select)
+Bit 0   : mux_sel (Mode select)
+
+Examples:
+  0x00 = Passthrough on Motor 1 (Pin 32)
+  0x02 = Passthrough on Motor 2 (Pin 33)
+  0x04 = Passthrough on Motor 3 (Pin 34)
+  0x06 = Passthrough on Motor 4 (Pin 35)
+  0x01 = DSHOT mode (normal flight)
+```
 
 ## Pin Electrical Specifications
 

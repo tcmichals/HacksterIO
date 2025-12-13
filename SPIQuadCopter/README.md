@@ -8,25 +8,47 @@ FPGA-based quadcopter flight controller using the Tang9K development board.
 - **DSHOT Motor Control**: 4-channel DSHOT150 ESC interface
 - **PWM Decoder**: 6-channel PWM input from RC receiver
 - **NeoPixel Controller**: WS2812 LED string with waterfall effects
-- **Serial/DSHOT Mux**: Switchable output for motor control or ESC configuration
-- **BLHeli Passthrough**: Configure ESCs using BLHeliSuite/BLHeliConfigurator
+- **Serial/DSHOT Mux**: Switchable motor pins for DSHOT or **ESC configuration** (channel-selectable)
+- **BLHeli Passthrough**: Configure ESCs via **any motor pin** using BLHeliSuite/BLHeliConfigurator
 - **Python TUI**: Full-featured terminal interface for control and monitoring
+- **tcpSPIBridge**: TCP-to-SPI bridge for Raspberry Pi (headless operation)
 
 ## Quick Start
 1. See `START_HERE.txt` for initial setup
-2. Read `INSTALL_OSS_CAD.md` for toolchain installation
-3. Build with `make` or `./build.sh`
-4. Program with instructions in `BUILD_AND_PROGRAM.md`
+2. **Install toolchain**: `make install-tools` (or `make install-tools-local`)
+3. **Build**: `make build`
+4. **Program**: `make upload`
+5. See `BUILD_AND_PROGRAM.md` for detailed instructions
 
 ## Documentation
-- **SYSTEM_OVERVIEW.md**: Complete architecture and address map
-- **BLHELI_PASSTHROUGH.md**: ESC configuration guide
-- **python/test/USB_SERIAL_BRIDGE.md**: Hardware serial bridge (recommended for web app)
-- **python/test/SOCAT_SETUP.md**: PTY bridge setup (desktop tools only)
-- **python/test/ESC_CONFIGURATOR_WEBAPP.md**: Web-based ESC configurator guide
-- **python/test/README.md**: Python TUI application guide
-- **WISHBONE_BUS.md**: Wishbone integration details
-- **BUILD_AND_PROGRAM.md**: Build and programming instructions
+
+### Getting Started
+- **[START_HERE.txt](START_HERE.txt)** - Initial setup guide
+- **[QUICK_START.md](QUICK_START.md)** - Quick reference guide
+- **[BUILD_AND_PROGRAM.md](BUILD_AND_PROGRAM.md)** - Toolchain installation and build instructions
+
+### Hardware & Pins
+- **[HARDWARE_PINS.md](HARDWARE_PINS.md)** - Complete pin assignments and mux details
+- **[tang9k.cst](tang9k.cst)** - Pin constraint file
+
+### System Architecture
+- **[SYSTEM_OVERVIEW.md](SYSTEM_OVERVIEW.md)** - Complete architecture and Wishbone address map
+- **[WISHBONE_BUS.md](WISHBONE_BUS.md)** - Wishbone integration details
+- **[72MHZ_PLL.md](72MHZ_PLL.md)** - PLL configuration
+
+### BLHeli & ESC Configuration
+- **[BLHELI_PASSTHROUGH.md](BLHELI_PASSTHROUGH.md)** - ESC configuration guide (motor pin routing)
+- **[BLHELI_QUICKSTART.md](BLHELI_QUICKSTART.md)** - Quick BLHeli setup
+- **[python/tuiTest/USB_SERIAL_BRIDGE.md](python/tuiTest/USB_SERIAL_BRIDGE.md)** - Hardware serial bridge (recommended)
+- **[python/tuiTest/ESC_CONFIGURATOR_WEBAPP.md](python/tuiTest/ESC_CONFIGURATOR_WEBAPP.md)** - Web-based configurator
+
+### Software & Python Tools
+- **[python/tuiTest/README.md](python/tuiTest/README.md)** - Python TUI application guide
+- **[python/tcpSPIBridge/tcpSPIBridge.py](python/tcpSPIBridge/tcpSPIBridge.py)** - TCP-to-SPI bridge for Raspberry Pi
+
+### Development
+- **[PROJECT_SUMMARY.md](PROJECT_SUMMARY.md)** - Project overview
+- **[src/TESTBENCH_README.md](src/TESTBENCH_README.md)** - Testbench documentation
 
 ## Python TUI Application
 Located in `python/test/`:
@@ -51,11 +73,12 @@ Features:
 
 ```
 SPIQuadCopter/
-├── apio.ini                    # Apio project configuration
 ├── tang9k.cst                  # Pin constraint file for Tang9K
-├── Makefile                    # Build automation
+├── Makefile                    # Build automation (make build, make upload)
 ├── SYSTEM_OVERVIEW.md          # Complete system documentation
 ├── BLHELI_PASSTHROUGH.md       # ESC configuration guide
+├── BUILD_AND_PROGRAM.md        # Toolchain + build instructions
+├── HARDWARE_PINS.md            # Pin assignments and mux details
 ├── spiSlave/                   # SPI Slave module (Mode 0)
 │   ├── spi_slave.sv
 │   ├── spi_slave_tb.sv
@@ -130,24 +153,36 @@ SPIQuadCopter/
 | i/o_uart_rx/tx | 17-18 | BANK1 | UART interface |
 | i/o_gpio[7:0] | 19-26 | BANK1 | General purpose I/O |
 
-## Building with Apio
+## Build System
 
-### Prerequisites
+### Install OSS CAD Suite Toolchain
 ```bash
-pip install apio
-apio install gowin
+# Option 1: System package manager
+make install-tools
+
+# Option 2: Local install to ~/.tools
+make install-tools-local
+export PATH="$HOME/.tools/oss-cad-suite/bin:$PATH"
 ```
 
-### Build the project
+### Build the Project
 ```bash
-cd /path/to/SPIQuadCopter
-apio build
+make build    # Synthesis + Place & Route + Pack
 ```
 
-### Upload to Tang9K
+### Program the FPGA
 ```bash
-apio upload
+make upload   # Uses openFPGALoader
 ```
+
+### Testing
+```bash
+make tb-design        # Run design testbench
+make tb-passthrough   # Run UART passthrough testbench
+make test-tb          # Run all testbenches
+```
+
+See `BUILD_AND_PROGRAM.md` for detailed instructions.
 
 ## Testing with iverilog
 

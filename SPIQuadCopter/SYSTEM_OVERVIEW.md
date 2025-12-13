@@ -15,7 +15,10 @@
 | 0x0000-0x00FF  | LED Controller     | 4 output LEDs, counter display     |
 | 0x0200-0x02FF  | PWM Decoder        | 6-channel PWM input decoder        |
 | 0x0300-0x03FF  | DSHOT Controller   | 4-channel DSHOT150 motor outputs   |
-| 0x0400         | Serial/DSHOT Mux   | Selects passthrough or DSHOT mode  |
+| 0x0400         | Serial/DSHOT Mux   | Motor pin mode + channel select    |
+|                |                    | Bit 0: mux_sel (0=Passthrough, 1=DSHOT) |
+|                |                    | Bit 2:1: mux_ch (Motor channel 0-3) |
+|                |                    | Routes serial to motor pin 32-35   |
 | 0x0500-0x05FF  | NeoPixel Controller| WS2812 LED string controller       |
 
 ## Peripherals
@@ -29,15 +32,21 @@
 - 4 motor outputs, Wishbone-mapped.
 - DSHOT150 protocol, 16-bit frame.
 
-### Serial/DSHOT Mux
-- Wishbone register at 0x0400 selects between two operating modes:
-  - **Write 0**: Passthrough Mode - USB UART bridge to ESC serial (for BLHeli configuration)
-  - **Write 1**: DSHOT Mode - DSHOT controller drives motor outputs (for flight)
+### Serial/DSHOT Mux (0x0400)
+- Wishbone register at 0x0400 selects operating mode **and target motor pin**:
+  - **Bit 0 (mux_sel)**: 0=Passthrough Mode, 1=DSHOT Mode  
+  - **Bit 2:1 (mux_ch)**: Motor channel (0-3) for passthrough
+  - **Examples**:
+    - Write `0x00`: Passthrough on Motor 1 (Pin 32)
+    - Write `0x02`: Passthrough on Motor 2 (Pin 33)
+    - Write `0x04`: Passthrough on Motor 3 (Pin 34)
+    - Write `0x06`: Passthrough on Motor 4 (Pin 35)
+    - Write `0x01`: DSHOT mode (normal flight)
 
 ### USB UART Passthrough Bridge
 - **Hardware-only bridge** that bypasses Wishbone entirely
-- Connects USB UART (pins 19-20) to half-duplex ESC serial (pin 25)
-- Enabled when mux register = 0, disabled when mux register = 1
+- Connects USB UART (pins 19-20) to **selected motor pin** (pins 32-35)
+- Enabled when mux_sel=0, disabled when mux_sel=1
 - **Module**: `uart_passthrough_bridge.sv`
 - **Baud Rate**: 115200 (fixed)
 - **Features**:
@@ -76,11 +85,12 @@ ESC (BLHeli Firmware)
 5. **ESC configuration** happens through pure hardware passthrough at 115200 baud
 
 ### Pin Configuration
-| Function | Pin | Direction | Description |
-|----------|-----|-----------|-------------|
+| Function | Pin(s) | Direction | Description |
+|----------|--------|-----------|-------------|
 | USB UART RX | 19 | Input | Receives data from PC (adapter TX) |
 | USB UART TX | 20 | Output | Sends data to PC (adapter RX) |
-| ESC Serial | 25 | Bidir | Half-duplex to ESC |
+| **ESC Serial** | **32-35** | **Bidir** | **Half-duplex to ESC (motor pins)** |
+|              |        |           | **Select via mux_ch bits 2:1** |
 
 ### Usage
 ```bash

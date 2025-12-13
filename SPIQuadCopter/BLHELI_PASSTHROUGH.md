@@ -1,7 +1,25 @@
 # BLHeli Passthrough Configuration Guide
 
 ## Overview
-The Tang9K quadcopter FPGA supports direct ESC configuration through BLHeliSuite and BLHeliConfigurator using a serial passthrough mode. This allows you to configure, flash, and tune your BLHeli ESCs without disconnecting them from the flight controller.
+The Tang9K quadcopter FPGA supports direct ESC configuration through BLHeliSuite and BLHeliConfigurator using a serial passthrough mode. **Serial passthrough is now routed through the motor output pins** (pins 32-35), allowing you to configure ESCs without disconnecting them from the flight controller.
+
+**Key Changes:**
+- ✅ Motor pins (`o_motor1`..`o_motor4`) are **bi directional** (support DSHOT and serial)
+- ✅ Select which motor pin via **mux register** (0x0400 bits 2:1)
+- ❌ Dedicated `serial` pin (pin 25) **removed**
+
+**Mux Register (0x0400)**:
+```
+Bit 2:1: mux_ch (0-3 selects motor pin)
+Bit 0:   mux_sel (0=Passthrough, 1=DSHOT)
+
+Examples:
+  0x00 = Passthrough on Motor 1 (Pin 32)
+  0x02 = Passthrough on Motor 2 (Pin 33)
+  0x04 = Passthrough on Motor 3 (Pin 34)
+  0x06 = Passthrough on Motor 4 (Pin 35)
+  0x01 = DSHOT mode
+```
 
 ## Important: Device Compatibility
 
@@ -96,8 +114,27 @@ ESC (BLHeli firmware)
 **Result:** Python TUI creates `/dev/ttyBLH0` via PTY. Works with desktop tools only.
 
 ### Mux Register (0x0400)
-- **Write 0**: Serial mode (for ESC configuration)
-- **Write 1**: DSHOT mode (for motor control)
+```
+Bit 31-3: Reserved (read as 0)
+Bit 2:1:  mux_ch (Motor channel select: 0-3)
+Bit 0:    mux_sel (Mode: 0=Passthrough, 1=DSHOT)
+
+Configuration Examples:
+  Write 0x00: Passthrough on Motor 1 (Pin 32) - Front Right
+  Write 0x02: Passthrough on Motor 2 (Pin 33) - Rear Right
+  Write 0x04: Passthrough on Motor 3 (Pin 34) - Rear Left
+  Write 0x06: Passthrough on Motor 4 (Pin 35) - Front Left
+  Write 0x01: DSHOT mode (normal flight)
+```
+
+**Python Example:**
+```python
+# Configure ESC on Motor 3
+spi.write(0x0400, 0x04)  # Passthrough + Channel 2 (Motor 3)
+
+# Back to DSHOT mode
+spi.write(0x0400, 0x01)  # DSHOT mode
+```
 
 ## Software Setup
 

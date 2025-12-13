@@ -289,7 +289,7 @@ clean:
 	@cd pwmDecoder && make clean || true
 	@cd dshot && make clean || true
 	@rm -rf $(BUILD_DIR)
-	@rm -f src/build
+	@rm -rf src/build
 	@echo "Cleaning testbench artifacts..."
 	@find . -name "*.vcd" -delete
 	@find . -name "*.vvp" -delete

@@ -1,797 +1,350 @@
 # Tang9K FPGA - Build and Programming Guide
 
-## Table of Contents
+## Quick Start
 
-1. [Prerequisites](#prerequisites)
-2. [Installation](#installation)
-3. [Project Structure](#project-structure)
-4. [Building with Apio](#building-with-apio)
-5. [Programming the FPGA](#programming-the-fpga)
-6. [Troubleshooting](#troubleshooting)
-7. [Advanced Topics](#advanced-topics)
+```bash
+# 1. Install toolchain
+make install-tools-local    # Install OSS CAD Suite to ~/.tools/
+
+# 2. Add to PATH (add to ~/.bashrc for persistence)
+export PATH="$HOME/.tools/oss-cad-suite/bin:$PATH"
+
+# 3. Build project
+make build
+
+# 4. Program FPGA
+make upload
+```
 
 ---
 
 ## Prerequisites
 
-### Hardware Requirements
-
+### Hardware
 - **Tang9K Development Board** (GW1N-9K FPGA)
-- **USB Cable** (USB Type-B or USB-C, depending on board variant)
+- **USB Cable** for programming
 - **Computer** (Linux, macOS, or Windows)
 
-### Software Requirements
-
-- **Python 3.6+** installed
-- **pip** package manager
-- **Git** (optional, for version control)
-- **Make** (for running build targets)
+### Software
+- **Python 3.6+** and **pip**
+- **Make** (build automation)
+- **OSS CAD Suite** (installed via Makefile)
 
 ---
 
-## Installation
+## Toolchain Installation
 
-### 1. Install Python and pip
-
-#### Ubuntu/Debian
-```bash
-sudo apt-get update
-sudo apt-get install python3 python3-pip python3-venv
-```
-
-#### macOS
-```bash
-brew install python3
-```
-
-#### Windows
-Download and install from [python.org](https://www.python.org/downloads/)
-
-### 2. Install Apio
-
-Apio is an open-source FPGA toolchain manager that simplifies building and uploading designs.
+### Option 1: Install via System Package Manager (Recommended)
 
 ```bash
-pip install apio
+make install-tools
 ```
 
-Verify installation:
-```bash
-apio --version
-apio boards --list
-```
+This installs:
+- `yosys` - Synthesis
+- `nextpnr-himbaechel` - Place & Route
+- `gowin_pack` - Bitstream generation
+- `openFPGALoader` - Programming
 
-### 3. Install Gowin Tools
-
-Apio manages Gowin EDA tools automatically. Install the Gowin toolchain:
+### Option 2: Install Locally to ~/.tools
 
 ```bash
-apio install gowin
+make install-tools-local
 ```
 
-This downloads and installs:
-- Gowin EDA Suite (synthesis, place & route)
-- Gowin IDE (optional, not needed for CLI)
-- Programmer support
+Downloads and installs OSS CAD Suite to `~/.tools/oss-cad-suite`.
 
-Monitor the installation progress - it may take 10-15 minutes.
+**Add to PATH:**
+```bash
+echo 'export PATH="$HOME/.tools/oss-cad-suite/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
+```
 
-### 4. Verify Installation
+### Verify Installation
 
 ```bash
-apio system-info
+yosys -V
+nextpnr-himbaechel --version
+gowin_pack --help
+openFPGALoader --help
 ```
 
-Output should show:
+---
+
+## Building the FPGA Design
+
+### Build Commands
+
+```bash
+# Full build (synthesis + place & route + pack)
+make build
+
+# Individual steps
+make synth    # Synthesis only
+make place    # Place & route only  
+make pack     # Bitstream packing only
+
+# Syntax check
+make lint
+
+# Clean artifacts
+make clean
 ```
-apio v0.x.x
-----
-System: Linux/macOS/Windows
-Python: 3.x.x
-...
+
+### Build Output
+
 ```
+_build/default/
+├── hardware.json        # Yosys synthesis output
+├── hardware.pnr.json    # nextpnr place & route
+└── hardware.fs          # Final bitstream (THIS IS THE FILE YOU PROGRAM)
+```
+
+### Build Process
+
+1. **Synthesis** (`yosys`): Converts SystemVerilog → netlist
+2. **Place & Route** (`nextpnr-himbaechel`): Maps netlist → FPGA fabric
+3. **Packing** (`gowin_pack`): Generates `.fs` bitstream file
+
+---
+
+## Programming the FPGA
+
+### Step 1: Connect Board
+
+1. Connect Tang9K to computer via USB
+2. Verify connection:
+   ```bash
+   lsusb | grep -i gowin
+   ```
+
+### Step 2: Program
+
+```bash
+make upload
+```
+
+**Or manually**:
+```bash
+openFPGALoader -b tangnano9k -f _build/default/hardware.fs
+```
+
+### Step 3: Verify
+
+- Check LED behavior (should match your design)
+- Monitor with logic analyzer if needed
 
 ---
 
 ## Project Structure
 
-The Tang9K project is organized as follows:
-
 ```
 SPIQuadCopter/
-├── apio.ini                    # Apio configuration (board & device settings)
-├── tang9k.cst                  # Pin constraint file (pin assignments)
-├── Makefile                    # Build automation
-├── README.md                   # Project documentation
-├── PROJECT_SUMMARY.md          # Project overview
-├── (example LED blinker removed)
-│
-├── spiSlave/                   # SPI Slave IP Core
-│   ├── spi_slave.sv            # SPI slave implementation
-│   ├── spi_slave_tb.sv         # Testbench
-│   └── Makefile                # Test targets
-│
-├── src/                        # FPGA Source Files (synthesis target)
-│   ├── tang9k_top.sv           # Top-level module (MUST EXIST)
-│   ├── pll.sv                  # PLL configuration
-│   ├── Makefile                # Simulation targets (module-specific)
-│   └── *.vcd                   # Waveform files (generated)
-│
-└── build/                      # Generated output files (apio creates this)
-    ├── project.json            # Apio project metadata
-    ├── project.fs              # Synthesis output
-    ├── project.net             # Netlist
-    ├── project.sdc             # Timing constraints (generated)
-    ├── project.cst             # Constraints (copy of tang9k.cst)
-    ├── project.fs_tcl          # Tcl script
-    └── project.gw              # Compiled bitstream
+├── tang9k.cst           # Pin constraints (CRITICAL)
+├── Makefile             # Build automation
+├── src/                 # SystemVerilog sources
+│   ├── tang9k_top.sv    # Top-level module
+│   ├── coredesign.sv    # Core logic
+│   ├── wb_*.sv          # Wishbone peripherals
+│   └── *.sv             # Other modules
+├── _build/              # Build artifacts (generated)
+└── tb/                  # Testbenches
 ```
 
 ### Important Files
 
 | File | Purpose |
 |------|---------|
-| `apio.ini` | Board and FPGA configuration |
-| `tang9k.cst` | Pin assignments and constraints |
-| `src/tang9k_top.sv` | Top-level module for synthesis |
-| `build/` | Output directory (auto-created) |
-
----
-
-## Building with Apio
-
-### Step 1: Configure the Project
-
-The `apio.ini` file should exist in the project root:
-
-```ini
-[env]
-board = Tang9K
-
-[build]
-fpga = GW1N-9K
-device = GW1N-9K
-pack = LQFP144
-freq = 27
-```
-
-Verify configuration:
-```bash
-apio boards --list | grep -i tang
-```
-
-### Step 2: Prepare Source Files
-
-Ensure all Verilog files are in the `src/` directory:
-
-```bash
-ls -la src/
-```
-
-- Expected files:
-- `tang9k_top.sv` (top-level module - **required**)
-- `pll.sv`
-- Any other supporting modules
-
-**Important**: The top-level module must match the board name or be explicitly named `tang9k_top.sv`.
-
-### Step 3: Add Pin Constraints
-
-The `tang9k.cst` file contains pin assignments:
-
-```cst
-## Pin Format: <Signal_Name> = <Pin_Number> : <Bank> : <IO_Standard>;
-
-i_sys_clk      = 52 : BANK3 : LVCMOS33;
-i_rst_n        = 3  : BANK1 : LVCMOS33;
-o_led0         = 8  : BANK1 : LVCMOS33;
-o_led1         = 9  : BANK1 : LVCMOS33;
-...
-```
-
-Verify pins match your module I/O:
-```bash
-grep "output logic\|input logic" src/tang9k_top.sv | head -20
-```
-
-### Step 4: Build the Project
-
-Navigate to project root:
-```bash
-cd /path/to/SPIQuadCopter
-```
-
-Run full build:
-```bash
-apio build
-```
-
-Or use the Makefile:
-```bash
-make build
-```
-
-#### Build Output
-
-```
-Starting synthesis...
-$ gowin_eda synthesis project.v
-Elaborating design 'tang9k_top'...
-... (synthesis log) ...
-Synthesis complete in 5.2s
-
-Starting place & route...
-$ gowin_eda router project.net
-... (routing log) ...
-Routing complete in 12.3s
-
-Build finished successfully!
-Generated: build/project.gw
-```
-
-#### Build Artifacts Generated
-
-| File | Description |
-|------|-------------|
-| `build/project.gw` | **Bitstream** (program this to FPGA) |
-| `build/project.fs` | Netlist after synthesis |
-| `build/project.net` | Placed & routed netlist |
-| `build/project.sdc` | Timing constraints |
-| `build/project.log` | Build log |
-| `build/project.rpt` | Place & route report |
-
-### Step 5: Verify Build Success
-
-Check for errors:
-```bash
-tail -20 build/project.log
-```
-
-Look for:
-```
-Build finished successfully!
-```
-
-If errors occur, see [Troubleshooting](#troubleshooting) section.
-
----
-
-## Programming the FPGA
-
-### Method 1: Using Apio (Recommended)
-
-#### Prerequisites for Programming
-
-1. **Connect Tang9K to Computer**
-   - Use USB cable (Type-B or USB-C)
-   - Ensure power LED lights up (red)
-   - Check USB connection: `lsusb` (Linux) or Device Manager (Windows)
-
-2. **Identify USB Device**
-
-   **Linux:**
-   ```bash
-   lsusb | grep -i gowin
-   ```
-   
-   Output example:
-   ```
-   Bus 002 Device 003: ID 2b1c:559 Anlogic Digital Technology Co., Ltd USB Serial
-   ```
-   
-   Or check `/dev/ttyUSB*`:
-   ```bash
-   ls -la /dev/ttyUSB*
-   chmod 666 /dev/ttyUSB0  # May need sudo
-   ```
-
-   **Windows:**
-   - Check Device Manager → Ports (COM & LPT)
-   - Should show something like "USB Serial Device (COM3)"
-
-   **macOS:**
-   ```bash
-   ls -la /dev/tty.usbserial*
-   ```
-
-#### Program the FPGA
-
-```bash
-apio upload
-```
-
-Or via Makefile:
-```bash
-make upload
-```
-
-#### Expected Output
-
-```
-Preparing to upload...
-Programming device...
-Verifying...
-100% |████████████████████| Time: 0:00:05
-Upload completed successfully!
-```
-
-#### Verify Programming
-
-1. **Check LED Behavior**
-   - LED0, LED1, LED2, LED3 should blink at different rates
-   - LED3 should show breathing effect
-   - Status LEDs may indicate activity
-
-2. **Test SPI Interface** (if configured)
-   - Connect SPI master
-   - Send test commands
-   - Monitor MISO output
-
-### Method 2: Manual Programming with Programmer
-
-If apio upload fails, use the Tang Programmer GUI:
-
-```bash
-# Linux/macOS - if installed via Gowin EDA
-/path/to/Gowin/IDE/bin/openFPGALoader \
-    -b tang9k \
-    -f build/project.gw
-```
-
-### Method 3: Using openFPGALoader (Alternative)
-
-Install openFPGALoader:
-```bash
-# Ubuntu/Debian
-sudo apt-get install openfpgaloader
-
-# macOS
-brew install openfpgaloader
-
-# Or build from source
-git clone https://github.com/trabucayre/openFPGALoader.git
-cd openFPGALoader && mkdir build && cd build
-cmake .. && make && sudo make install
-```
-
-Program device:
-```bash
-openFPGALoader -b tang9k -f build/project.gw
-```
-
----
-
-## Complete Build & Program Workflow
-
-### Quick Start (Recommended)
-
-```bash
-# Navigate to project
-cd /media/tcmichals/projects/Tang9K/hacksterio/HacksterIO/SPIQuadCopter
-
-# 1. Verify installation
-apio system-info
-
-# 2. Build project
-apio build
-
-# 3. Check build succeeded
-ls -la build/project.gw
-
-# 4. Connect board via USB
-
-# 5. Program FPGA
-apio upload
-
-# 6. Observe LEDs blinking!
-```
-
-### Using Make Targets
-
-```bash
-# Syntax check
-make lint
-
-# Simulation (SPI slave)
-cd spiSlave && make simulate
-
-# Simulation (LED blinker)
-cd src && make simulate
-
-# Build design
-cd .. && make build
-
-# Program board
-make upload
-
-# Clean build artifacts
-make clean
-```
-
-### Full Build Script
-
-Create `build_and_program.sh`:
-
-```bash
-#!/bin/bash
-
-set -e  # Exit on error
-
-PROJECT_DIR="/media/tcmichals/projects/Tang9K/hacksterio/HacksterIO/SPIQuadCopter"
-cd "$PROJECT_DIR"
-
-echo "=========================================="
-echo "Tang9K Build & Program Script"
-echo "=========================================="
-
-# Step 1: Verify tools
-echo "[1/4] Verifying apio installation..."
-apio --version
-apio system-info
-
-# Step 2: Check syntax
-echo "[2/4] Running syntax checks..."
-iverilog -g2009 -t null src/tang9k_top.sv src/pll.sv spiSlave/spi_slave.sv
-
-# Step 3: Build design
-echo "[3/4] Building FPGA design..."
-apio build
-
-# Step 4: Program board
-echo "[4/4] Programming FPGA board..."
-echo "Please ensure Tang9K is connected via USB"
-read -p "Press Enter to continue or Ctrl+C to cancel..."
-apio upload
-
-echo "=========================================="
-echo "Build and programming complete!"
-echo "Check LEDs on the board - they should blink"
-echo "=========================================="
-```
-
-Make it executable:
-```bash
-chmod +x build_and_program.sh
-./build_and_program.sh
-```
+| `tang9k.cst` | Pin assignments and I/O standards |
+| `src/tang9k_top.sv` | Top-level FPGA module |
+| `Makefile` | Build rules and targets |
+| `_build/default/hardware.fs` | **Final bitstream** |
 
 ---
 
 ## Troubleshooting
 
-### Common Issues & Solutions
+### "yosys not found"
 
-#### 1. "Apio not found"
-
-```
-Command 'apio' not found
-```
-
-**Solution:**
 ```bash
-# Reinstall apio
-pip install --upgrade apio
+# Install toolchain
+make install-tools-local
 
-# Verify installation
-which apio
-apio --version
+# Add to PATH
+export PATH="$HOME/.tools/oss-cad-suite/bin:$PATH"
 ```
 
-#### 2. "Gowin tools not installed"
+### "USB device not found"
 
-```
-Error: Gowin toolchain not found
-```
-
-**Solution:**
 ```bash
-apio install gowin
-# Wait for download/installation to complete
-apio system-info  # Verify installation
-```
-
-#### 3. "Board not found"
-
-```
-Error: Board 'Tang9K' not supported
-```
-
-**Solution:**
-```bash
-# Check apio configuration
-cat apio.ini
-
-# Verify board support
-apio boards --list | grep -i tang
-
-# Update apio
-pip install --upgrade apio
-```
-
-#### 4. "Module not found during build"
-
-```
-Error: Cannot find module 'spi_slave'
-```
-
-**Solution:**
-1. Ensure all `.sv` files are in `src/` directory:
-   ```bash
-   ls -la src/*.sv
-   ```
-
-2. Check that `tang9k_top.sv` includes all modules:
-   ```bash
-   grep "spi_slave" src/tang9k_top.sv
-   ```
-
-3. Verify module names match:
-   ```bash
-   grep "^module " src/*.sv
-   ```
-
-#### 5. "USB device not found"
-
-```
-Error: No USB device detected
-```
-
-**Solution:**
-
-**Linux:**
-```bash
-# Check USB connection
+# Linux: Check permissions
 lsusb
-
-# Check serial devices
-ls -la /dev/ttyUSB*
-
-# Give permissions
 sudo chmod 666 /dev/ttyUSB0
 
-# Try upload again
-apio upload
+# List devices
+openFPGALoader --detect
 ```
 
-**Windows:**
-- Check Device Manager for COM port
-- Install USB drivers if needed
-- Use full COM port path: `COMx`
+### "Synthesis failed"
 
-**macOS:**
 ```bash
-ls -la /dev/tty.usbserial*
-brew install libusb
+# Check syntax first
+make lint
+
+# View full error log
+less _build/default/hardware.json
+
+# Check pin constraints match
+grep "^module tang9k_top" src/tang9k_top.sv
 ```
 
-#### 6. "Pin not found in constraints"
+### "Pin not found in constraints"
 
-```
-Error: Pin 'o_led0' not in constraints file
-```
-
-**Solution:**
 ```bash
-# Check pin definitions
-grep "o_led" tang9k.cst
-
-# Compare with module ports
-grep "output logic" src/tang9k_top.sv
+# Compare module ports with CST file
+grep "output\|input" src/tang9k_top.sv
+grep "IO_LOC" tang9k.cst
 
 # Update tang9k.cst if needed
 ```
 
-#### 7. "Synthesis fails"
+---
 
-```
-Error in synthesis: Elaboration failed
-```
+## Testing
 
-**Solution:**
-```bash
-# Check syntax
-iverilog -g2009 -t null src/tang9k_top.sv src/*.sv
-
-# Check for invalid Verilog
-grep -n "logic \[.*:0\]" src/tang9k_top.sv | head
-
-# View synthesis log
-tail -50 build/project.log
-```
-
-### Debug Commands
+### Run Testbenches
 
 ```bash
-# Show apio configuration
-apio projects --info
+# Design testbench (full integration)
+make tb-design
 
-# Show build settings
-cat build/project.json
+# UART pass through testbench
+make tb-passthrough
 
-# Check pin assignments
-cat tang9k.cst | grep -v "^#"
+# All testbenches
+make test-tb
+```
 
-# View synthesis report
-cat build/project.rpt
+### Simulation
 
-# Check USB connectivity
-apio system-info
+```bash
+# SPI slave simulation
+cd spiSlave && make simulate
 
-# Clean and rebuild
-apio clean
-apio build
+# PWM decoder simulation
+cd pwmDecoder && make simulate
+
+# DSHOT simulation  
+cd dshot && make simulate
 ```
 
 ---
 
 ## Advanced Topics
 
-### Custom Build Configuration
+### Custom Timing Constraints
 
-Edit `apio.ini` for advanced settings:
-
-```ini
-[env]
-board = Tang9K
-
-[build]
-fpga = GW1N-9K
-device = GW1N-9K
-pack = LQFP144
-freq = 27
-
-[upload]
-# Specify upload method
-# Options: jtag, gowin, openFPGALoader
-method = gowin
-```
-
-### Using Custom PLL
-
-For higher clock speeds, use Gowin PLL core:
-
-```bash
-# Generate PLL IP
-# Use Gowin EDA GUI to create PLL
-# Save to src/gowin_pll.v
-# Include in tang9k_top.sv
-```
-
-### Timing Constraints (Advanced)
-
-Create `tang9k.sdc` for timing specifications:
-
+Create `tang9k.sdc`:
 ```sdc
-create_clock -period 37ns -name sys_clk [get_ports i_sys_clk]
+create_clock -period 13.889ns -name sys_clk [get_ports i_sys_clk]  # 72MHz
 set_input_delay -clock sys_clk -max 5ns [get_ports i_*]
 set_output_delay -clock sys_clk -max 5ns [get_ports o_*]
 ```
 
-### Incremental Build
-
-For faster iterative builds:
+### Incremental Builds
 
 ```bash
-apio build --incremental
+# Only rebuild changed files
+make -j4 build  # Parallel build (4 jobs)
 ```
 
-### Debugging with Logic Analyzer
+### Debug Signals
 
-Insert debug signals into constraints:
-
+Add debug pins in `tang9k.cst`:
 ```cst
-# Debug signals to check on oscilloscope/analyzer
-debug_sig0 = 40 : BANK1 : LVCMOS33;
-debug_sig1 = 41 : BANK1 : LVCMOS33;
+IO_LOC "debug_sig0" 40;
+IO_PORT "debug_sig0" IO_TYPE=LVCMOS33;
 ```
 
 ---
 
-## Performance Optimization
-
-### Reduce Build Time
-
-1. **Incremental builds:**
-   ```bash
-   apio build --incremental
-   ```
-
-2. **Parallel synthesis:**
-   ```bash
-   # Edit apio.ini
-   [build]
-   threads = 4
-   ```
-
-3. **Lower optimization level:**
-   ```ini
-   [build]
-   opt_level = 1  # 0-3, default 2
-   ```
-
-### Reduce FPGA Area
-
-1. **Remove unused modules** from `tang9k_top.sv`
-2. **Use parameterized modules** with smaller data widths
-3. **Optimize logic** with constant propagation
-
-### Improve Timing
-
-1. **Increase clock period** in `apio.ini`:
-   ```ini
-   freq = 20  # Slower = easier to meet timing
-   ```
-
-2. **Add timing constraints** in `.sdc` file
-3. **Place critical paths** with `.cst` directives
-
----
-
-## Frequently Asked Questions
-
-### Q1: Can I program without installing full Gowin EDA?
-
-**A:** Yes! Apio installs only the necessary tools. You don't need the GUI.
-
-### Q2: How do I see verbose build output?
-
-**A:** Check `build/project.log` after build completes.
-
-### Q3: Can I use a different USB programmer?
-
-**A:** Yes, use openFPGALoader or Tang Programmer alternative tools.
-
-### Q4: How do I revert to a previous build?
-
-**A:** Bitstreams aren't version-controlled. Keep `build/` backups:
-```bash
-cp build/project.gw backup/project_v1.0.gw
-```
-
-### Q5: What's the difference between .gw and .fs files?
-
-- **.gw**: Compiled bitstream (program this to FPGA)
-- **.fs**: Formatted stream after synthesis (intermediate)
-
----
-
-## Useful Commands Reference
+## Makefile Targets Reference
 
 ```bash
-# Project Management
-apio projects --list
-apio projects --info
-apio boards --list
-
 # Building
-apio build                          # Full build
-apio build --verbose               # Verbose output
-apio clean                          # Clean build artifacts
+make build           # Full synthesis + P&R + pack
+make synth           # Synthesis only
+make place           # Place & route only
+make pack            # Pack bitstream only
+make lint            # Syntax check
 
 # Programming
-apio upload                         # Program via USB
-apio upload --verbose              # Show upload progress
+make upload          # Program FPGA
 
-# System
-apio system-info                    # System information
-apio install gowin                  # Install Gowin tools
-apio uninstall gowin                # Remove Gowin tools
+# Testing
+make tb-design       # Run design testbench
+make tb-passthrough  # Run passthrough testbench
+make test-tb         # Run all testbenches
 
-# Help
-apio --help
-apio build --help
-apio upload --help
+# Maintenance
+make clean           # Clean build artifacts
+make help            # Show all targets
+
+# Toolchain
+make install-tools         # Install via package manager
+make install-tools-local   # Install to ~/.tools
 ```
 
 ---
 
-## Additional Resources
+## Build Configuration
 
-- **Apio Documentation**: https://apiodocs.readthedocs.io/
-- **Gowin FPGA**: http://www.gowinsemi.com/
-- **Tang9K Datasheet**: Search for "Tang9K GW1N-9K datasheet"
+Edit `Makefile` to customize:
+
+```makefile
+# Change device
+NEXTPNR_FLAGS := --device GW1NR-LV9QN88PC6/I5 ...
+
+# Change optimization
+YOSYS_FLAGS := -p "synth_gowin -top $(TOP) -json ..."
+
+# Change programmer
+OPENFPGALOADER := openFPGALoader
+```
+
+---
+
+##Serial Passthrough Notes
+
+**Motor pins are now bidirectional (inout) for BLHeli configuration:**
+
+- Pins 32-35 (`o_motor1`..`o_motor4`) support both DSHOT and serial passthrough
+- Select which motor pin via mux register (0x0400 bits 2:1)
+- Pin 25 (`serial`) has been **removed**
+
+**Mux Register (0x0400)**:
+```
+Bit 2:1: mux_ch (Channel select 0-3)
+Bit 0:   mux_sel (0=Passthrough, 1=DSHOT)
+
+Examples:
+  0x00 = Passthrough on Motor 1 (Pin 32)
+  0x02 = Passthrough on Motor 2 (Pin 33)
+  0x04 = Passthrough on Motor 3 (Pin 34)
+  0x06 = Passthrough on Motor 4 (Pin 35)
+  0x01 = DSHOT mode (flight)
+```
+
+See [BLHELI_PASSTHROUGH.md](BLHELI_PASSTHROUGH.md) for BLHeli configuration details.
+
+---
+
+## Resources
+
+- **OSS CAD Suite**: https://github.com/YosysHQ/oss-cad-suite-build
 - **openFPGALoader**: https://github.com/trabucayre/openFPGALoader
-- **iverilog**: http://iverilog.icarus.com/
+- **Yosys Manual**: https://yosyshq.readthedocs.io/
+- **Tang Nano 9K**: https://wiki.sipeed.com/hardware/en/tang/Tang-Nano-9K/Nano-9K.html
 
 ---
 
@@ -799,17 +352,10 @@ apio upload --help
 
 If you encounter issues:
 
-1. Check this guide's [Troubleshooting](#troubleshooting) section
-2. Review build logs: `tail build/project.log`
-3. Check system info: `apio system-info`
-4. Verify USB connection: `lsusb | grep -i gowin`
-5. Ask in community forums:
-   - [Apio Issues](https://github.com/FPGAwars/apio/issues)
-   - [Gowin Community](http://www.gowinsemi.com/)
-   - [EEVblog Forums](https://www.eevblog.com/forum/)
+1. Check `make help` for available targets
+2. Review build logs in `_build/default/`
+3. Verify tool installation: `yosys -V`, `nextpnr-himbaechel --version`
+4. Check pin constraints match module ports
+5. Test with `make tb-design` before programming
 
----
-
-**Last Updated**: December 7, 2025
-**Project**: Tang9K SPI Slave with LED Blinker
-**Author**: Documentation System
+For BLHeli passthrough issues, see [HARDWARE_PINS.md](HARDWARE_PINS.md).
