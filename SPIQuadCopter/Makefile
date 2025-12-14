@@ -2,7 +2,7 @@
 ## This uses explicit commands so the project only includes the RTL files 
 ## we want to synthesize.
 
-.PHONY: help all build synth place pack upload clean simulate wave view lint
+.PHONY: help all build synth place pack upload clean simulate wave view lint submodules
 
 TOP := tang9k_top
 BUILD_DIR := _build/default
@@ -94,10 +94,16 @@ install-tools-distro:
 		exit 1; \
 	fi
 
+.PHONY: submodules
+submodules:
+	@echo "Initializing and updating git submodules..."
+	@git submodule update --init --recursive
+	@echo "Submodules ready!"
 
 help:
 	@echo "Tang9K FPGA Project - Available Targets:"
 	@echo ""
+	@echo "  make submodules           - Initialize and update git submodules (run this first!)"
 	@echo "  make build                - Run full build (synth + place & route + pack)"
 	@echo "  make synth                - Run yosys synthesis (generates hardware.json)"
 	@echo "  make place                - Run nextpnr (generates hardware.pnr.json)"
@@ -137,7 +143,7 @@ $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
 .PHONY: synth
-synth: $(BUILD_DIR)
+synth: submodules $(BUILD_DIR)
 	@echo "Running yosys synthesis..."
 	@if ! command -v $(YOSYS) > /dev/null; then \
 		echo "Error: $(YOSYS) not found. Install yosys."; exit 1; \

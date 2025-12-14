@@ -14,11 +14,12 @@ FPGA-based quadcopter flight controller using the Tang9K development board.
 - **tcpSPIBridge**: TCP-to-SPI bridge for Raspberry Pi (headless operation)
 
 ## Quick Start
-1. See `START_HERE.txt` for initial setup
-2. **Install toolchain**: `make install-tools` (or `make install-tools-local`)
-3. **Build**: `make build`
-4. **Program**: `make upload`
-5. See `BUILD_AND_PROGRAM.md` for detailed instructions
+1. **Initialize submodules**: `git submodule update --init --recursive`
+2. See `START_HERE.txt` for initial setup
+3. **Install toolchain**: `make install-tools` (or `make install-tools-local`)
+4. **Build**: `make build`
+5. **Program**: `make upload`
+6. See `BUILD_AND_PROGRAM.md` for detailed instructions
 
 ## Documentation
 
