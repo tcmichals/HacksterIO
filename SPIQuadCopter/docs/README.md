@@ -28,6 +28,23 @@ FPGA-based quadcopter flight controller using the Tang9K development board.
 - **[QUICK_START.md](docs/QUICK_START.md)** - Quick reference guide
 - **[BUILD_AND_PROGRAM.md](docs/BUILD_AND_PROGRAM.md)** - Toolchain installation and build instructions
 
+### Diagrams
+
+- `docs/system_block_diagram.md` — Mermaid diagram (preview in VS Code with Mermaid or on GitHub when supported)
+- `docs/system_block_diagram.puml` — PlantUML source (render with PlantUML to PNG/SVG)
+
+Render commands (examples):
+
+With PlantUML (Java):
+```
+java -jar plantuml.jar -tpng docs/system_block_diagram.puml -o docs/
+```
+
+With Mermaid CLI (install `@mermaid-js/mermaid-cli`):
+```
+mmdc -i docs/system_block_diagram.md -o docs/system_block_diagram.png
+```
+
 ### Hardware & Pins
 - **[HARDWARE_PINS.md](docs/HARDWARE_PINS.md)** - Complete pin assignments and mux details
 - **[tang9k.cst](tang9k.cst)** - Pin constraint file

@@ -30,7 +30,12 @@ module wb_serial_dshot_mux (
     
     input  wire        serial_tx_i,   // From Serial Bridge
     input  wire        serial_oe_i,   // From Serial Bridge (active high)
-    output reg         serial_rx_o    // To Serial Bridge
+    output logic       serial_rx_o    // To Serial Bridge (combinational output driven by synchronized input)
+`ifdef SIM_CONTROL
+    , input  wire        tb_mux_force_en
+    , input  wire        tb_mux_force_sel
+    , input  wire [1:0]  tb_mux_force_ch
+`endif
 );
 
     // Only respond to address 0x0400
@@ -60,11 +65,46 @@ module wb_serial_dshot_mux (
     // ==========================================
     // Muxing Logic
     // ==========================================
+
+    // One-cycle global tri-state on mode/channel change to avoid contention
+    logic prev_mux_sel;
+    logic [1:0] prev_mux_ch;
+    logic global_tristate; // when 1, force all pads to Z for one clock
+
+    // Effective selection that may come from test override when SIM_CONTROL is active
+    logic effective_mux_sel;
+    logic [1:0] effective_mux_ch;
+
+    always_ff @(posedge wb_clk_i or posedge wb_rst_i) begin
+        if (wb_rst_i) begin
+            prev_mux_sel   <= 1'b0;
+            prev_mux_ch    <= 2'b0;
+            global_tristate <= 1'b0;
+        end else begin
+            // Compute effective selection (allow test override)
+`ifdef SIM_CONTROL
+            effective_mux_sel = (tb_mux_force_en ? tb_mux_force_sel : mux_sel);
+            effective_mux_ch  = (tb_mux_force_en ? tb_mux_force_ch  : mux_ch);
+`else
+            effective_mux_sel = mux_sel;
+            effective_mux_ch  = mux_ch;
+`endif
+
+            // Detect change in mode or channel selection
+            if ((effective_mux_sel != prev_mux_sel) || (effective_mux_ch != prev_mux_ch)) begin
+                global_tristate <= 1'b1;  // assert for one cycle
+                prev_mux_sel    <= effective_mux_sel;
+                prev_mux_ch     <= effective_mux_ch;
+            end else begin
+                global_tristate <= 1'b0;
+            end
+        end
+    end
     
     genvar i;
     generate
         for (i = 0; i < 4; i++) begin : gen_pads
-            wire is_target = (mux_ch == i[1:0]);
+            wire is_target = (effective_mux_ch == i[1:0]);
             
             // Logic for each pad:
             // If Global Mode is DSHOT (mux_sel=1):
@@ -82,7 +122,7 @@ module wb_serial_dshot_mux (
             logic pad_oe;
             
             always_comb begin
-                if (mux_sel == 1'b1) begin
+                if (effective_mux_sel == 1'b1) begin
                     // DSHOT Mode
                     pad_out = dshot_val;
                     pad_oe  = 1'b1; // Always drive in DSHOT mode (unless dshot controller supports tri-state?) assuming push-pull for now
@@ -92,13 +132,14 @@ module wb_serial_dshot_mux (
                         pad_out = serial_tx_i;
                         pad_oe  = serial_oe_i; // Tri-state control from bridge
                     end else begin
-                        pad_out = 1'b0; // Idle low for others
-                        pad_oe  = 1'b1; // Drive low
+                        pad_out = 1'b0; // Not used
+                        pad_oe  = 1'b0; // Tri-state non-target pads to avoid contention
                     end
                 end
             end
             
-            assign pad_motor[i] = pad_oe ? pad_out : 1'bz;
+            // Apply global tri-state during mode/channel change
+            assign pad_motor[i] = (global_tristate ? 1'bz : (pad_oe ? pad_out : 1'bz));
             
         end
     endgenerate
@@ -108,9 +149,21 @@ module wb_serial_dshot_mux (
     logic [3:0] pad_motor_in;
     assign pad_motor_in = pad_motor; // Read value from inout
 
-    // Serial RX Muxing (Reading from the pin)
-    // Only valid in Passthrough mode from the active channel
-    // Use multiplexer to select the input bit based on mux_ch
-    assign serial_rx_o = pad_motor_in[mux_ch];
+    // Synchronize selected pad to local clock domain (2-FF synchronizer)
+    logic serial_rx_meta;
+    logic serial_rx_sync;
+
+    always_ff @(posedge wb_clk_i or posedge wb_rst_i) begin
+        if (wb_rst_i) begin
+            serial_rx_meta <= 1'b0;
+            serial_rx_sync <= 1'b0;
+        end else begin
+            serial_rx_meta <= pad_motor_in[effective_mux_ch];
+            serial_rx_sync <= serial_rx_meta;
+        end
+    end
+
+    // Present RX only in passthrough mode; otherwise drive 0
+    assign serial_rx_o = (effective_mux_sel == 1'b0) ? serial_rx_sync : 1'b0;
 
 endmodule

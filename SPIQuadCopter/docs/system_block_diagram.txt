@@ -1,0 +1,40 @@
+# SPIQuadCopter System Block Diagram
+
+```
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                          SPI Master (Raspberry Pi)                           │
+└──────────────┬────────────────────────────────────────────────────────────────┘
+               │   SPI Bus
+               ▼
+     ╔════════════════════════════════════════════════════════════════════╗
+     ║                    SPI-to-Wishbone Bridge                         ║
+     ╚════════════════════════════════════════════════════════════════════╝
+               │   Wishbone Bus
+┌────────────┬──────────────────────────────────────────────────────────────────────────────┐
+│            │                                                                    │
+▼            ▼                                                                    ▼
+┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────────┐
+│  LED Ctrl  │ │ DSHOT Ctrl │ │ PWM Decod. │ │ NeoPixel   │ │ Serial/DSHT │ │ Version Reg │ │     ...    │
+│ (0x0000)   │ │ (0x0100)   │ │ (0x0200)   │ │ (0x0300)   │ │ (0x0400)    │ │ (0x1FF0)    │ │            │
+└────┬───────┘ └────┬───────┘ └────┬──────┘ └────┬──────┘ └────┬──────┘ └────┬──────┘ └────────────┘
+     │              │             │             │             │             │
+     │              │             │             │             │             │
+ o_led[3:0]   dshot_out[3:0]   pwm_in[5:0]   neopixel_data   mux_sel   (read only)
+     │              │             │             │             │
+     └──────────────┴─────────────┴─────────────┴─────────────┴─────────────┘
+                                  │
+                                  ▼
+     ╔════════════════════════════════════════════════════════════════════╗
+     ║                UART Passthrough Bridge (Standalone)                ║
+     ║  (PC/BLHeli ←→ USB UART ←→ FPGA ←→ Half-Duplex Serial ←→ ESC)       ║
+     ╚════════════════════════════════════════════════════════════════════╝
+        │         │                │                │
+        │         │                │                │
+ usb_uart_rx usb_uart_tx serial_tx_out serial_rx_in
+ (to PC)     (from PC)   (to ESC)       (from ESC)
+```
+
+- **SPI-to-Wishbone Bridge**: Central bus for all control and monitoring.
+- **Wishbone Peripherals**: Each with a unique address and function (LEDs, DSHOT, PWM, NeoPixel, Mux, Version).
+- **UART Passthrough Bridge**: Direct, low-latency hardware bridge for BLHeli/ESC config, not on Wishbone.
+

@@ -25,6 +25,12 @@ VVP_FILE = $(BUILD_DIR)/uart_passthrough_bridge_tb.vvp
 VCD_FILE = uart_passthrough_bridge_tb.vcd
 GTKW_FILE = uart_passthrough_bridge_tb.gtkw
 
+# WB mux directed test
+WB_MUX_TB_SRC = wb_serial_dshot_mux_tb.sv
+WB_MUX_DUT_SRC = wb_serial_dshot_mux.sv
+WB_MUX_VVP = $(BUILD_DIR)/wb_serial_dshot_mux_tb.vvp
+WB_MUX_VCD = wb_serial_dshot_mux_tb.vcd
+
 # Compiler flags
 IVERILOG_FLAGS = -g2012 -Wall -Wno-timescale
 
@@ -50,6 +56,18 @@ sim: compile
 	@echo "Running simulation..."
 	$(VVP) $(VVP_FILE)
 	@echo "Simulation complete. VCD file: $(VCD_FILE)"
+
+
+.PHONY: wb_mux_sim
+
+wb_mux_sim: $(BUILD_DIR)
+	@echo "Compiling WB mux directed testbench..."
+	$(IVERILOG) $(IVERILOG_FLAGS) -D SIM_CONTROL -o $(WB_MUX_VVP) \
+		$(WB_MUX_TB_SRC) \
+		$(WB_MUX_DUT_SRC)
+	@echo "Running WB mux simulation..."
+	$(VVP) $(WB_MUX_VVP)
+	@echo "WB mux simulation complete. VCD file: $(WB_MUX_VCD)"
 
 # View waveforms
 view: $(VCD_FILE)
