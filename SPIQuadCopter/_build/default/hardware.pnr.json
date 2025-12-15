@@ -187,7 +187,7 @@
             "GSRI": "input"
           },
           "connections": {
-            "GSRI": [ 11888 ]
+            "GSRI": [ 11898 ]
           }
         },
         "$PACKER_GND_DRV": {
@@ -203,7 +203,7 @@
             "G": "output"
           },
           "connections": {
-            "G": [ 11889 ]
+            "G": [ 11899 ]
           }
         },
         "u_design.sys_rst_LUT2_F": {
@@ -224,9 +224,9 @@
             "F": "output"
           },
           "connections": {
-            "I1": [ 11779 ],
-            "I0": [ 11511 ],
-            "F": [ 11799 ]
+            "I1": [ 11789 ],
+            "I0": [ 11519 ],
+            "F": [ 11809 ]
           }
         },
         "u_design.i_usb_uart_rx_IBUF_O": {
@@ -248,7 +248,7 @@
             "I": "input"
           },
           "connections": {
-            "O": [ 11794 ],
+            "O": [ 11804 ],
             "I": [ 7620 ]
           }
         },
@@ -271,7 +271,7 @@
             "I": "input"
           },
           "connections": {
-            "O": [ 11791 ],
+            "O": [ 11801 ],
             "I": [ 7619 ]
           }
         },
@@ -294,7 +294,7 @@
             "I": "input"
           },
           "connections": {
-            "O": [ 11789 ],
+            "O": [ 11799 ],
             "I": [ 7617 ]
           }
         },
@@ -317,7 +317,7 @@
             "I": "input"
           },
           "connections": {
-            "O": [ 11785 ],
+            "O": [ 11795 ],
             "I": [ 7616 ]
           }
         },
@@ -340,7 +340,7 @@
             "I": "input"
           },
           "connections": {
-            "O": [ 11782 ],
+            "O": [ 11792 ],
             "I": [ 7615 ]
           }
         },
@@ -363,7 +363,7 @@
             "I": "input"
           },
           "connections": {
-            "O": [ 11779 ],
+            "O": [ 11789 ],
             "I": [ 7614 ]
           }
         },
@@ -387,7 +387,7 @@
             "I": "input"
           },
           "connections": {
-            "O": [ 11776 ],
+            "O": [ 11786 ],
             "I": [ 7613 ]
           }
         },
@@ -411,7 +411,7 @@
             "I": "input"
           },
           "connections": {
-            "O": [ 11772 ],
+            "O": [ 11782 ],
             "I": [ 7612 ]
           }
         },
@@ -435,7 +435,7 @@
             "I": "input"
           },
           "connections": {
-            "O": [ 11768 ],
+            "O": [ 11778 ],
             "I": [ 7611 ]
           }
         },
@@ -459,7 +459,7 @@
             "I": "input"
           },
           "connections": {
-            "O": [ 11764 ],
+            "O": [ 11774 ],
             "I": [ 7610 ]
           }
         },
@@ -483,7 +483,7 @@
             "I": "input"
           },
           "connections": {
-            "O": [ 11760 ],
+            "O": [ 11770 ],
             "I": [ 7609 ]
           }
         },
@@ -507,7 +507,7 @@
             "I": "input"
           },
           "connections": {
-            "O": [ 11756 ],
+            "O": [ 11766 ],
             "I": [ 7608 ]
           }
         },
@@ -530,7 +530,7 @@
             "I": "input"
           },
           "connections": {
-            "O": [ 11753 ],
+            "O": [ 11763 ],
             "I": [ 7607 ]
           }
         },
@@ -553,7 +553,7 @@
             "I": "input"
           },
           "connections": {
-            "O": [ 11751 ],
+            "O": [ 11761 ],
             "I": [ 7606 ]
           }
         },
@@ -570,7 +570,7 @@
             "V": "output"
           },
           "connections": {
-            "V": [ 11888 ]
+            "V": [ 11898 ]
           }
         },
         "o_usb_uart_tx_OBUF_O": {
@@ -593,7 +593,7 @@
           },
           "connections": {
             "O": [ 7637 ],
-            "I": [ 11888 ]
+            "I": [ 11898 ]
           }
         },
         "u_pll_72m.pll": {
@@ -651,42 +651,42 @@
             "CLKFB": "input"
           },
           "connections": {
-            "ODSEL5": [ 11889 ],
-            "RESET": [ 11889 ],
-            "ODSEL3": [ 11889 ],
-            "ODSEL2": [ 11889 ],
-            "ODSEL1": [ 11889 ],
-            "ODSEL0": [ 11889 ],
-            "IDSEL5": [ 11889 ],
-            "IDSEL4": [ 11889 ],
-            "IDSEL3": [ 11889 ],
-            "IDSEL2": [ 11889 ],
-            "IDSEL1": [ 11889 ],
-            "IDSEL0": [ 11889 ],
-            "LOCK": [ 11511 ],
-            "FBDSEL5": [ 11889 ],
-            "FBDSEL4": [ 11889 ],
-            "FBDSEL3": [ 11889 ],
-            "FBDSEL2": [ 11889 ],
-            "FBDSEL1": [ 11889 ],
-            "FBDSEL0": [ 11889 ],
-            "DUTYDA3": [ 11889 ],
-            "DUTYDA2": [ 11889 ],
-            "DUTYDA1": [ 11889 ],
-            "DUTYDA0": [ 11889 ],
-            "ODSEL4": [ 11889 ],
-            "FDLY3": [ 11889 ],
-            "FDLY2": [ 11889 ],
-            "FDLY1": [ 11889 ],
-            "FDLY0": [ 11889 ],
-            "RESET_P": [ 11889 ],
-            "PSDA3": [ 11889 ],
-            "PSDA2": [ 11889 ],
-            "PSDA1": [ 11889 ],
-            "PSDA0": [ 11889 ],
-            "CLKOUT": [ 11833 ],
+            "ODSEL5": [ 11899 ],
+            "RESET": [ 11899 ],
+            "ODSEL3": [ 11899 ],
+            "ODSEL2": [ 11899 ],
+            "ODSEL1": [ 11899 ],
+            "ODSEL0": [ 11899 ],
+            "IDSEL5": [ 11899 ],
+            "IDSEL4": [ 11899 ],
+            "IDSEL3": [ 11899 ],
+            "IDSEL2": [ 11899 ],
+            "IDSEL1": [ 11899 ],
+            "IDSEL0": [ 11899 ],
+            "LOCK": [ 11519 ],
+            "FBDSEL5": [ 11899 ],
+            "FBDSEL4": [ 11899 ],
+            "FBDSEL3": [ 11899 ],
+            "FBDSEL2": [ 11899 ],
+            "FBDSEL1": [ 11899 ],
+            "FBDSEL0": [ 11899 ],
+            "DUTYDA3": [ 11899 ],
+            "DUTYDA2": [ 11899 ],
+            "DUTYDA1": [ 11899 ],
+            "DUTYDA0": [ 11899 ],
+            "ODSEL4": [ 11899 ],
+            "FDLY3": [ 11899 ],
+            "FDLY2": [ 11899 ],
+            "FDLY1": [ 11899 ],
+            "FDLY0": [ 11899 ],
+            "RESET_P": [ 11899 ],
+            "PSDA3": [ 11899 ],
+            "PSDA2": [ 11899 ],
+            "PSDA1": [ 11899 ],
+            "PSDA0": [ 11899 ],
+            "CLKOUT": [ 11843 ],
             "CLKIN": [  ],
-            "CLKFB": [ 11889 ]
+            "CLKFB": [ 11899 ]
           }
         },
         "u_pll_72m.clkin_IBUF_O": {
@@ -708,7 +708,7 @@
             "I": "input"
           },
           "connections": {
-            "O": [ 11825 ],
+            "O": [ 11835 ],
             "I": [ 7618 ]
           }
         },
@@ -732,7 +732,7 @@
           },
           "connections": {
             "O": [ 7634 ],
-            "I": [ 11889 ]
+            "I": [ 11899 ]
           }
         },
         "o_status_led1_OBUF_O": {
@@ -755,7 +755,7 @@
           },
           "connections": {
             "O": [ 7633 ],
-            "I": [ 11889 ]
+            "I": [ 11899 ]
           }
         },
         "o_status_led0_OBUF_O": {
@@ -778,7 +778,7 @@
           },
           "connections": {
             "O": [ 7632 ],
-            "I": [ 11511 ]
+            "I": [ 11519 ]
           }
         },
         "o_spi_miso_TBUF_O": {
@@ -801,7 +801,7 @@
             "I": "input"
           },
           "connections": {
-            "OEN": [ 11888 ],
+            "OEN": [ 11898 ],
             "O": [ 7631 ],
             "I": [  ]
           }
@@ -826,7 +826,7 @@
           },
           "connections": {
             "O": [ 7630 ],
-            "I": [ 11511 ]
+            "I": [ 11519 ]
           }
         },
         "o_neopixel_OBUF_O": {
@@ -850,7 +850,7 @@
           },
           "connections": {
             "O": [ 7629 ],
-            "I": [ 11889 ]
+            "I": [ 11899 ]
           }
         },
         "o_motor4_IOBUF_IO": {
@@ -880,10 +880,10 @@
             "I": "input"
           },
           "connections": {
-            "BOTTOM_IO_PORT_B": [ 11889 ],
-            "BOTTOM_IO_PORT_A": [ 11889 ],
+            "BOTTOM_IO_PORT_B": [ 11899 ],
+            "BOTTOM_IO_PORT_A": [ 11899 ],
             "OEN": [  ],
-            "O": [ 11506 ],
+            "O": [ 11513 ],
             "IO": [ 7628 ],
             "I": [  ]
           }
@@ -912,7 +912,7 @@
           },
           "connections": {
             "OEN": [  ],
-            "O": [ 11502 ],
+            "O": [ 11508 ],
             "IO": [ 7627 ],
             "I": [  ]
           }
@@ -944,10 +944,10 @@
             "I": "input"
           },
           "connections": {
-            "BOTTOM_IO_PORT_B": [ 11889 ],
-            "BOTTOM_IO_PORT_A": [ 11889 ],
+            "BOTTOM_IO_PORT_B": [ 11899 ],
+            "BOTTOM_IO_PORT_A": [ 11899 ],
             "OEN": [  ],
-            "O": [ 11498 ],
+            "O": [ 11503 ],
             "IO": [ 7626 ],
             "I": [  ]
           }
@@ -976,7 +976,7 @@
           },
           "connections": {
             "OEN": [  ],
-            "O": [ 11494 ],
+            "O": [ 11498 ],
             "IO": [ 7625 ],
             "I": [  ]
           }
@@ -1001,7 +1001,7 @@
           },
           "connections": {
             "O": [ 7624 ],
-            "I": [ 11889 ]
+            "I": [ 11899 ]
           }
         },
         "o_led2_OBUF_O": {
@@ -1024,7 +1024,7 @@
           },
           "connections": {
             "O": [ 7623 ],
-            "I": [ 11889 ]
+            "I": [ 11899 ]
           }
         },
         "o_led1_OBUF_O": {
@@ -1047,7 +1047,7 @@
           },
           "connections": {
             "O": [ 7622 ],
-            "I": [ 11889 ]
+            "I": [ 11899 ]
           }
         },
         "o_led0_OBUF_O": {
@@ -1070,42 +1070,42 @@
           },
           "connections": {
             "O": [ 7621 ],
-            "I": [ 11889 ]
+            "I": [ 11899 ]
           }
         }
       },
       "netnames": {
         "$o_motor4$iobuf_i": {
           "hide_name": 1,
-          "bits": [ 11879 ] ,
+          "bits": [ 11889 ] ,
           "attributes": {
             "ROUTING": " "
           }
         },
         "$o_motor3$iobuf_i": {
           "hide_name": 1,
-          "bits": [ 11878 ] ,
+          "bits": [ 11888 ] ,
           "attributes": {
             "ROUTING": " "
           }
         },
         "$o_motor2$iobuf_i": {
           "hide_name": 1,
-          "bits": [ 11877 ] ,
+          "bits": [ 11887 ] ,
           "attributes": {
             "ROUTING": " "
           }
         },
         "$o_motor1$iobuf_i": {
           "hide_name": 1,
-          "bits": [ 11876 ] ,
+          "bits": [ 11886 ] ,
           "attributes": {
             "ROUTING": " "
           }
         },
         "u_pll_72m.pll_clk": {
           "hide_name": 0,
-          "bits": [ 11833 ] ,
+          "bits": [ 11843 ] ,
           "attributes": {
             "ROUTING": " ",
             "unused_bits": "0 ",
@@ -1115,7 +1115,7 @@
         },
         "u_pll_72m.clkin": {
           "hide_name": 0,
-          "bits": [ 11825 ] ,
+          "bits": [ 11835 ] ,
           "attributes": {
             "ROUTING": " ",
             "unused_bits": "0 ",
@@ -1133,7 +1133,7 @@
         },
         "u_design.sys_rst": {
           "hide_name": 0,
-          "bits": [ 11799 ] ,
+          "bits": [ 11809 ] ,
           "attributes": {
             "ROUTING": " ",
             "src": "version/wb_version.sv:9.36-9.41",
@@ -1142,7 +1142,7 @@
         },
         "u_design.i_usb_uart_rx": {
           "hide_name": 0,
-          "bits": [ 11794 ] ,
+          "bits": [ 11804 ] ,
           "attributes": {
             "ROUTING": " ",
             "unused_bits": "0 ",
@@ -1160,7 +1160,7 @@
         },
         "u_design.i_uart_rx": {
           "hide_name": 0,
-          "bits": [ 11791 ] ,
+          "bits": [ 11801 ] ,
           "attributes": {
             "ROUTING": " ",
             "unused_bits": "0 ",
@@ -1178,7 +1178,7 @@
         },
         "u_design.i_spi_mosi": {
           "hide_name": 0,
-          "bits": [ 11789 ] ,
+          "bits": [ 11799 ] ,
           "attributes": {
             "ROUTING": " ",
             "unused_bits": "0 ",
@@ -1196,7 +1196,7 @@
         },
         "u_design.i_spi_cs_n": {
           "hide_name": 0,
-          "bits": [ 11785 ] ,
+          "bits": [ 11795 ] ,
           "attributes": {
             "ROUTING": " ",
             "unused_bits": "0 ",
@@ -1214,7 +1214,7 @@
         },
         "u_design.i_spi_clk": {
           "hide_name": 0,
-          "bits": [ 11782 ] ,
+          "bits": [ 11792 ] ,
           "attributes": {
             "ROUTING": " ",
             "unused_bits": "0 ",
@@ -1232,7 +1232,7 @@
         },
         "u_design.i_rst": {
           "hide_name": 0,
-          "bits": [ 11779 ] ,
+          "bits": [ 11789 ] ,
           "attributes": {
             "ROUTING": "X1Y0/F6;;1;X1Y0/SN10;X1Y0/SN10/F6;1;X1Y1/B0;X1Y1/B0/S111;1",
             "src": "src/coredesign.sv:31.18-31.23",
@@ -1249,7 +1249,7 @@
         },
         "u_design.i_pwm_ch5": {
           "hide_name": 0,
-          "bits": [ 11776 ] ,
+          "bits": [ 11786 ] ,
           "attributes": {
             "ROUTING": " ",
             "unused_bits": "0 ",
@@ -1267,7 +1267,7 @@
         },
         "u_design.i_pwm_ch4": {
           "hide_name": 0,
-          "bits": [ 11772 ] ,
+          "bits": [ 11782 ] ,
           "attributes": {
             "ROUTING": " ",
             "unused_bits": "0 ",
@@ -1285,7 +1285,7 @@
         },
         "u_design.i_pwm_ch3": {
           "hide_name": 0,
-          "bits": [ 11768 ] ,
+          "bits": [ 11778 ] ,
           "attributes": {
             "ROUTING": " ",
             "unused_bits": "0 ",
@@ -1303,7 +1303,7 @@
         },
         "u_design.i_pwm_ch2": {
           "hide_name": 0,
-          "bits": [ 11764 ] ,
+          "bits": [ 11774 ] ,
           "attributes": {
             "ROUTING": " ",
             "unused_bits": "0 ",
@@ -1321,7 +1321,7 @@
         },
         "u_design.i_pwm_ch1": {
           "hide_name": 0,
-          "bits": [ 11760 ] ,
+          "bits": [ 11770 ] ,
           "attributes": {
             "ROUTING": " ",
             "unused_bits": "0 ",
@@ -1339,7 +1339,7 @@
         },
         "u_design.i_pwm_ch0": {
           "hide_name": 0,
-          "bits": [ 11756 ] ,
+          "bits": [ 11766 ] ,
           "attributes": {
             "ROUTING": " ",
             "unused_bits": "0 ",
@@ -1357,7 +1357,7 @@
         },
         "u_design.i_btn1": {
           "hide_name": 0,
-          "bits": [ 11753 ] ,
+          "bits": [ 11763 ] ,
           "attributes": {
             "ROUTING": " ",
             "unused_bits": "0 ",
@@ -1375,7 +1375,7 @@
         },
         "u_design.i_btn0": {
           "hide_name": 0,
-          "bits": [ 11751 ] ,
+          "bits": [ 11761 ] ,
           "attributes": {
             "ROUTING": " ",
             "unused_bits": "0 ",
@@ -1441,7 +1441,7 @@
         },
         "$PACKER_GND": {
           "hide_name": 1,
-          "bits": [ 11889 ] ,
+          "bits": [ 11899 ] ,
           "attributes": {
             "ROUTING": "X44Y9/C2;X44Y9/C2/W220;1;X44Y9/B4;X44Y9/B4/E250;1;X0Y15/S260;X0Y15/S260/VSS;1;X0Y15/D1;X0Y15/D1/S260;1;X46Y14/D1;X46Y14/D1/E270;1;X44Y9/A5;X44Y9/A5/W210;1;X0Y14/W270;X0Y14/W270/VSS;1;X0Y14/A0;X0Y14/A0/E271;1;X43Y9/A2;X43Y9/A2/N210;1;X44Y9/W210;X44Y9/W210/VSS;1;X44Y9/A4;X44Y9/A4/W210;1;X43Y9/N210;X43Y9/N210/VSS;1;X43Y9/A3;X43Y9/A3/N210;1;X44Y9/E250;X44Y9/E250/VSS;1;X44Y9/B5;X44Y9/B5/E250;1;X44Y9/D6;X44Y9/D6/W260;1;X44Y9/C4;X44Y9/C4/S220;1;X44Y9/B2;X44Y9/B2/W240;1;X0Y12/S260;X0Y12/S260/VSS;1;X0Y12/D1;X0Y12/D1/S260;1;X44Y9/D4;X44Y9/D4/N260;1;X44Y9/C0;X44Y9/C0/W230;1;X28Y28/D1;X28Y28/D1/S260;1;X22Y28/W260;X22Y28/W260/VSS;1;X22Y28/D6;X22Y28/D6/W260;1;X43Y9/E210;X43Y9/E210/VSS;1;X43Y9/A0;X43Y9/A0/E210;1;X44Y9/E200;X44Y9/E200/VSS;1;X44Y9/A3;X44Y9/A3/E200;1;X46Y14/E270;X46Y14/E270/VSS;1;X46Y14/A0;X46Y14/A0/W271;1;X44Y9/D1;X44Y9/D1/S260;1;X44Y9/B1;X44Y9/B1/S240;1;X45Y9/W240;X45Y9/W240/VSS;1;X44Y9/CLK2;X44Y9/CLK2/W241;1;X44Y9/C6;X44Y9/C6/E220;1;X44Y9/S240;X44Y9/S240/VSS;1;X44Y9/B0;X44Y9/B0/S240;1;X44Y9/D2;X44Y9/D2/E260;1;X44Y9/E220;X44Y9/E220/VSS;1;X44Y9/C7;X44Y9/C7/E220;1;X44Y9/W240;X44Y9/W240/VSS;1;X44Y9/B3;X44Y9/B3/W240;1;X44Y9/E260;X44Y9/E260/VSS;1;X44Y9/D3;X44Y9/D3/E260;1;X22Y28/S230;X22Y28/S230/VSS;1;X22Y28/C6;X22Y28/C6/S230;1;X44Y9/S220;X44Y9/S220/VSS;1;X44Y9/C5;X44Y9/C5/S220;1;X44Y9/W260;X44Y9/W260/VSS;1;X44Y9/D7;X44Y9/D7/W260;1;X44Y9/A7;X44Y9/A7/S210;1;X44Y9/S210;X44Y9/S210/VSS;1;X44Y9/A6;X44Y9/A6/S210;1;X28Y28/S260;X28Y28/S260/VSS;1;X28Y28/D6;X28Y28/D6/N261;1;X0Y12/W250;X0Y12/W250/VSS;1;X0Y12/A0;X0Y12/A0/E251;1;X28Y28/S230;X28Y28/S230/VSS;1;X28Y28/C6;X28Y28/C6/S230;1;X44Y9/N260;X44Y9/N260/VSS;1;X44Y9/D5;X44Y9/D5/N260;1;X44Y9/W230;X44Y9/W230/VSS;1;X44Y9/C1;X44Y9/C1/W230;1;X44Y9/W220;X44Y9/W220/VSS;1;X44Y9/C3;X44Y9/C3/W220;1;X44Y9/B7;X44Y9/B7/E240;1;X44Y9/E240;X44Y9/E240/VSS;1;X44Y9/B6;X44Y9/B6/E240;1;X0Y0/VSS;;1;X44Y9/S260;X44Y9/S260/VSS;1;X44Y9/D0;X44Y9/D0/S260;1"
           }
@@ -1464,7 +1464,7 @@
         },
         "pll_locked": {
           "hide_name": 0,
-          "bits": [ 11511 ] ,
+          "bits": [ 11519 ] ,
           "attributes": {
             "ROUTING": "X44Y13/E220;X44Y13/E220/S814;1;X46Y13/D1;X46Y13/D1/E222;1;X44Y9/S810;X44Y9/S810/F2;1;X44Y17/N100;X44Y17/N100/S818;1;X44Y16/E200;X44Y16/E200/N101;1;X46Y16/D1;X46Y16/D1/E202;1;X44Y9/F2;;1;X44Y9/N810;X44Y9/N810/F2;1;X44Y1/W810;X44Y1/W810/N818;1;X36Y1/W820;X36Y1/W820/W818;1;X28Y1/W830;X28Y1/W830/W828;1;X20Y1/W800;X20Y1/W800/W838;1;X12Y1/W800;X12Y1/W800/W808;1;X4Y1/W130;X4Y1/W130/W808;1;X3Y1/W270;X3Y1/W270/W131;1;X1Y1/A0;X1Y1/A0/W272;1",
             "hdlname": "u_pll_72m locked",
@@ -1481,12 +1481,12 @@
         },
         "u_design.o_motor4": {
           "hide_name": 0,
-          "bits": [ 11506 ] ,
+          "bits": [ 11513 ] ,
           "attributes": {
             "ROUTING": " ",
             "unused_bits": "0 1 2 3",
-            "src": "src/wb_serial_dshot_mux.sv:108.17-108.29",
-            "hdlname": "u_design u_wb_mux pad_motor_in"
+            "src": "src/wb_serial_dshot_mux.sv:190.17-190.29",
+            "hdlname": "u_design u_wb_mux rx_tap_array"
           }
         },
         "o_motor4": {
@@ -1499,12 +1499,12 @@
         },
         "u_design.o_motor3": {
           "hide_name": 0,
-          "bits": [ 11502 ] ,
+          "bits": [ 11508 ] ,
           "attributes": {
             "ROUTING": " ",
             "unused_bits": "0 1 2 3",
-            "src": "src/wb_serial_dshot_mux.sv:108.17-108.29",
-            "hdlname": "u_design u_wb_mux pad_motor_in"
+            "src": "src/wb_serial_dshot_mux.sv:190.17-190.29",
+            "hdlname": "u_design u_wb_mux rx_tap_array"
           }
         },
         "o_motor3": {
@@ -1517,12 +1517,12 @@
         },
         "u_design.o_motor2": {
           "hide_name": 0,
-          "bits": [ 11498 ] ,
+          "bits": [ 11503 ] ,
           "attributes": {
             "ROUTING": " ",
             "unused_bits": "0 1 2 3",
-            "src": "src/wb_serial_dshot_mux.sv:108.17-108.29",
-            "hdlname": "u_design u_wb_mux pad_motor_in"
+            "src": "src/wb_serial_dshot_mux.sv:190.17-190.29",
+            "hdlname": "u_design u_wb_mux rx_tap_array"
           }
         },
         "o_motor2": {
@@ -1535,12 +1535,12 @@
         },
         "u_design.o_motor1": {
           "hide_name": 0,
-          "bits": [ 11494 ] ,
+          "bits": [ 11498 ] ,
           "attributes": {
             "ROUTING": " ",
             "unused_bits": "0 1 2 3",
-            "src": "src/wb_serial_dshot_mux.sv:108.17-108.29",
-            "hdlname": "u_design u_wb_mux pad_motor_in"
+            "src": "src/wb_serial_dshot_mux.sv:190.17-190.29",
+            "hdlname": "u_design u_wb_mux rx_tap_array"
           }
         },
         "o_motor1": {
@@ -1585,7 +1585,7 @@
         },
         "$PACKER_VCC": {
           "hide_name": 1,
-          "bits": [ 11888 ] ,
+          "bits": [ 11898 ] ,
           "attributes": {
             "ROUTING": "X3Y28/E270;X3Y28/E270/VCC;1;X3Y28/D1;X3Y28/D1/E270;1;X0Y11/W220;X0Y11/W220/VCC;1;X0Y11/D5;X0Y11/D5/E221;1;X0Y0/VCC;;1;X0Y0/N220;X0Y0/N220/VCC;1;X0Y0/C4;X0Y0/C4/S221;1"
           }

@@ -23,7 +23,7 @@
         }
       },
       "cells": {
-        "$specify$6350": {
+        "$specify$6395": {
           "hide_name": 1,
           "type": "$specify2",
           "parameters": {
@@ -19678,7 +19678,7 @@
             "hdlname": "u_design u_wb_mux",
             "module": "wb_serial_dshot_mux",
             "module_hdlname": "wb_serial_dshot_mux",
-            "module_src": "src/wb_serial_dshot_mux.sv:10.1-116.10"
+            "module_src": "src/wb_serial_dshot_mux.sv:11.1-215.10"
           },
           "port_directions": {
           },
@@ -22885,7 +22885,23 @@
           "bits": [ 34, 34, 34, 34 ],
           "attributes": {
             "hdlname": "u_design u_wb_mux dshot_in",
-            "src": "src/wb_serial_dshot_mux.sv:29.24-29.32"
+            "src": "src/wb_serial_dshot_mux.sv:30.24-30.32"
+          }
+        },
+        "u_design.u_wb_mux.effective_mux_ch": {
+          "hide_name": 0,
+          "bits": [ "x", "x" ],
+          "attributes": {
+            "hdlname": "u_design u_wb_mux effective_mux_ch",
+            "src": "src/wb_serial_dshot_mux.sv:76.17-76.33"
+          }
+        },
+        "u_design.u_wb_mux.effective_mux_sel": {
+          "hide_name": 0,
+          "bits": [ "x" ],
+          "attributes": {
+            "hdlname": "u_design u_wb_mux effective_mux_sel",
+            "src": "src/wb_serial_dshot_mux.sv:75.11-75.28"
           }
         },
         "u_design.u_wb_mux.gen_pads[0].dshot_val": {
@@ -22893,7 +22909,15 @@
           "bits": [ 34 ],
           "attributes": {
             "hdlname": "u_design u_wb_mux gen_pads[0].dshot_val",
-            "src": "src/wb_serial_dshot_mux.sv:79.18-79.27"
+            "src": "src/wb_serial_dshot_mux.sv:117.18-117.27"
+          }
+        },
+        "u_design.u_wb_mux.gen_pads[0].final_drive_enable": {
+          "hide_name": 0,
+          "bits": [ "x" ],
+          "attributes": {
+            "hdlname": "u_design u_wb_mux gen_pads[0].final_drive_enable",
+            "src": "src/wb_serial_dshot_mux.sv:145.18-145.36"
           }
         },
         "u_design.u_wb_mux.gen_pads[0].is_target": {
@@ -22901,23 +22925,32 @@
           "bits": [ "x" ],
           "attributes": {
             "hdlname": "u_design u_wb_mux gen_pads[0].is_target",
-            "src": "src/wb_serial_dshot_mux.sv:67.18-67.27"
+            "src": "src/wb_serial_dshot_mux.sv:115.18-115.27"
           }
         },
-        "u_design.u_wb_mux.gen_pads[0].pad_oe": {
+        "u_design.u_wb_mux.gen_pads[0].pad_input_val": {
+          "hide_name": 0,
+          "bits": [ 35 ],
+          "attributes": {
+            "hdlname": "u_design u_wb_mux gen_pads[0].pad_input_val",
+            "src": "src/wb_serial_dshot_mux.sv:141.18-141.31",
+            "unused_bits": "0 "
+          }
+        },
+        "u_design.u_wb_mux.gen_pads[0].pad_oe_active_high": {
           "hide_name": 0,
           "bits": [ "x" ],
           "attributes": {
-            "hdlname": "u_design u_wb_mux gen_pads[0].pad_oe",
-            "src": "src/wb_serial_dshot_mux.sv:82.19-82.25"
+            "hdlname": "u_design u_wb_mux gen_pads[0].pad_oe_active_high",
+            "src": "src/wb_serial_dshot_mux.sv:120.19-120.37"
           }
         },
-        "u_design.u_wb_mux.gen_pads[0].pad_out": {
+        "u_design.u_wb_mux.gen_pads[0].pad_out_data": {
           "hide_name": 0,
           "bits": [ "x" ],
           "attributes": {
-            "hdlname": "u_design u_wb_mux gen_pads[0].pad_out",
-            "src": "src/wb_serial_dshot_mux.sv:81.19-81.26"
+            "hdlname": "u_design u_wb_mux gen_pads[0].pad_out_data",
+            "src": "src/wb_serial_dshot_mux.sv:119.19-119.31"
           }
         },
         "u_design.u_wb_mux.gen_pads[1].dshot_val": {
@@ -22925,7 +22958,15 @@
           "bits": [ 34 ],
           "attributes": {
             "hdlname": "u_design u_wb_mux gen_pads[1].dshot_val",
-            "src": "src/wb_serial_dshot_mux.sv:79.18-79.27"
+            "src": "src/wb_serial_dshot_mux.sv:117.18-117.27"
+          }
+        },
+        "u_design.u_wb_mux.gen_pads[1].final_drive_enable": {
+          "hide_name": 0,
+          "bits": [ "x" ],
+          "attributes": {
+            "hdlname": "u_design u_wb_mux gen_pads[1].final_drive_enable",
+            "src": "src/wb_serial_dshot_mux.sv:145.18-145.36"
           }
         },
         "u_design.u_wb_mux.gen_pads[1].is_target": {
@@ -22933,23 +22974,32 @@
           "bits": [ "x" ],
           "attributes": {
             "hdlname": "u_design u_wb_mux gen_pads[1].is_target",
-            "src": "src/wb_serial_dshot_mux.sv:67.18-67.27"
+            "src": "src/wb_serial_dshot_mux.sv:115.18-115.27"
           }
         },
-        "u_design.u_wb_mux.gen_pads[1].pad_oe": {
+        "u_design.u_wb_mux.gen_pads[1].pad_input_val": {
+          "hide_name": 0,
+          "bits": [ 36 ],
+          "attributes": {
+            "hdlname": "u_design u_wb_mux gen_pads[1].pad_input_val",
+            "src": "src/wb_serial_dshot_mux.sv:141.18-141.31",
+            "unused_bits": "0 "
+          }
+        },
+        "u_design.u_wb_mux.gen_pads[1].pad_oe_active_high": {
           "hide_name": 0,
           "bits": [ "x" ],
           "attributes": {
-            "hdlname": "u_design u_wb_mux gen_pads[1].pad_oe",
-            "src": "src/wb_serial_dshot_mux.sv:82.19-82.25"
+            "hdlname": "u_design u_wb_mux gen_pads[1].pad_oe_active_high",
+            "src": "src/wb_serial_dshot_mux.sv:120.19-120.37"
           }
         },
-        "u_design.u_wb_mux.gen_pads[1].pad_out": {
+        "u_design.u_wb_mux.gen_pads[1].pad_out_data": {
           "hide_name": 0,
           "bits": [ "x" ],
           "attributes": {
-            "hdlname": "u_design u_wb_mux gen_pads[1].pad_out",
-            "src": "src/wb_serial_dshot_mux.sv:81.19-81.26"
+            "hdlname": "u_design u_wb_mux gen_pads[1].pad_out_data",
+            "src": "src/wb_serial_dshot_mux.sv:119.19-119.31"
           }
         },
         "u_design.u_wb_mux.gen_pads[2].dshot_val": {
@@ -22957,7 +23007,15 @@
           "bits": [ 34 ],
           "attributes": {
             "hdlname": "u_design u_wb_mux gen_pads[2].dshot_val",
-            "src": "src/wb_serial_dshot_mux.sv:79.18-79.27"
+            "src": "src/wb_serial_dshot_mux.sv:117.18-117.27"
+          }
+        },
+        "u_design.u_wb_mux.gen_pads[2].final_drive_enable": {
+          "hide_name": 0,
+          "bits": [ "x" ],
+          "attributes": {
+            "hdlname": "u_design u_wb_mux gen_pads[2].final_drive_enable",
+            "src": "src/wb_serial_dshot_mux.sv:145.18-145.36"
           }
         },
         "u_design.u_wb_mux.gen_pads[2].is_target": {
@@ -22965,23 +23023,32 @@
           "bits": [ "x" ],
           "attributes": {
             "hdlname": "u_design u_wb_mux gen_pads[2].is_target",
-            "src": "src/wb_serial_dshot_mux.sv:67.18-67.27"
+            "src": "src/wb_serial_dshot_mux.sv:115.18-115.27"
           }
         },
-        "u_design.u_wb_mux.gen_pads[2].pad_oe": {
+        "u_design.u_wb_mux.gen_pads[2].pad_input_val": {
+          "hide_name": 0,
+          "bits": [ 37 ],
+          "attributes": {
+            "hdlname": "u_design u_wb_mux gen_pads[2].pad_input_val",
+            "src": "src/wb_serial_dshot_mux.sv:141.18-141.31",
+            "unused_bits": "0 "
+          }
+        },
+        "u_design.u_wb_mux.gen_pads[2].pad_oe_active_high": {
           "hide_name": 0,
           "bits": [ "x" ],
           "attributes": {
-            "hdlname": "u_design u_wb_mux gen_pads[2].pad_oe",
-            "src": "src/wb_serial_dshot_mux.sv:82.19-82.25"
+            "hdlname": "u_design u_wb_mux gen_pads[2].pad_oe_active_high",
+            "src": "src/wb_serial_dshot_mux.sv:120.19-120.37"
           }
         },
-        "u_design.u_wb_mux.gen_pads[2].pad_out": {
+        "u_design.u_wb_mux.gen_pads[2].pad_out_data": {
           "hide_name": 0,
           "bits": [ "x" ],
           "attributes": {
-            "hdlname": "u_design u_wb_mux gen_pads[2].pad_out",
-            "src": "src/wb_serial_dshot_mux.sv:81.19-81.26"
+            "hdlname": "u_design u_wb_mux gen_pads[2].pad_out_data",
+            "src": "src/wb_serial_dshot_mux.sv:119.19-119.31"
           }
         },
         "u_design.u_wb_mux.gen_pads[3].dshot_val": {
@@ -22989,7 +23056,15 @@
           "bits": [ 34 ],
           "attributes": {
             "hdlname": "u_design u_wb_mux gen_pads[3].dshot_val",
-            "src": "src/wb_serial_dshot_mux.sv:79.18-79.27"
+            "src": "src/wb_serial_dshot_mux.sv:117.18-117.27"
+          }
+        },
+        "u_design.u_wb_mux.gen_pads[3].final_drive_enable": {
+          "hide_name": 0,
+          "bits": [ "x" ],
+          "attributes": {
+            "hdlname": "u_design u_wb_mux gen_pads[3].final_drive_enable",
+            "src": "src/wb_serial_dshot_mux.sv:145.18-145.36"
           }
         },
         "u_design.u_wb_mux.gen_pads[3].is_target": {
@@ -22997,23 +23072,40 @@
           "bits": [ "x" ],
           "attributes": {
             "hdlname": "u_design u_wb_mux gen_pads[3].is_target",
-            "src": "src/wb_serial_dshot_mux.sv:67.18-67.27"
+            "src": "src/wb_serial_dshot_mux.sv:115.18-115.27"
           }
         },
-        "u_design.u_wb_mux.gen_pads[3].pad_oe": {
+        "u_design.u_wb_mux.gen_pads[3].pad_input_val": {
+          "hide_name": 0,
+          "bits": [ 38 ],
+          "attributes": {
+            "hdlname": "u_design u_wb_mux gen_pads[3].pad_input_val",
+            "src": "src/wb_serial_dshot_mux.sv:141.18-141.31",
+            "unused_bits": "0 "
+          }
+        },
+        "u_design.u_wb_mux.gen_pads[3].pad_oe_active_high": {
           "hide_name": 0,
           "bits": [ "x" ],
           "attributes": {
-            "hdlname": "u_design u_wb_mux gen_pads[3].pad_oe",
-            "src": "src/wb_serial_dshot_mux.sv:82.19-82.25"
+            "hdlname": "u_design u_wb_mux gen_pads[3].pad_oe_active_high",
+            "src": "src/wb_serial_dshot_mux.sv:120.19-120.37"
           }
         },
-        "u_design.u_wb_mux.gen_pads[3].pad_out": {
+        "u_design.u_wb_mux.gen_pads[3].pad_out_data": {
           "hide_name": 0,
           "bits": [ "x" ],
           "attributes": {
-            "hdlname": "u_design u_wb_mux gen_pads[3].pad_out",
-            "src": "src/wb_serial_dshot_mux.sv:81.19-81.26"
+            "hdlname": "u_design u_wb_mux gen_pads[3].pad_out_data",
+            "src": "src/wb_serial_dshot_mux.sv:119.19-119.31"
+          }
+        },
+        "u_design.u_wb_mux.global_tristate": {
+          "hide_name": 0,
+          "bits": [ 34 ],
+          "attributes": {
+            "hdlname": "u_design u_wb_mux global_tristate",
+            "src": "src/wb_serial_dshot_mux.sv:89.11-89.26"
           }
         },
         "u_design.u_wb_mux.mux_ch": {
@@ -23021,7 +23113,7 @@
           "bits": [ "x", "x" ],
           "attributes": {
             "hdlname": "u_design u_wb_mux mux_ch",
-            "src": "src/wb_serial_dshot_mux.sv:23.24-23.30"
+            "src": "src/wb_serial_dshot_mux.sv:24.24-24.30"
           }
         },
         "u_design.u_wb_mux.mux_sel": {
@@ -23029,7 +23121,7 @@
           "bits": [ "x" ],
           "attributes": {
             "hdlname": "u_design u_wb_mux mux_sel",
-            "src": "src/wb_serial_dshot_mux.sv:22.24-22.31"
+            "src": "src/wb_serial_dshot_mux.sv:23.24-23.31"
           }
         },
         "u_design.u_wb_mux.pad_motor": {
@@ -23037,16 +23129,32 @@
           "bits": [ 35, 36, 37, 38 ],
           "attributes": {
             "hdlname": "u_design u_wb_mux pad_motor",
-            "src": "src/wb_serial_dshot_mux.sv:26.24-26.33",
+            "src": "src/wb_serial_dshot_mux.sv:27.24-27.33",
             "unused_bits": "0 1 2 3"
           }
         },
-        "u_design.u_wb_mux.pad_motor_in": {
+        "u_design.u_wb_mux.prev_mux_ch": {
+          "hide_name": 0,
+          "bits": [ 34, 34 ],
+          "attributes": {
+            "hdlname": "u_design u_wb_mux prev_mux_ch",
+            "src": "src/wb_serial_dshot_mux.sv:88.17-88.28"
+          }
+        },
+        "u_design.u_wb_mux.prev_mux_sel": {
+          "hide_name": 0,
+          "bits": [ 34 ],
+          "attributes": {
+            "hdlname": "u_design u_wb_mux prev_mux_sel",
+            "src": "src/wb_serial_dshot_mux.sv:87.11-87.23"
+          }
+        },
+        "u_design.u_wb_mux.rx_tap_array": {
           "hide_name": 0,
           "bits": [ 35, 36, 37, 38 ],
           "attributes": {
-            "hdlname": "u_design u_wb_mux pad_motor_in",
-            "src": "src/wb_serial_dshot_mux.sv:108.17-108.29",
+            "hdlname": "u_design u_wb_mux rx_tap_array",
+            "src": "src/wb_serial_dshot_mux.sv:190.17-190.29",
             "unused_bits": "0 1 2 3"
           }
         },
@@ -23055,7 +23163,23 @@
           "bits": [ 34 ],
           "attributes": {
             "hdlname": "u_design u_wb_mux serial_oe_i",
-            "src": "src/wb_serial_dshot_mux.sv:32.24-32.35"
+            "src": "src/wb_serial_dshot_mux.sv:33.24-33.35"
+          }
+        },
+        "u_design.u_wb_mux.serial_rx_meta": {
+          "hide_name": 0,
+          "bits": [ 40 ],
+          "attributes": {
+            "hdlname": "u_design u_wb_mux serial_rx_meta",
+            "src": "src/wb_serial_dshot_mux.sv:199.11-199.25"
+          }
+        },
+        "u_design.u_wb_mux.serial_rx_sync": {
+          "hide_name": 0,
+          "bits": [ 40 ],
+          "attributes": {
+            "hdlname": "u_design u_wb_mux serial_rx_sync",
+            "src": "src/wb_serial_dshot_mux.sv:200.11-200.25"
           }
         },
         "u_design.u_wb_mux.serial_tx_i": {
@@ -23063,7 +23187,7 @@
           "bits": [ 40 ],
           "attributes": {
             "hdlname": "u_design u_wb_mux serial_tx_i",
-            "src": "src/wb_serial_dshot_mux.sv:31.24-31.35"
+            "src": "src/wb_serial_dshot_mux.sv:32.24-32.35"
           }
         },
         "u_design.u_wb_mux.wb_ack_o": {
@@ -23071,7 +23195,7 @@
           "bits": [ "x" ],
           "attributes": {
             "hdlname": "u_design u_wb_mux wb_ack_o",
-            "src": "src/wb_serial_dshot_mux.sv:20.24-20.32"
+            "src": "src/wb_serial_dshot_mux.sv:21.24-21.32"
           }
         },
         "u_design.u_wb_mux.wb_adr_i": {
@@ -23079,7 +23203,7 @@
           "bits": [ 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34 ],
           "attributes": {
             "hdlname": "u_design u_wb_mux wb_adr_i",
-            "src": "src/wb_serial_dshot_mux.sv:14.24-14.32"
+            "src": "src/wb_serial_dshot_mux.sv:15.24-15.32"
           }
         },
         "u_design.u_wb_mux.wb_clk_i": {
@@ -23087,7 +23211,7 @@
           "bits": [ "x" ],
           "attributes": {
             "hdlname": "u_design u_wb_mux wb_clk_i",
-            "src": "src/wb_serial_dshot_mux.sv:11.24-11.32"
+            "src": "src/wb_serial_dshot_mux.sv:12.24-12.32"
           }
         },
         "u_design.u_wb_mux.wb_cyc_i": {
@@ -23095,7 +23219,7 @@
           "bits": [ 34 ],
           "attributes": {
             "hdlname": "u_design u_wb_mux wb_cyc_i",
-            "src": "src/wb_serial_dshot_mux.sv:18.24-18.32"
+            "src": "src/wb_serial_dshot_mux.sv:19.24-19.32"
           }
         },
         "u_design.u_wb_mux.wb_dat_i": {
@@ -23103,7 +23227,7 @@
           "bits": [ 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34 ],
           "attributes": {
             "hdlname": "u_design u_wb_mux wb_dat_i",
-            "src": "src/wb_serial_dshot_mux.sv:13.24-13.32"
+            "src": "src/wb_serial_dshot_mux.sv:14.24-14.32"
           }
         },
         "u_design.u_wb_mux.wb_dat_o": {
@@ -23111,7 +23235,7 @@
           "bits": [ "x", "x", "x", 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34 ],
           "attributes": {
             "hdlname": "u_design u_wb_mux wb_dat_o",
-            "src": "src/wb_serial_dshot_mux.sv:19.24-19.32"
+            "src": "src/wb_serial_dshot_mux.sv:20.24-20.32"
           }
         },
         "u_design.u_wb_mux.wb_rst_i": {
@@ -23119,7 +23243,7 @@
           "bits": [ 55 ],
           "attributes": {
             "hdlname": "u_design u_wb_mux wb_rst_i",
-            "src": "src/wb_serial_dshot_mux.sv:12.24-12.32"
+            "src": "src/wb_serial_dshot_mux.sv:13.24-13.32"
           }
         },
         "u_design.u_wb_mux.wb_sel_i": {
@@ -23127,7 +23251,7 @@
           "bits": [ 34, 34, 34, 34 ],
           "attributes": {
             "hdlname": "u_design u_wb_mux wb_sel_i",
-            "src": "src/wb_serial_dshot_mux.sv:16.24-16.32"
+            "src": "src/wb_serial_dshot_mux.sv:17.24-17.32"
           }
         },
         "u_design.u_wb_mux.wb_stall_o": {
@@ -23135,7 +23259,7 @@
           "bits": [ 34 ],
           "attributes": {
             "hdlname": "u_design u_wb_mux wb_stall_o",
-            "src": "src/wb_serial_dshot_mux.sv:21.24-21.34"
+            "src": "src/wb_serial_dshot_mux.sv:22.24-22.34"
           }
         },
         "u_design.u_wb_mux.wb_stb_i": {
@@ -23143,7 +23267,7 @@
           "bits": [ 34 ],
           "attributes": {
             "hdlname": "u_design u_wb_mux wb_stb_i",
-            "src": "src/wb_serial_dshot_mux.sv:17.24-17.32"
+            "src": "src/wb_serial_dshot_mux.sv:18.24-18.32"
           }
         },
         "u_design.u_wb_mux.wb_we_i": {
@@ -23151,7 +23275,7 @@
           "bits": [ 34 ],
           "attributes": {
             "hdlname": "u_design u_wb_mux wb_we_i",
-            "src": "src/wb_serial_dshot_mux.sv:15.24-15.31"
+            "src": "src/wb_serial_dshot_mux.sv:16.24-16.31"
           }
         },
         "u_design.u_wb_mux_6.clk": {
