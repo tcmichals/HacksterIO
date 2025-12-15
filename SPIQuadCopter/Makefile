@@ -118,10 +118,12 @@ help:
 	@echo "Individual testbench targets:"
 	@echo "  make tb-spi               - Run SPI slave testbench"
 	@echo "  make tb-tang9k            - Run tang9k_top full integration testbench"
+	@echo "  make tb-wb-mux            - Run wb_serial_dshot_mux directed testbench"
 	@echo "  make tb-serial            - Run TTL Serial UART testbench"
 	@echo "  make tb-pwm               - Run PWM decoder testbench"
 	@echo "  make tb-dshot             - Run DSHOT motor controller testbench"
 	@echo "  make tb-passthrough       - Run UART passthrough bridge testbench"
+	@echo "  make tb-wb-mux            - Run wb_serial_dshot_mux directed testbench"
 	@echo ""
 	@echo "Legacy submodule simulation commands:"
 	@echo "  cd spiSlave && make simulate   - Test SPI slave module"
@@ -224,6 +226,12 @@ tb-passthrough:
 	@echo "Running UART Passthrough Bridge Testbench"
 	@echo "=========================================="
 	@cd src && $(MAKE) -f Makefile.passthrough_tb sim
+
+tb-wb-mux:
+	@echo "=========================================="
+	@echo "Running WB Serial/DSHOT Mux Directed Testbench"
+	@echo "=========================================="
+	@cd src && $(MAKE) -f Makefile.wb_mux_tb sim
 
 .PHONY: tb-design
 tb-design:
