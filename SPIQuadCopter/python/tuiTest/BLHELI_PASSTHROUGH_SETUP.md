@@ -256,7 +256,7 @@ blheli.disable_passthrough()  # Switches back to DSHOT
 
 ## See Also
 
-- [BLHELI_PASSTHROUGH.md](../../BLHELI_PASSTHROUGH.md) - BLHeli passthrough architecture details
-- [SYSTEM_OVERVIEW.md](../../SYSTEM_OVERVIEW.md) - Complete Tang9K system documentation
+- [BLHELI_PASSTHROUGH.md](../../docs/BLHELI_PASSTHROUGH.md) - BLHeli passthrough architecture details
+- [SYSTEM_OVERVIEW.md](../../docs/SYSTEM_OVERVIEW.md) - Complete Tang9K system documentation
 - [USB_SERIAL_BRIDGE.md](USB_SERIAL_BRIDGE.md) - Alternative: Hardware USB-serial bridge setup
 - [TANG9K_LIBRARY.md](TANG9K_LIBRARY.md) - Python Tang9K library API reference

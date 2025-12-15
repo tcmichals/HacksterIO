@@ -361,7 +361,7 @@ sudo apt-get install python3-spidev
 
 ## See Also
 
-- [BLHELI_PASSTHROUGH.md](../../BLHELI_PASSTHROUGH.md) - BLHeli ESC configuration
-- [SYSTEM_OVERVIEW.md](../../SYSTEM_OVERVIEW.md) - Complete system architecture
+- [BLHELI_PASSTHROUGH.md](../../docs/BLHELI_PASSTHROUGH.md) - BLHeli ESC configuration
+- [SYSTEM_OVERVIEW.md](../../docs/SYSTEM_OVERVIEW.md) - Complete system architecture
 - [USB_SERIAL_BRIDGE.md](USB_SERIAL_BRIDGE.md) - Hardware serial adapter setup
 - [HALF_DUPLEX_SERIAL.md](HALF_DUPLEX_SERIAL.md) - Half-duplex implementation details

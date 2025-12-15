@@ -297,7 +297,7 @@ Now the device will always appear as `/dev/tang9k_serial` regardless of which `/
 
 ## See Also
 
-- [BLHELI_PASSTHROUGH.md](../../BLHELI_PASSTHROUGH.md) - Complete passthrough guide
+- [BLHELI_PASSTHROUGH.md](../../docs/BLHELI_PASSTHROUGH.md) - Complete passthrough guide
 - [BLHELI_PASSTHROUGH_SETUP.md](BLHELI_PASSTHROUGH_SETUP.md) - BLHeli passthrough mode details
 - [ESC_CONFIGURATOR_WEBAPP.md](ESC_CONFIGURATOR_WEBAPP.md) - Web app details
-- [SYSTEM_OVERVIEW.md](../../SYSTEM_OVERVIEW.md) - Full system architecture
+- [SYSTEM_OVERVIEW.md](../../docs/SYSTEM_OVERVIEW.md) - Full system architecture

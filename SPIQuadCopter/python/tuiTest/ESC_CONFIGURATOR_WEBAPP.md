@@ -267,5 +267,5 @@ The `raw-usb` permission is safe when used with trusted applications like Chrome
 ## See Also
 
 - [BLHELI_PASSTHROUGH_SETUP.md](BLHELI_PASSTHROUGH_SETUP.md) - BLHeli passthrough setup
-- [BLHELI_PASSTHROUGH.md](../../BLHELI_PASSTHROUGH.md) - Complete passthrough guide
-- [SYSTEM_OVERVIEW.md](../../SYSTEM_OVERVIEW.md) - Full system architecture
+- [BLHELI_PASSTHROUGH.md](../../docs/BLHELI_PASSTHROUGH.md) - Complete passthrough guide
+- [SYSTEM_OVERVIEW.md](../../docs/SYSTEM_OVERVIEW.md) - Full system architecture

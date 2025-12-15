@@ -15,31 +15,31 @@ FPGA-based quadcopter flight controller using the Tang9K development board.
 
 ## Quick Start
 1. **Initialize submodules**: `git submodule update --init --recursive`
-2. See `START_HERE.txt` for initial setup
+2. See `docs/START_HERE.txt` for initial setup
 3. **Install toolchain**: `make install-tools` (or `make install-tools-local`)
 4. **Build**: `make build`
 5. **Program**: `make upload`
-6. See `BUILD_AND_PROGRAM.md` for detailed instructions
+6. See `docs/BUILD_AND_PROGRAM.md` for detailed instructions
 
 ## Documentation
 
 ### Getting Started
-- **[START_HERE.txt](START_HERE.txt)** - Initial setup guide
-- **[QUICK_START.md](QUICK_START.md)** - Quick reference guide
-- **[BUILD_AND_PROGRAM.md](BUILD_AND_PROGRAM.md)** - Toolchain installation and build instructions
+- **[START_HERE.txt](docs/START_HERE.txt)** - Initial setup guide
+- **[QUICK_START.md](docs/QUICK_START.md)** - Quick reference guide
+- **[BUILD_AND_PROGRAM.md](docs/BUILD_AND_PROGRAM.md)** - Toolchain installation and build instructions
 
 ### Hardware & Pins
-- **[HARDWARE_PINS.md](HARDWARE_PINS.md)** - Complete pin assignments and mux details
+- **[HARDWARE_PINS.md](docs/HARDWARE_PINS.md)** - Complete pin assignments and mux details
 - **[tang9k.cst](tang9k.cst)** - Pin constraint file
 
 ### System Architecture
-- **[SYSTEM_OVERVIEW.md](SYSTEM_OVERVIEW.md)** - Complete architecture and Wishbone address map
-- **[WISHBONE_BUS.md](WISHBONE_BUS.md)** - Wishbone integration details
-- **[72MHZ_PLL.md](72MHZ_PLL.md)** - PLL configuration
+- **[SYSTEM_OVERVIEW.md](docs/SYSTEM_OVERVIEW.md)** - Complete architecture and Wishbone address map
+- **[WISHBONE_BUS.md](docs/WISHBONE_BUS.md)** - Wishbone integration details
+- **[72MHZ_PLL.md](docs/72MHZ_PLL.md)** - PLL configuration
 
 ### BLHeli & ESC Configuration
-- **[BLHELI_PASSTHROUGH.md](BLHELI_PASSTHROUGH.md)** - ESC configuration guide (motor pin routing)
-- **[BLHELI_QUICKSTART.md](BLHELI_QUICKSTART.md)** - Quick BLHeli setup
+- **[BLHELI_PASSTHROUGH.md](docs/BLHELI_PASSTHROUGH.md)** - ESC configuration guide (motor pin routing)
+- **[BLHELI_QUICKSTART.md](docs/BLHELI_QUICKSTART.md)** - Quick BLHeli setup
 - **[python/tuiTest/USB_SERIAL_BRIDGE.md](python/tuiTest/USB_SERIAL_BRIDGE.md)** - Hardware serial bridge (recommended)
 - **[python/tuiTest/ESC_CONFIGURATOR_WEBAPP.md](python/tuiTest/ESC_CONFIGURATOR_WEBAPP.md)** - Web-based configurator
 
@@ -48,7 +48,7 @@ FPGA-based quadcopter flight controller using the Tang9K development board.
 - **[python/tcpSPIBridge/tcpSPIBridge.py](python/tcpSPIBridge/tcpSPIBridge.py)** - TCP-to-SPI bridge for Raspberry Pi
 
 ### Development
-- **[PROJECT_SUMMARY.md](PROJECT_SUMMARY.md)** - Project overview
+- **[PROJECT_SUMMARY.md](docs/PROJECT_SUMMARY.md)** - Project overview
 - **[src/TESTBENCH_README.md](src/TESTBENCH_README.md)** - Testbench documentation
 
 ## Python TUI Application
@@ -183,7 +183,7 @@ make tb-passthrough   # Run UART passthrough testbench
 make test-tb          # Run all testbenches
 ```
 
-See `BUILD_AND_PROGRAM.md` for detailed instructions.
+See `docs/BUILD_AND_PROGRAM.md` for detailed instructions.
 
 ## Testing with iverilog
 

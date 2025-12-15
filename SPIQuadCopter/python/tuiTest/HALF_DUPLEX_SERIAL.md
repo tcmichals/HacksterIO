@@ -258,5 +258,5 @@ assert rx_data == ord('A'), "Loopback failed!"
 ## See Also
 
 - [USB_SERIAL_BRIDGE.md](USB_SERIAL_BRIDGE.md) - Using USB serial adapter
-- [BLHELI_PASSTHROUGH.md](../../BLHELI_PASSTHROUGH.md) - BLHeli configuration guide
-- [SYSTEM_OVERVIEW.md](../../SYSTEM_OVERVIEW.md) - Complete system architecture
+- [BLHELI_PASSTHROUGH.md](../../docs/BLHELI_PASSTHROUGH.md) - BLHeli configuration guide
+- [SYSTEM_OVERVIEW.md](../../docs/SYSTEM_OVERVIEW.md) - Complete system architecture

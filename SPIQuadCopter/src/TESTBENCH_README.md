@@ -237,4 +237,4 @@ To add new tests:
 
 - [uart_passthrough_bridge.sv](uart_passthrough_bridge.sv) - DUT source code
 - [BLHELI_PASSTHROUGH_SETUP.md](../python/test/BLHELI_PASSTHROUGH_SETUP.md) - Usage guide
-- [HARDWARE_PINS.md](../HARDWARE_PINS.md) - Pin connections
+- [HARDWARE_PINS.md](../docs/HARDWARE_PINS.md) - Pin connections
