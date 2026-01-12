@@ -157,20 +157,20 @@ module wishbone_master_axis #(
                 byte_cnt     <= 0;
             end
 
-            // Address Capture
+            // Address Capture (shift left by 8 and append new byte)
             if (state == ST_ADDR && s_axis_tvalid && s_axis_tready) begin
-                addr_reg <= {addr_reg[ADDR_WIDTH-9:0], s_axis_tdata};
+                addr_reg <= (addr_reg << 8) | s_axis_tdata;
             end
 
-            // Length Capture
+            // Length Capture (shift left by 8 and append new byte)
             if (state == ST_LEN && s_axis_tvalid && s_axis_tready) begin
-                len_reg <= {len_reg[7:0], s_axis_tdata};
+                len_reg <= (len_reg << 8) | s_axis_tdata;
                 word_cnt <= 0; // Reset word counter
             end
 
-            // Write Data Capture
+            // Write Data Capture (shift left by 8 and append new byte)
             if (state == ST_WDATA && s_axis_tvalid && s_axis_tready) begin
-                wdata_reg <= {wdata_reg[DATA_WIDTH-9:0], s_axis_tdata};
+                wdata_reg <= (wdata_reg << 8) | s_axis_tdata;
             end
 
             // Read Data Capture
@@ -293,10 +293,10 @@ module wishbone_master_axis #(
             ST_RSP_DATA: begin
                 m_axis_tvalid = 1;
                 case (byte_cnt)
-                    3'd0: m_axis_tdata = rdata_reg[31:24];
-                    3'd1: m_axis_tdata = rdata_reg[23:16];
-                    3'd2: m_axis_tdata = rdata_reg[15:8];
-                    3'd3: m_axis_tdata = rdata_reg[7:0];
+                    3'd0: m_axis_tdata = (rdata_reg >> 24) & 8'hFF;
+                    3'd1: m_axis_tdata = (rdata_reg >> 16) & 8'hFF;
+                    3'd2: m_axis_tdata = (rdata_reg >> 8)  & 8'hFF;
+                    3'd3: m_axis_tdata = rdata_reg & 8'hFF;
                 endcase
                 
                 // Assert TLAST on the very last byte of the transaction

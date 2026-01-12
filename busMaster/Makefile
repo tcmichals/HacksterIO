@@ -1,7 +1,7 @@
 # Makefile for Wishbone Master AXIS Bridge
 
 # Sources
-SRC = wishbone_master_axis.sv tb_wishbone_master_axis.sv
+SRC = wishbone_master_axis.sv tb/tb_wishbone_master_axis.sv
 
 # Tools
 IVERILOG = iverilog
