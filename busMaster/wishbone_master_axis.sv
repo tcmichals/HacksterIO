@@ -19,6 +19,8 @@ module wishbone_master_axis #(
     output logic                    m_axis_tvalid,
     input  logic                    m_axis_tready,
     output logic                    m_axis_tlast,
+    // Alert to testbench when internal timeout/error occurs
+    output logic                    timeout_alert,
 
     // Wishbone Master Interface
     output logic [ADDR_WIDTH-1:0]   wb_adr_o,
@@ -76,6 +78,8 @@ module wishbone_master_axis #(
 
     // Internal signals
     logic                    wb_cycle_done;
+    // Expose state-based timeout to TB
+    // timeout_alert will be asserted when module enters timeout error state
 
     // -------------------------------------------------------------------------
     // Timeout Logic
@@ -201,6 +205,7 @@ module wishbone_master_axis #(
         wb_adr_o = addr_reg;
         wb_dat_o = wdata_reg;
         wb_sel_o = 4'b1111;  // All bytes selected for 32-bit data
+        timeout_alert = 0;
 
         case (state)
             ST_IDLE: begin
@@ -337,6 +342,7 @@ module wishbone_master_axis #(
                 m_axis_tvalid = 1;
                 m_axis_tdata = RSP_ERROR;
                 m_axis_tlast = 1;
+                timeout_alert = 1;
                 if (m_axis_tready) begin
                     state_next = ST_IDLE;
                 end

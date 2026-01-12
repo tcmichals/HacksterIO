@@ -36,6 +36,12 @@ module tb_wishbone_master_axis;
 
     // Helper for Wishbone Slave Simulation
     logic [31:0] memory [0:255]; // Small memory for testing
+    // Cycle-based watchdog (module-scope)
+`ifndef MAX_CYCLES
+`define MAX_CYCLES 100000000
+`endif
+    localparam int MAX_CYCLES = `MAX_CYCLES; // number of clock cycles before watchdog triggers
+    integer cycle_count;
 
     // Instantiation
     wishbone_master_axis #(
@@ -63,6 +69,24 @@ module tb_wishbone_master_axis;
         .wb_err_i(wb_err_i)
     );
 
+    // Monitor DUT for timeout alert and terminate simulation if asserted
+    always @(posedge clk) begin
+        if (dut.timeout_alert) begin
+            $display("TESTBENCH: DUT timeout_alert asserted - terminating simulation");
+            $finish;
+        end
+    end
+
+    // Cycle-based watchdog process: runs at module scope
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) cycle_count <= 0;
+        else if (cycle_count < MAX_CYCLES) cycle_count <= cycle_count + 1;
+        else begin
+            $display("TESTBENCH: Cycle watchdog exceeded %0d cycles - terminating", MAX_CYCLES);
+            $finish;
+        end
+    end
+
     // Clock Generation
     initial begin
         clk = 0;
@@ -75,7 +99,7 @@ module tb_wishbone_master_axis;
     end
 
     // Wishbone Slave Logic (Simple RAM)
-    always_ff @(posedge clk) begin
+    always @(posedge clk) begin
         wb_ack_i <= 0;
         wb_dat_i <= 0;
         if (wb_cyc_o && wb_stb_o && !wb_ack_i) begin
@@ -104,6 +128,8 @@ module tb_wishbone_master_axis;
         #100;
         rst_n = 1;
         #20;
+
+        
 
         $display("TEST: Starting Burst Write Transaction (2 Words)...");
         // 1. Burst Write (CMD=0x01, Addr=0x10, Len=0x0002)
