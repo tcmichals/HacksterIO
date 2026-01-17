@@ -3,7 +3,7 @@ OSS-CAD-SUITE (manual install)
 
 This file shows a minimal, repeatable way to download a prebuilt OSS-CAD-SUITE release and install it locally for use with this project's Makefile.
 
-We recommend installing into `~/.tools/oss-cad-suite` with the revision number in the path (e.g., `~/.tools/oss-cad-suite-rev123`). Adjust the paths below if you want to install elsewhere.
+We recommend installing into `~/.local/oss-cad-suite` with the revision number in the path (e.g., `~/.local/oss-cad-suite-rev123`). Adjust the paths below if you want to install elsewhere.
 
 1) Pick the release asset
 
@@ -15,10 +15,10 @@ You can also fetch the latest matching asset URL from the command line.
 
 2) Quick one-liner (recommended)
 
-This downloads the latest Linux x86_64 tarball, extracts it to `~/.tools/oss-cad-suite` with the revision number, and creates a symlink.
+This downloads the latest Linux x86_64 tarball, extracts it to `~/.local/oss-cad-suite` with the revision number, and creates a symlink.
 
 ```bash
-mkdir -p ~/.tools
+mkdir -p ~/.local
 
 # Find the latest asset URL and extract revision/build number from JSON
 RELEASE_DATA=$(curl -s https://api.github.com/repos/YosysHQ/oss-cad-suite-build/releases/latest)
@@ -32,19 +32,19 @@ if [ -z "$REV" ] || [ -z "$URL" ]; then
   exit 1
 fi
 
-INSTALL_DIR="$HOME/.tools/oss-cad-suite-$REV"
+INSTALL_DIR="$HOME/.local/oss-cad-suite-$REV"
 echo "Revision: $REV"
 echo "Downloading: $URL"
 echo "Installing to: $INSTALL_DIR"
 
 curl -L -o /tmp/oss-cad.tar.xz "$URL"
-tar -xJf /tmp/oss-cad.tar.xz -C ~/.tools
-mv ~/.tools/oss-cad-suite "$INSTALL_DIR"
-ln -sfn "$INSTALL_DIR" ~/.tools/oss-cad-suite
+tar -xJf /tmp/oss-cad.tar.xz -C ~/.local
+mv ~/.local/oss-cad-suite "$INSTALL_DIR"
+ln -sfn "$INSTALL_DIR" ~/.local/oss-cad-suite
 rm /tmp/oss-cad.tar.xz
 
 echo "Installation complete at: $INSTALL_DIR"
-echo "Symlink: ~/.tools/oss-cad-suite -> $INSTALL_DIR"
+echo "Symlink: ~/.local/oss-cad-suite -> $INSTALL_DIR"
 ```
 
 If the Makefile installation fails or you want a specific version, you can also browse the releases page manually and download the correct tarball:
@@ -58,7 +58,7 @@ Then extract into `~/.tools` and create a symlink as needed.
 Add the following to your shell profile (`~/.bashrc`, `~/.profile`, or `~/.zshrc`):
 
 ```bash
-export PATH="$HOME/.tools/oss-cad-suite/bin:$PATH"
+export PATH="$HOME/.local/oss-cad-suite/bin:$PATH"
 ```
 
 Then reload the shell:
@@ -88,6 +88,6 @@ The OSS-CAD-Suite releases include `openFPGALoader` by default. If for some reas
 6) Notes and troubleshooting
 
 - Releases are large (hundreds of MB → 1GB); ensure sufficient disk space and a stable connection.
-- The installation script creates a versioned directory (e.g., `~/.tools/oss-cad-suite-20250101`) and maintains a symlink at `~/.tools/oss-cad-suite` for easy PATH management. You can keep multiple versions and switch by updating the symlink.
+- The installation script creates a versioned directory (e.g., `~/.local/oss-cad-suite-20250101`) and maintains a symlink at `~/.local/oss-cad-suite` for easy PATH management. You can keep multiple versions and switch by updating the symlink.
 - If the automatic URL lookup doesn't find a suitable asset, open the releases page in a browser and download the correct tarball manually, then extract into `~/.tools` and rename/symlink as needed.
 - If you need additional runtime libraries (e.g., for building openFPGALoader), install these on Debian/Ubuntu before building: `build-essential cmake pkg-config libusb-1.0-0-dev libftdi1-dev`.

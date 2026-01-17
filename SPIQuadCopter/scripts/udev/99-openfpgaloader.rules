@@ -1,0 +1,20 @@
+# udev rules for OpenFPGALoader and common FTDI-based programmers
+# Place this file in /etc/udev/rules.d/ to allow non-root access to the device.
+# Example install:
+#   sudo cp scripts/udev/99-openfpgaloader.rules /etc/udev/rules.d/
+#   sudo udevadm control --reload
+#   sudo udevadm trigger
+#   # then unplug/replug the board
+
+# FTDI FT2232H / dual-channel (common JTAG/USB-serial bridge)
+SUBSYSTEM=="usb", ATTR{idVendor}=="0403", ATTR{idProduct}=="6010", MODE="0666", GROUP="plugdev", TAG+="uaccess"
+# FTDI FT232R (single-channel USB-serial)
+SUBSYSTEM=="usb", ATTR{idVendor}=="0403", ATTR{idProduct}=="6001", MODE="0666", GROUP="plugdev", TAG+="uaccess"
+
+# Optional: other known vendor-specific probes you saw on this machine
+# Example: allow device with VID 0x154b (seen in lsusb on this host)
+SUBSYSTEM=="usb", ATTR{idVendor}=="154b", MODE="0666", GROUP="plugdev", TAG+="uaccess"
+
+# Generic rule fallback for FTDI vendor if you want to allow any FTDI product
+# (uncomment if needed)
+# SUBSYSTEM=="usb", ATTR{idVendor}=="0403", MODE="0666", GROUP="plugdev", TAG+="uaccess"

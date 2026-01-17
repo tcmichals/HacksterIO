@@ -80,9 +80,9 @@ rPLL #( // For GW1NR-9C C6/I5 (Tang Nano 9K proto dev board)
   .FBDIV_SEL(7), // -> CLKOUT = 72 MHz (range: 3.125-600 MHz)
   .ODIV_SEL(8) // -> VCO = 576 MHz (range: 400-1200 MHz)
 ) pll (.CLKOUTP(), .CLKOUTD(), .CLKOUTD3(), .RESET(1'b0), .RESET_P(1'b0), .CLKFB(1'b0), .FBDSEL(6'b0), .IDSEL(6'b0), .ODSEL(6'b0), .PSDA(4'b0), .DUTYDA(4'b0), .FDLY(4'b0),
-  .CLKIN(clk72), // 27 MHz
-  .CLKOUT(pll_clk), // 72 MHz
-  .LOCK(locked)
+    .CLKIN(clkin), // 27 MHz input should be connected to module port 'clkin'
+    .CLKOUT(clk72), // 72 MHz output mapped to module port 'clk72'
+    .LOCK(locked)
 );
 
 

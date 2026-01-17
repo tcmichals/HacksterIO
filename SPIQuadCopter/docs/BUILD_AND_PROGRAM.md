@@ -4,10 +4,10 @@
 
 ```bash
 # 1. Install toolchain
-make install-tools-local    # Install OSS CAD Suite to ~/.tools/
+make install-tools-local    # Install OSS CAD Suite to ~/.local/oss-cad-suite/
 
 # 2. Add to PATH (add to ~/.bashrc for persistence)
-export PATH="$HOME/.tools/oss-cad-suite/bin:$PATH"
+export PATH="$HOME/.local/oss-cad-suite/bin:$PATH"
 
 # 3. Build project
 make build
@@ -46,17 +46,17 @@ This installs:
 - `gowin_pack` - Bitstream generation
 - `openFPGALoader` - Programming
 
-### Option 2: Install Locally to ~/.tools
+### Option 2: Install Locally to ~/.local/oss-cad-suite
 
 ```bash
 make install-tools-local
 ```
 
-Downloads and installs OSS CAD Suite to `~/.tools/oss-cad-suite`.
+Downloads and installs OSS CAD Suite to `~/.local/oss-cad-suite`.
 
 **Add to PATH:**
 ```bash
-echo 'export PATH="$HOME/.tools/oss-cad-suite/bin:$PATH"' >> ~/.bashrc
+echo 'export PATH="$HOME/.local/oss-cad-suite/bin:$PATH"' >> ~/.bashrc
 source ~/.bashrc
 ```
 
@@ -148,7 +148,7 @@ SPIQuadCopter/
 │   ├── wb_*.sv          # Wishbone peripherals
 │   └── *.sv             # Other modules
 ├── _build/              # Build artifacts (generated)
-└── tb/                  # Testbenches
+└── src/tb/              # Testbenches
 ```
 
 ### Important Files
@@ -171,7 +171,7 @@ SPIQuadCopter/
 make install-tools-local
 
 # Add to PATH
-export PATH="$HOME/.tools/oss-cad-suite/bin:$PATH"
+export PATH="$HOME/.local/oss-cad-suite/bin:$PATH"
 ```
 
 ### "USB device not found"

@@ -45,7 +45,7 @@ With Mermaid CLI (install `@mermaid-js/mermaid-cli`):
 mmdc -i docs/system_block_diagram.md -o docs/system_block_diagram.png
 ```
 
-### Hardware & Pins
+└── src/tb/              # Testbenches
 - **[HARDWARE_PINS.md](docs/HARDWARE_PINS.md)** - Complete pin assignments and mux details
 - **[tang9k.cst](tang9k.cst)** - Pin constraint file
 
@@ -178,9 +178,9 @@ SPIQuadCopter/
 # Option 1: System package manager
 make install-tools
 
-# Option 2: Local install to ~/.tools
+# Option 2: Local install to ~/.local/oss-cad-suite
 make install-tools-local
-export PATH="$HOME/.tools/oss-cad-suite/bin:$PATH"
+export PATH="$HOME/.local/oss-cad-suite/bin:$PATH"
 ```
 
 ### Build the Project

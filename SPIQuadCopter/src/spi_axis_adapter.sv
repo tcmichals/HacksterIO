@@ -63,11 +63,11 @@ assign m_axis_tlast = 1'b0;
             m_tvalid <= 1'b0;
             spiData <= 8'h0;
         end else begin
-            if (~m_tvalid  & spi_rx_valid) begin
+            if (spi_rx_valid) begin
                 m_tvalid <= 1'b1;
                 spiData <= spi_rx_data;
             end
-            else begin
+            else if (m_axis_tready) begin
                 m_tvalid <= 1'b0;
             end
         end

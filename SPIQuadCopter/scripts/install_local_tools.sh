@@ -1,129 +1,131 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Installer: download prebuilt OSS-CAD-SUITE and openFPGALoader to ~/.tools
-# Usage: ./scripts/install_local_tools.sh [--prefix /path/to/install]
+# install_local_tools.sh
+# Downloads the OSS CAD Suite prebuilt release from GitHub and installs it
+# into the user-local tools directory (default: $HOME/.local/oss-cad-suite) or a custom directory if provided.
 
-PREFIX="${HOME}/.tools"
-if [ "${1:-}" = "--prefix" ]; then
-  PREFIX="$2"
-fi
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+# Default install directory: follow XDG/user conventions under ~/.local
+DEFAULT_INSTALL_DIR="$HOME/.local/oss-cad-suite"
+# Allow environment override: OSS_CAD_INSTALL_DIR, or CLI (--install-dir)
+INSTALL_DIR="${INSTALL_DIR:-${OSS_CAD_INSTALL_DIR:-$DEFAULT_INSTALL_DIR}}"
+GITHUB_API_URL_LATEST="https://api.github.com/repos/YosysHQ/oss-cad-suite-build/releases/latest"
+GITHUB_API_URL_TAG="https://api.github.com/repos/YosysHQ/oss-cad-suite-build/releases/tags"
 
-mkdir -p "$PREFIX/bin" "$PREFIX/src" "$PREFIX/tmp"
-echo "Installing tools to: $PREFIX"
+NON_INTERACTIVE=0
+REQUESTED_TAG=""
 
-CURL=${CURL:-curl}
-TAR=${TAR:-tar}
-GIT=${GIT:-git}
+usage() {
+    cat <<EOF
+Usage: $0 [--yes] [--install-dir DIR] [--tag TAG]
 
-# Helper to find and download a release asset from GitHub
-# args: repo e.g. YosysHQ/oss-cad-suite-build pattern
-download_github_asset() {
-  repo="$1"
-  pattern="$2"
-  outdir="$3"
-
-  echo "Querying GitHub releases for $repo (asset pattern: $pattern)"
-  api_url="https://api.github.com/repos/${repo}/releases/latest"
-  json="$($CURL -s "$api_url")"
-  asset_url=$(printf "%s" "$json" | grep -Po '"browser_download_url":\s*"\K[^"]+' | grep -i -E "$pattern" || true)
-
-  if [ -z "$asset_url" ]; then
-    echo "No matching release asset found for ${repo} with pattern ${pattern}"
-    return 1
-  fi
-
-  file="${outdir}/$(basename "$asset_url")"
-  echo "Downloading: $asset_url -> $file"
-  $CURL -L -o "$file" "$asset_url"
-  echo "$file"
+Options:
+  --yes            Non-interactive: overwrite existing installation without prompt
+  --install-dir    Install into a custom directory (default: $DEFAULT_INSTALL_DIR). You can also set OSS_CAD_INSTALL_DIR env var to override the default.
+  --tag TAG        Install a specific release tag (e.g. 2025-12-20). By default uses latest.
+  -h, --help       Show this help
+EOF
 }
 
-# 1) OSS-CAD-SUITE (prebuilt)
-OSS_DEST="$PREFIX/oss-cad-suite"
-if [ -x "$OSS_DEST/bin/yosys" ]; then
-  echo "oss-cad-suite already installed in $OSS_DEST"
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --yes)
+            NON_INTERACTIVE=1; shift;;
+        --install-dir)
+            INSTALL_DIR="$2"; shift 2;;
+        --tag)
+            REQUESTED_TAG="$2"; shift 2;;
+        -h|--help)
+            usage; exit 0;;
+        *)
+            echo "Unknown option: $1"; usage; exit 2;;
+    esac
+done
+
+echo "-------------------------------------------------------"
+echo "OSS CAD Suite Local Installer"
+echo "Install location: $INSTALL_DIR"
+echo "(default can be overridden with --install-dir $DEFAULT_INSTALL_DIR or --install-dir <path>)"
+echo "-------------------------------------------------------"
+
+# Determine release JSON URL
+if [ -n "$REQUESTED_TAG" ]; then
+    API_URL="$GITHUB_API_URL_TAG/$REQUESTED_TAG"
 else
-  mkdir -p "$PREFIX/tmp"
-  echo "Attempting to download prebuilt OSS CAD Suite..."
-  asset=$(download_github_asset "YosysHQ/oss-cad-suite-build" "linux.*(x86_64|amd64).*tar.xz|oss-cad-suite.*linux.*tar" "$PREFIX/tmp" || true)
-  if [ -n "$asset" ] && [ -f "$asset" ]; then
-    echo "Extracting $asset to $OSS_DEST"
-    mkdir -p "$OSS_DEST"
-    $TAR -xJf "$asset" -C "$OSS_DEST" --strip-components=1
-    echo "Symlinking binaries into $PREFIX/bin"
-    for b in "$OSS_DEST"/bin/*; do
-      [ -f "$b" ] || continue
-      ln -sf "$b" "$PREFIX/bin/$(basename "$b")"
-    done
-  else
-    echo "Prebuilt OSS CAD Suite not found. Please install system packages or build manually." >&2
-  fi
+    API_URL="$GITHUB_API_URL_LATEST"
 fi
 
-# 2) openFPGALoader
-OFL_DEST="$PREFIX/openFPGALoader"
-if command -v openFPGALoader >/dev/null 2>&1; then
-  echo "openFPGALoader already available in PATH"
-else
-  echo "Trying to download openFPGALoader release binaries..."
-  asset=$(download_github_asset "trabucayre/openFPGALoader" "linux.*(x86_64|amd64).*tar.xz|openFPGALoader.*linux.*tar" "$PREFIX/tmp" || true)
-  if [ -n "$asset" ] && [ -f "$asset" ]; then
-    mkdir -p "$OFL_DEST"
-    echo "Extracting $asset to $OFL_DEST"
-    $TAR -xJf "$asset" -C "$OFL_DEST" --strip-components=1
-    echo "Symlinking openFPGALoader into $PREFIX/bin"
-    if [ -f "$OFL_DEST/bin/openFPGALoader" ]; then
-      ln -sf "$OFL_DEST/bin/openFPGALoader" "$PREFIX/bin/openFPGALoader"
-    elif [ -f "$OFL_DEST/openFPGALoader" ]; then
-      ln -sf "$OFL_DEST/openFPGALoader" "$PREFIX/bin/openFPGALoader"
-    fi
-  else
-    echo "No prebuilt openFPGALoader found; attempting to build from source (requires cmake, pkg-config, libusb-1.0-dev, libftdi1-dev)."
-    # If on Debian/Ubuntu, try to install required build deps automatically.
-    if command -v apt-get >/dev/null 2>&1; then
-      echo "Detected apt; installing build dependencies via sudo apt-get..."
-      sudo apt-get update
-      sudo apt-get install -y build-essential cmake pkg-config libusb-1.0-0-dev libftdi1-dev git curl tar || echo "apt-get install failed; please install dependencies manually"
-    fi
+echo "Fetching release information from GitHub..."
+RELEASE_JSON=$(curl -s "$API_URL")
 
-    mkdir -p "$PREFIX/src"
-    cd "$PREFIX/src"
-    if [ ! -d "openFPGALoader" ]; then
-      $GIT clone --depth 1 https://github.com/trabucayre/openFPGALoader.git
-    fi
-    cd openFPGALoader
-    mkdir -p build && cd build
-    cmake .. -DCMAKE_INSTALL_PREFIX="$OFL_DEST"
-    make -j$(nproc)
-    make install
-    if [ -f "$OFL_DEST/bin/openFPGALoader" ]; then
-      ln -sf "$OFL_DEST/bin/openFPGALoader" "$PREFIX/bin/openFPGALoader"
-    fi
-  fi
+if [ -z "$RELEASE_JSON" ]; then
+    echo "Error: Could not fetch release information from GitHub."
+    exit 1
 fi
 
-# 3) Ensure ~/.tools/bin is on PATH (print instructions; do not modify shell files automatically)
-cat <<'EOF'
+LATEST_URL=$(echo "$RELEASE_JSON" | grep -m1 'browser_download_url.*linux-x64' | cut -d '"' -f4 || true)
+LATEST_TAG=$(echo "$RELEASE_JSON" | grep -m1 '"tag_name"' | cut -d '"' -f4 || true)
 
-Installation attempt finished.
-If the following directory is not in your PATH, add it to your shell profile:
+if [ -z "$LATEST_URL" ]; then
+    echo "Error: Could not determine a download URL for a linux-x64 tarball from the release metadata."
+    exit 1
+fi
 
-  export PATH="$PREFIX/bin:$HOME/.local/bin:$PATH"
+echo "Detected release: ${LATEST_TAG:-(unknown)}"
+echo "Archive URL: $LATEST_URL"
 
-Add it to ~/.bashrc or ~/.profile, for example:
+# Prepare tmp paths
+TMP_ARCHIVE="/tmp/oss-cad-$$.tgz"
+TMP_DIR="/tmp/oss-cad-install-$$"
 
-  echo 'export PATH="$PREFIX/bin:$HOME/.local/bin:$PATH"' >> ~/.bashrc
-  source ~/.bashrc
+# If already installed, confirm or remove
+if [ -d "$INSTALL_DIR" ]; then
+    if [ "$NON_INTERACTIVE" -eq 1 ]; then
+        echo "Non-interactive: removing existing installation at $INSTALL_DIR"
+        rm -rf "$INSTALL_DIR"
+    else
+        read -p "Existing installation found at $INSTALL_DIR. Delete and reinstall? (y/N): " confirm
+        if [[ "$confirm" =~ ^[Yy] ]]; then
+            rm -rf "$INSTALL_DIR"
+        else
+            echo "Aborting."
+            exit 0
+        fi
+    fi
+fi
 
-Then verify tools:
-  yosys --version
-  nextpnr-himbaechel --version
-  openFPGALoader --help
+echo "Downloading OSS CAD Suite archive..."
+curl -L "$LATEST_URL" -o "$TMP_ARCHIVE"
 
-EOF
+echo "Extracting archive..."
+mkdir -p "$TMP_DIR"
+tar -xzf "$TMP_ARCHIVE" -C "$TMP_DIR"
 
-# Cleanup tmp
-rm -rf "$PREFIX/tmp"
+# Move the extracted top-level directory to install location
+EXTRACTED_DIR=$(find "$TMP_DIR" -mindepth 1 -maxdepth 1 -type d | head -n 1 || true)
+if [ -z "$EXTRACTED_DIR" ]; then
+    echo "Error: extracted directory not found"
+    rm -rf "$TMP_DIR" "$TMP_ARCHIVE"
+    exit 1
+fi
 
-echo "Done."
+mkdir -p "$(dirname "$INSTALL_DIR")"
+mv "$EXTRACTED_DIR" "$INSTALL_DIR"
+
+echo "Cleaning up temporary files..."
+rm -rf "$TMP_DIR" "$TMP_ARCHIVE"
+sync
+
+echo "==========================================================="
+echo "SUCCESS: OSS CAD Suite installed at:"
+echo "$INSTALL_DIR"
+echo ""
+echo "To activate the environment in your current shell, run:"
+echo "  source $INSTALL_DIR/environment"
+echo ""
+echo "To add it to your PATH permanently, add this to your .bashrc:" 
+echo "  export PATH=\"$INSTALL_DIR/bin:\$PATH\"" 
+echo "If you installed into a different directory (for example: $OSS_CAD_INSTALL_DIR, $HOME/.tools/oss-cad-suite or $HOME/tools or $PROJECT_ROOT/oss-cad-suite), add that directory's bin to your PATH instead."
+echo "==========================================================="

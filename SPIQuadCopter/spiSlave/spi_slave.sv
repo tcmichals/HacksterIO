@@ -17,7 +17,8 @@ module spi_slave #(
     output logic                   o_busy,     // High = SPI transaction in progress
     
     output logic [DATA_WIDTH-1:0]  o_rx_data,  // Received data
-    output logic                   o_data_valid // High = New rx_data available
+    output logic                   o_data_valid, // High = New rx_data available
+    output logic                   o_cs_n_sync   // Synchronized CS_n output
 );
 
     // --- 1. Synchronization & Edge Detection ---
@@ -44,6 +45,7 @@ module spi_slave #(
     
     // Output the Busy status immediately based on synchronized CS
     assign o_busy = cs_active;
+    assign o_cs_n_sync = cs_n_sync[1];
 
     // --- 2. Data Path & Logic ---
     logic [$clog2(DATA_WIDTH)-1:0] bit_cnt;

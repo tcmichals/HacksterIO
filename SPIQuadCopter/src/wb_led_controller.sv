@@ -10,7 +10,9 @@
 module wb_led_controller #(
     parameter DATA_WIDTH = 32,
     parameter ADDR_WIDTH = 32,
-    parameter SELECT_WIDTH = (DATA_WIDTH/8)
+    parameter SELECT_WIDTH = (DATA_WIDTH/8),
+    parameter LED_WIDTH = 4,
+    parameter LED_POLARITY = 0 // 0: Active Low (default), 1: Active High
 ) (
     input  wire                    clk,
     input  wire                    rst,
@@ -28,7 +30,7 @@ module wb_led_controller #(
     input  wire                    wbs_cyc_i,
     
     // LED outputs
-    output reg  [3:0]              led_out
+    output wire [LED_WIDTH-1:0]    led_out
 
 );
 
@@ -45,13 +47,14 @@ module wb_led_controller #(
     assign wbs_rty_o = 1'b0;
     
     reg prev_stb_cyc;
+    reg [LED_WIDTH-1:0] led_out_reg;
 
     always @(posedge clk or posedge rst) begin
         if (rst) begin
             prev_stb_cyc <= 1'b0;
             wbs_ack_o <= 1'b0;
             wbs_dat_o <= 32'h0;
-            led_out <= 4'h0;
+            led_out_reg <= {LED_WIDTH{1'b0}};
 
         end else begin
             // Create a one-cycle ack when stb & cyc are asserted (rising detection)
@@ -65,26 +68,26 @@ module wb_led_controller #(
                     case (addr_bits)
                         ADDR_LED_OUT: begin
                             if (wbs_sel_i[0]) begin
-                                led_out <= wbs_dat_i[3:0];
+                                led_out_reg <= wbs_dat_i[LED_WIDTH-1:0];
                                 $display("%0t wb_led_controller: WRITE LED_OUT addr=%h data=%h sel=%b", $time, wbs_adr_i, wbs_dat_i, wbs_sel_i);
                             end
                         end
                         ADDR_LED_TOGGLE: begin
                             if (wbs_sel_i[0]) begin
-                                led_out <= led_out ^ wbs_dat_i[3:0];
-                                $display("%0t wb_led_controller: TOGGLE LED_OUT addr=%h data=%h sel=%b -> %h", $time, wbs_adr_i, wbs_dat_i, wbs_sel_i, led_out ^ wbs_dat_i[3:0]);
+                                led_out_reg <= led_out_reg ^ wbs_dat_i[LED_WIDTH-1:0];
+                                $display("%0t wb_led_controller: TOGGLE LED_OUT addr=%h data=%h sel=%b -> %h", $time, wbs_adr_i, wbs_dat_i, wbs_sel_i, led_out_reg ^ wbs_dat_i[LED_WIDTH-1:0]);
                             end
                         end
                         ADDR_LED_CLEAR: begin
                             if (wbs_sel_i[0]) begin
-                                led_out <= led_out & ~wbs_dat_i[3:0];
-                                $display("%0t wb_led_controller: CLEAR LED_OUT addr=%h data=%h sel=%b -> %h", $time, wbs_adr_i, wbs_dat_i, wbs_sel_i, led_out & ~wbs_dat_i[3:0]);
+                                led_out_reg <= led_out_reg & ~wbs_dat_i[LED_WIDTH-1:0];
+                                $display("%0t wb_led_controller: CLEAR LED_OUT addr=%h data=%h sel=%b -> %h", $time, wbs_adr_i, wbs_dat_i, wbs_sel_i, led_out_reg & ~wbs_dat_i[LED_WIDTH-1:0]);
                             end
                         end
                         ADDR_LED_SET: begin
                             if (wbs_sel_i[0]) begin
-                                led_out <= led_out | wbs_dat_i[3:0];
-                                $display("%0t wb_led_controller: SET LED_OUT addr=%h data=%h sel=%b -> %h", $time, wbs_adr_i, wbs_dat_i, wbs_sel_i, led_out | wbs_dat_i[3:0]);
+                                led_out_reg <= led_out_reg | wbs_dat_i[LED_WIDTH-1:0];
+                                $display("%0t wb_led_controller: SET LED_OUT addr=%h data=%h sel=%b -> %h", $time, wbs_adr_i, wbs_dat_i, wbs_sel_i, led_out_reg | wbs_dat_i[LED_WIDTH-1:0]);
                             end
                         end
                     endcase
@@ -99,7 +102,7 @@ module wb_led_controller #(
                         ADDR_LED_TOGGLE,
                         ADDR_LED_CLEAR,
                         ADDR_LED_SET: begin
-                            wbs_dat_o <= {28'h0, led_out};
+                            wbs_dat_o <= { {(32-LED_WIDTH){1'b0}}, led_out_reg};
                         end
                         default: begin
                             wbs_dat_o <= 32'hDEADBEEF;
@@ -111,5 +114,5 @@ module wb_led_controller #(
                 wbs_ack_o <= 0;
         end
     end
-
+assign led_out = ~led_out_reg;
 endmodule

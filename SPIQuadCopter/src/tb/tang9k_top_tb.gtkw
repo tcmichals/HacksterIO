@@ -1,0 +1,7 @@
+[*] GTKWave Analyzer v3.3.104 (w)1999-2020 BSI
+[dumpfile] "../tb_tang9k.vcd"
+[savefile] "./tang9k_top_tb.gtkw"
+[tree]
+[aliases]
+[signals]
+# minimal placeholder - open VCD and save your preferred signals in GTKWave

@@ -15,23 +15,26 @@
 
 module uart_passthrough_bridge #(
     parameter CLK_FREQ_HZ = 72_000_000,
-    parameter BAUD_RATE = 115200
+    parameter BAUD_RATE = 115200,
+    // Configuration parameter: when set to 1 disables automatic echo
+    // (prevents serial->USB forwarding). Default 0 = echo enabled.
+    parameter DISABLE_AUTO_ECHO = 0
 ) (
     input  logic clk,
     input  logic rst,
-    
+
     // USB UART Interface (to PC)
     input  logic usb_uart_rx,
     output logic usb_uart_tx,
-    
-    // Half-Duplex Serial Interface (Split for external muxing)
-    output logic serial_tx_out, // The data to transmit
-    output logic serial_tx_oe,  // Output Enable (1 = Drive tx_out to pin)
-    input  logic serial_rx_in,  // Data read from pin
-    
+
+    // Split Half-Duplex Serial Interface (to/from ESC)
+    output logic serial_tx_out, // driven serial output
+    output logic serial_tx_oe,  // output enable for tri-state on external pad
+    input  logic  serial_rx_in, // receive from external pad
+
     // Control
-    input  logic enable,        // 1: passthrough enabled, 0: disabled (tristated)
-    
+    input  logic enable,        // 1: passthrough enabled
+
     // Status
     output logic active         // 1: currently transmitting or receiving
 );
@@ -84,13 +87,16 @@ module uart_passthrough_bridge #(
     logic       serial_tx_ready;
     logic       serial_tx_active;
     
+    logic       serial_out;
+    logic       serial_oe;      // Output enable for tri-state
+    
     uart_rx_wrapper #(
         .CLK_FREQ_HZ(CLK_FREQ_HZ),
         .BAUD_RATE(BAUD_RATE)
     ) u_serial_rx (
         .clk(clk),
         .rst(rst),
-        .rx(serial_rx_in),            // Read from input port
+        .rx(serial_rx_in),      // Read from external pad when not transmitting
         .data_out(serial_rx_data),
         .valid(serial_rx_valid),
         .error(serial_rx_error)
@@ -109,7 +115,7 @@ module uart_passthrough_bridge #(
         .active(serial_tx_active)   // High when transmitting
     );
     
-    // Output Enable Logic
+    // Tri-state control: expose TX data and OE for external pad driver
     assign serial_tx_oe = serial_tx_active & enable;
     
     // =============================
@@ -120,8 +126,9 @@ module uart_passthrough_bridge #(
     assign serial_tx_valid = usb_rx_valid & enable;
     
     // Serial RX → USB TX (ESC to PC)
+    // Prevent echo: do not forward received bytes while we are actively driving the serial pin
     assign usb_tx_data = serial_rx_data;
-    assign usb_tx_valid = serial_rx_valid & enable;
+    assign usb_tx_valid = serial_rx_valid & enable & (~serial_oe) & (DISABLE_AUTO_ECHO == 0);
     
     // Status
     assign active = enable & (serial_tx_active | usb_tx_valid | serial_rx_valid);

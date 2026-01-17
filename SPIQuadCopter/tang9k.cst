@@ -1,102 +1,80 @@
-// Tang9K Pin Configuration File
-// GW1N-9K FPGA (LQFP144 package)
+IO_LOC  "o_led_6" 16;
+IO_PORT "o_led_6" DRIVE=4;
 
-// System Clock and Reset
-// System Clock and Reset
-IO_LOC "i_sys_clk" 52;
-IO_PORT "i_sys_clk" IO_TYPE=LVCMOS33;
-IO_LOC "i_rst" 3;
-IO_PORT "i_rst" IO_TYPE=LVCMOS33;
+IO_LOC  "o_led_5" 15;
+IO_PORT "o_led_5" DRIVE=4;
 
-// SPI Slave Interface
-IO_LOC "i_spi_clk" 4;
+IO_LOC  "o_debug_2" 49;
+IO_PORT "o_debug_2" DRIVE=4 IO_TYPE=LVCMOS33 PULL_MODE=DOWN;
+
+IO_LOC  "o_debug_1" 31;
+IO_PORT "o_debug_1" DRIVE=4 IO_TYPE=LVCMOS33 PULL_MODE=DOWN;
+
+IO_LOC  "i_clk" 52;
+IO_PORT "i_clk" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+
+IO_LOC  "i_spi_clk" 25;
 IO_PORT "i_spi_clk" IO_TYPE=LVCMOS33;
 
-IO_LOC "i_spi_cs_n" 5;
+IO_LOC  "i_spi_cs_n" 26;
 IO_PORT "i_spi_cs_n" IO_TYPE=LVCMOS33;
-IO_LOC "i_spi_mosi" 6;
+
+IO_LOC  "i_spi_mosi" 27;
 IO_PORT "i_spi_mosi" IO_TYPE=LVCMOS33;
-IO_LOC "o_spi_miso" 7;
+
+IO_LOC  "o_spi_miso" 28;
 IO_PORT "o_spi_miso" IO_TYPE=LVCMOS33;
 
-// LED Outputs (for debugging)
-IO_LOC "o_led0" 8;
-IO_PORT "o_led0" IO_TYPE=LVCMOS33;
-IO_LOC "o_led1" 9;
-IO_PORT "o_led1" IO_TYPE=LVCMOS33;
-IO_LOC "o_led2" 10;
-IO_PORT "o_led2" IO_TYPE=LVCMOS33;
-IO_LOC "o_led3" 11;
-IO_PORT "o_led3" IO_TYPE=LVCMOS33;
+IO_LOC  "o_led_1" 10;
+IO_PORT "o_led_1" DRIVE=8 IO_TYPE=LVCMOS18;
 
-// Button Inputs
-IO_LOC "i_btn0" 15;
-IO_PORT "i_btn0" IO_TYPE=LVCMOS33;
-IO_LOC "i_btn1" 16;
-IO_PORT "i_btn1" IO_TYPE=LVCMOS33;
+IO_LOC  "o_led_2" 11;
+IO_PORT "o_led_2" DRIVE=8 IO_TYPE=LVCMOS18;
 
-// UART Interface (optional debug/console)
-IO_LOC "i_uart_rx" 17;
-IO_PORT "i_uart_rx" IO_TYPE=LVCMOS33;
-IO_LOC "o_uart_tx" 18;
-IO_PORT "o_uart_tx" IO_TYPE=LVCMOS33;
+IO_LOC  "o_led_3" 13;
+IO_PORT "o_led_3" DRIVE=8 IO_TYPE=LVCMOS18;
 
-// USB UART Interface (for BLHeli passthrough to PC)
-// Connect USB-to-TTL adapter (CP2102/FT232/CH340) here:
-//   - Adapter TX → Pin 19 (i_usb_uart_rx) - PC sends data to FPGA
-//   - Adapter RX → Pin 20 (o_usb_uart_tx) - FPGA sends data to PC
-//   - Adapter GND → Tang9K GND
-// Hardware bridge forwards data between USB UART and ESC serial (pin 25)
-// Baud rate: 115200 (fixed)
-IO_LOC "i_usb_uart_rx" 19;
+IO_LOC  "o_led_4" 14;
+IO_PORT "o_led_4" DRIVE=8 IO_TYPE=LVCMOS18;
+
+IO_LOC  "i_usb_uart_rx" 19;
 IO_PORT "i_usb_uart_rx" IO_TYPE=LVCMOS33;
-IO_LOC "o_usb_uart_tx" 20;
+
+IO_LOC  "o_usb_uart_tx" 20;
 IO_PORT "o_usb_uart_tx" IO_TYPE=LVCMOS33;
 
-// Status LEDs
-IO_LOC "o_status_led0" 51;
-IO_PORT "o_status_led0" IO_TYPE=LVCMOS33;
-IO_LOC "o_status_led1" 53;
-IO_PORT "o_status_led1" IO_TYPE=LVCMOS33;
-IO_LOC "o_status_led2" 54;
-IO_PORT "o_status_led2" IO_TYPE=LVCMOS33;
-IO_LOC "o_pll_locked" 55;
-IO_PORT "o_pll_locked" IO_TYPE=LVCMOS33;
-
-// Half-Duplex Serial (for BLHeli ESC configuration)
-// Connects to ESC signal wire for BLHeli configuration
-// Hardware passthrough bridge (uart_passthrough_bridge.sv) forwards data:
-//   USB UART (pins 19-20) ↔ This pin (25) ↔ ESC
-// Pull-up resistor ensures proper idle state (UART idle = high)
-// Tri-state capable for half-duplex operation
-// Baud rate: 115200 (fixed)
-// IO_LOC "serial" 25;
-// IO_PORT "serial" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
-
-// PWM Input Channels (RC receiver - 6 channels for quad)
-IO_LOC "i_pwm_ch0" 26;  // Throttle
+IO_LOC  "i_pwm_ch0" 69;
 IO_PORT "i_pwm_ch0" IO_TYPE=LVCMOS33 PULL_MODE=DOWN;
-IO_LOC "i_pwm_ch1" 27;  // Aileron (Roll)
+
+IO_LOC  "i_pwm_ch1" 68;
 IO_PORT "i_pwm_ch1" IO_TYPE=LVCMOS33 PULL_MODE=DOWN;
-IO_LOC "i_pwm_ch2" 28;  // Elevator (Pitch)
+
+IO_LOC  "i_pwm_ch2" 57;
 IO_PORT "i_pwm_ch2" IO_TYPE=LVCMOS33 PULL_MODE=DOWN;
-IO_LOC "i_pwm_ch3" 29;  // Rudder (Yaw)
+
+IO_LOC  "i_pwm_ch3" 56;
 IO_PORT "i_pwm_ch3" IO_TYPE=LVCMOS33 PULL_MODE=DOWN;
-IO_LOC "i_pwm_ch4" 30;  // Aux 1
+
+IO_LOC  "i_pwm_ch4" 54;
 IO_PORT "i_pwm_ch4" IO_TYPE=LVCMOS33 PULL_MODE=DOWN;
-IO_LOC "i_pwm_ch5" 31;  // Aux 2
+
+IO_LOC  "i_pwm_ch5" 53;
 IO_PORT "i_pwm_ch5" IO_TYPE=LVCMOS33 PULL_MODE=DOWN;
 
-// DSHOT Motor Outputs (4 channels)
-IO_LOC "o_motor1" 32;  // Motor 1 (Front Right)
-IO_PORT "o_motor1" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
-IO_LOC "o_motor2" 33;  // Motor 2 (Rear Right)
-IO_PORT "o_motor2" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
-IO_LOC "o_motor3" 34;  // Motor 3 (Rear Left)
-IO_PORT "o_motor3" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
-IO_LOC "o_motor4" 35;  // Motor 4 (Front Left)
-IO_PORT "o_motor4" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+IO_LOC  "o_motor1" 51;
+IO_PORT "o_motor1" DRIVE=8 IO_TYPE=LVCMOS33 PULL_MODE=UP;
 
-// NeoPixel Output (WS2812 LED strip for status indication)
-IO_LOC "o_neopixel" 36;
-IO_PORT "o_neopixel" IO_TYPE=LVCMOS33 DRIVE=8;
+IO_LOC  "o_motor2" 42;
+IO_PORT "o_motor2" DRIVE=8 IO_TYPE=LVCMOS33 PULL_MODE=UP;
+
+IO_LOC  "o_motor3" 41;
+IO_PORT "o_motor3" DRIVE=8 IO_TYPE=LVCMOS33 PULL_MODE=UP;
+
+IO_LOC  "o_motor4" 35;
+IO_PORT "o_motor4" DRIVE=8 IO_TYPE=LVCMOS33 PULL_MODE=UP;
+
+IO_LOC  "o_neopixel" 40;
+IO_PORT "o_neopixel" DRIVE=8 IO_TYPE=LVCMOS33;
+
+IO_LOC  "o_debug_0" 32;
+IO_PORT "o_debug_0" DRIVE=4 IO_TYPE=LVCMOS33 PULL_MODE=DOWN;

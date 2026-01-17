@@ -25,7 +25,9 @@
  * See SYSTEM_OVERVIEW.md for full documentation.
  */
 /* the clock is 72 Mhz */
-module coredesign  (
+module coredesign #(
+    parameter CLK_FREQ_HZ = 72_000_000
+) (
     // System Clock and Reset
     input  wire  i_sys_clk,
     input  wire  i_rst,
@@ -44,15 +46,7 @@ module coredesign  (
     output wire o_led2,
     output wire o_led3,
     
-    // Button Inputs
-    input  wire i_btn0,
-    input  wire i_btn1,
-    
-    // UART Interface (optional debug/console)
-    input  wire i_uart_rx,
-    output wire o_uart_tx,
-    output wire o_uart_irq,
-    
+
     // USB UART Interface (for BLHeli passthrough to PC)
     input  wire i_usb_uart_rx,
     output wire o_usb_uart_tx,
@@ -74,10 +68,11 @@ module coredesign  (
 
     // NeoPixel Output
     output wire o_neopixel,
+    // Debug probe: mirrors SPI byte-ready (exposed to top-level as `o_debug`)
+    output wire o_debug_0,
+    output wire o_debug_1,
+    output wire o_debug_2
     
-    // Status LED outputs (drive these locally inside design)
-    output wire o_status_led1,
-    output wire o_status_led2
 );
 
     // System reset driven from external PLL lock
@@ -96,6 +91,7 @@ module coredesign  (
     logic       spi_busy;
     
     logic       spi_tx_ready;
+    logic       spi_cs_n_synced; // New wire for synchronized CS
     
     spi_slave #(
         .DATA_WIDTH(8)
@@ -111,7 +107,8 @@ module coredesign  (
         .i_tx_data  (spi_tx_data),
         .i_tx_valid (spi_tx_valid),
         .o_tx_ready (spi_tx_ready), 
-        .o_busy     (spi_busy)
+        .o_busy     (spi_busy),
+        .o_cs_n_sync(spi_cs_n_synced)
     );
     
     // =============================
@@ -166,7 +163,8 @@ module coredesign  (
     logic axis_master_busy;
     // Gate master reset: assert reset when system reset OR when SPI CS is inactive
     // and the master is idle. This avoids aborting in-flight transactions.
-    assign axis_master_rst = sys_rst | (i_spi_cs_n & ~axis_master_busy);
+    // USES SYNCED CS to avoid glitches
+    assign axis_master_rst = sys_rst | (spi_cs_n_synced); // & ~axis_master_busy);
 
     axis_wb_master #(
         .IMPLICIT_FRAMING (1),              // Use implicit framing - detect command bytes
@@ -204,6 +202,7 @@ module coredesign  (
         .wb_cyc_o            (wb_cyc),
         .busy                (axis_master_busy)
     );
+
 
     // (axis_master_rst and axis_master_busy declared above)
     
@@ -390,12 +389,11 @@ module coredesign  (
             if (wbs1_stb_o) $display("  MUX->SLAVE1 (PWM):   adr=%08x dat=%08x we=%b sel=%b stb=%b cyc=%b ack=%b rdat=%08x", wbs1_adr_o, wbs1_dat_o, wbs1_we_o, wbs1_sel_o, wbs1_stb_o, wbs1_cyc_o, wb_pwm_ack, wb_pwm_dat_s2m);
         end
     end
-    // NeoPixel Controller (Wishbone) - slave 4 on mux
-    wire [31:0] axis_neo_data;
-    wire        axis_neo_valid;
-    wire        axis_neo_ready;
 
-    wb_neoPx u_wb_neopx (
+
+    wb_neoPx #(
+        .CLK_FREQ_HZ(CLK_FREQ_HZ)
+    ) u_wb_neopx (
         .i_clk      (i_sys_clk),
         .i_rst      (sys_rst),
         .wb_adr_i   (wbs4_adr_o),
@@ -408,26 +406,21 @@ module coredesign  (
         .wb_err_o   (),
         .wb_rty_o   (),
         .wb_cyc_i   (wbs4_cyc_o),
-        .m_axis_data(axis_neo_data),
-        .m_axis_valid(axis_neo_valid),
-        .s_axis_ready(axis_neo_ready)
+        .o_serial(o_neopixel)
+
     );
 
-    sendPx u_send_px (
-        .axis_aclk(i_sys_clk),
-        .axis_reset(sys_rst),
-        .s_axis_data(axis_neo_data),
-        .s_axis_valid(axis_neo_valid),
-        .s_axis_ready(axis_neo_ready),
-        .o_serial(o_neopixel)
-    );
+
 
     // Connect NeoPixel output (if needed, wire m_axis_data/m_axis_valid to a NeoPixel driver)
     
     // =============================
     // LED Controller (Wishbone) - slave 0 on mux
     // =============================
-    wb_led_controller u_wb_led (
+    wb_led_controller #(
+        .LED_WIDTH(4),
+        .LED_POLARITY(0) // Active Low
+    ) u_wb_led (
         .clk        (i_sys_clk),
         .rst        (sys_rst),
         .wbs_dat_i  (wbs0_dat_o),
@@ -490,7 +483,7 @@ module coredesign  (
     assign passthrough_enable = (mux_sel == 1'b0);
     
     uart_passthrough_bridge #(
-        .CLK_FREQ_HZ(72_000_000),
+        .CLK_FREQ_HZ(CLK_FREQ_HZ),
         .BAUD_RATE(115200)
     ) u_uart_passthrough (
         .clk(i_sys_clk),
@@ -511,7 +504,7 @@ module coredesign  (
     // PWM Decoder (Wishbone) - slave 1 on mux
     // =============================
     pwmdecoder_wb #(
-        .clockFreq(72_000_000)
+        .clockFreq(CLK_FREQ_HZ)
     ) u_wb_pwm (
         .i_clk      (i_sys_clk),
         .i_rst      (sys_rst),
@@ -538,7 +531,7 @@ module coredesign  (
     // DSHOT Controller (Wishbone) - slave 2 on mux
     // =============================
     wb_dshot_controller #(
-        .CLK_FREQ_HZ (72_000_000)
+        .CLK_FREQ_HZ (CLK_FREQ_HZ)
     ) u_wb_dshot (
         .wb_clk_i   (i_sys_clk),
         .wb_rst_i   (sys_rst),
@@ -557,8 +550,6 @@ module coredesign  (
         .motor4_o   (dshot_motor4)
     );
     
-    // Drive local status LED outputs
-    assign o_status_led1 = spi_busy;
-    assign o_status_led2 = wb_cyc;
+    // Status LEDs removed; no local assignments
 
 endmodule
