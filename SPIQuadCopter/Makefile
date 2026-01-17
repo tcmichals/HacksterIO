@@ -196,6 +196,28 @@ oss-update:
 view:
 	@cd spiSlave && make view
 
+# Testbench targets (run testbenches located under src/tb)
+.PHONY: tb-design tb-passthrough test-tb
+
+tb-design:
+	@echo "Running design testbench (src/tb/design_tb.sv)"
+	@if ! command -v iverilog > /dev/null; then \
+		echo "Error: iverilog not found. Install iverilog to run testbenches."; exit 1; \
+	fi
+	iverilog -g2009 -o /tmp/tb_design.vvp src/tb/design_tb.sv $(SRCS)
+	vvp /tmp/tb_design.vvp
+
+tb-passthrough:
+	@echo "Running passthrough testbench (src/tb/tang9k_top_tb.sv)"
+	@if ! command -v iverilog > /dev/null; then \
+		echo "Error: iverilog not found. Install iverilog to run testbenches."; exit 1; \
+	fi
+	iverilog -g2009 -o /tmp/tb_passthrough.vvp src/tb/tang9k_top_tb.sv $(SRCS)
+	vvp /tmp/tb_passthrough.vvp
+
+test-tb: tb-design tb-passthrough
+
+
 lint:
 	@echo "Checking Verilog syntax with iverilog..."
 	@if ! command -v iverilog > /dev/null; then \

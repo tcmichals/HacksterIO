@@ -3,12 +3,8 @@
 module design_tb();
 
     // System clock for design: drive 72 MHz (half period 7ns)
-    reg i_sys_clk = 0;
-    always #7 i_sys_clk = ~i_sys_clk;
-
-    // Reset and PLL lock model
-    reg i_rst = 0;
-    reg i_pll_locked = 0;
+    reg i_clk = 0;
+    always #7 i_clk = ~i_clk;
 
     // SPI master signals
     reg i_sclk = 0;
@@ -16,7 +12,7 @@ module design_tb();
     reg spi_mosi = 0;
     wire spi_miso;
 
-    // LEDs and status
+    // LEDs and status (map to top-level LED outputs)
     wire o_led0, o_led1, o_led2, o_led3;
     wire o_neopixel;
     
@@ -35,33 +31,22 @@ module design_tb();
     reg [15:0] dshot_frame;
     reg dshot_monitor_active = 0;
 
-    // Instantiate the `design` module directly 
-    coredesign dut (
-        .i_sys_clk    (i_sys_clk),
-        .i_rst        (i_rst),
-        .i_pll_locked (i_pll_locked),
-
+    // Instantiate the top-level module tang9k_top
+    tang9k_top dut (
+        .i_clk        (i_clk),
         .i_spi_clk    (i_sclk),
-        .i_spi_cs_n   (spi_cs_n), 
+        .i_spi_cs_n   (spi_cs_n),
         .i_spi_mosi   (spi_mosi),
         .o_spi_miso   (spi_miso),
 
-        .o_led0       (o_led0),
-        .o_led1       (o_led1),
-        .o_led2       (o_led2),
-        .o_led3       (o_led3),
-
-        .i_btn0       (1'b0),
-        .i_btn1       (1'b0),
-
-        .i_uart_rx    (1'b1),
-        .o_uart_tx    (),
-        .o_uart_irq   (),
+        // Map first four top LEDs to testbench LED wires
+        .o_led_1      (o_led0),
+        .o_led_2      (o_led1),
+        .o_led_3      (o_led2),
+        .o_led_4      (o_led3),
 
         .i_usb_uart_rx(1'b1),
         .o_usb_uart_tx(),
-
-        // .serial       (), // Port removed
 
         .i_pwm_ch0    (pwm_ch0),
         .i_pwm_ch1    (1'b0),
@@ -75,7 +60,10 @@ module design_tb();
         .o_motor3     (),
         .o_motor4     (),
 
-        .o_neopixel   (o_neopixel)
+        .o_neopixel   (o_neopixel),
+        .o_debug_0    (),
+        .o_debug_1    (),
+        .o_debug_2    ()
     );
 
     // DSHOT Monitor Task
@@ -129,17 +117,11 @@ module design_tb();
         end
     endtask
 
-    // Simple reset + pll lock model
+    // Simple reset + initialize
     initial begin
         $dumpfile("tb_design.vcd");
         $dumpvars(0, design_tb);
-        i_rst = 1; // Active High Reset Start
-        i_pll_locked = 0;
-        #200;
-        i_pll_locked = 1;
-        #20;
-        i_rst = 0; // Deassert Active High Reset
-        
+
         // Fork monitors
         fork
             monitor_dshot();
@@ -263,18 +245,18 @@ module design_tb();
             for (i = 7; i >= 0; i = i - 1) begin
                 // Drive MOSI
                 spi_mosi = tx[i];
-                repeat(4) @(posedge i_sys_clk); 
+                repeat(4) @(posedge i_clk);
                 
                 // SCLK High
                 i_sclk = 1'b1;
-                repeat(4) @(posedge i_sys_clk);
+                repeat(4) @(posedge i_clk);
                 
                 // Sample MISO
                 rx[i] = spi_miso;
                 
                 // SCLK Low
                 i_sclk = 1'b0;
-                repeat(4) @(posedge i_sys_clk);
+                repeat(4) @(posedge i_clk);
             end
         end
     endtask
@@ -292,57 +274,33 @@ module design_tb();
         bit header_found;
         begin
             // Assert CS (active LOW)
-            @(posedge i_sys_clk);
+            @(posedge i_clk);
             spi_cs_n = 1'b0;
-            repeat (4) @(posedge i_sys_clk);
+            repeat (4) @(posedge i_clk);
             
             header_found = 0;
 
             // 1. Send Command
             send_spi_byte(is_read ? READ_REQ : WRITE_REQ, tmp);
             if (tmp == (is_read ? READ_RESP : WRITE_RESP)) header_found = 1;
-            // $display("  TX: Cmd RX: %x", tmp);
 
             // 2. Send Address (MSB First)
             send_spi_byte(addr[31:24], tmp);
-            if (tmp == (is_read ? READ_RESP : WRITE_RESP)) header_found = 1;
-            // $display("  TX: Ad3 RX: %x", tmp);
-            
             send_spi_byte(addr[23:16], tmp);
-            if (tmp == (is_read ? READ_RESP : WRITE_RESP)) header_found = 1;
-            // $display("  TX: Ad2 RX: %x", tmp);
-            
             send_spi_byte(addr[15:8], tmp);
-            if (tmp == (is_read ? READ_RESP : WRITE_RESP)) header_found = 1;
-            // $display("  TX: Ad1 RX: %x", tmp);
-            
             send_spi_byte(addr[7:0], tmp);
-            if (tmp == (is_read ? READ_RESP : WRITE_RESP)) header_found = 1;
-            // $display("  TX: Ad0 RX: %x", tmp);
-            
+
             // 3. Send Length (MSB First: 00 01)
             send_spi_byte(8'h00, tmp);
-            if (tmp == (is_read ? READ_RESP : WRITE_RESP)) header_found = 1;
-            // $display("  TX: Ln1 RX: %x", tmp);
-            
             send_spi_byte(8'h04, tmp);
-            if (tmp == (is_read ? READ_RESP : WRITE_RESP)) header_found = 1;
-            // $display("  TX: Ln0 RX: %x", tmp);
-            
+
             if (!is_read) begin
                 // Write Data (LSB First)
                 send_spi_byte(wdata[7:0], tmp);
-                if (tmp == WRITE_RESP) header_found = 1;
-
                 send_spi_byte(wdata[15:8], tmp);
-                if (tmp == WRITE_RESP) header_found = 1;
-
                 send_spi_byte(wdata[23:16], tmp);
-                if (tmp == WRITE_RESP) header_found = 1;
-
                 send_spi_byte(wdata[31:24], tmp);
-                if (tmp == WRITE_RESP) header_found = 1;
-                
+
                 // If header not found yet, poll briefly
                 timeout = 0;
                 while (!header_found && timeout < 50) begin
@@ -350,11 +308,11 @@ module design_tb();
                    if (tmp == WRITE_RESP) header_found = 1;
                    timeout++;
                 end
-                
+
                 if (!header_found) $display("Warning: Write Response Header (A4) not found");
 
                 spi_cs_n = 1'b1;
-                repeat (20) @(posedge i_sys_clk);
+                repeat (20) @(posedge i_clk);
                 
             end else begin
                 // Read
@@ -384,7 +342,7 @@ module design_tb();
                 end
                 
                 spi_cs_n = 1'b1;
-                repeat (20) @(posedge i_sys_clk);
+                repeat (20) @(posedge i_clk);
             end
         end
     endtask

@@ -3,8 +3,8 @@
 module tang9k_top_tb();
 
     // System clock for design: drive 72 MHz (half period 7ns)
-    reg i_sys_clk = 0;
-    always #7 i_sys_clk = ~i_sys_clk;
+    reg i_clk = 0;
+    always #7 i_clk = ~i_clk;
 
     // Reset and PLL lock model
     reg i_rst = 0; 
@@ -29,36 +29,36 @@ module tang9k_top_tb();
 
     // Instantiate DUT
     tang9k_top dut (
-        .i_sys_clk    (i_sys_clk),
-        .i_rst        (i_rst),
+        .i_clk        (i_clk),
         .i_spi_clk    (spi_clk),
         .i_spi_cs_n   (spi_cs_0),
         .i_spi_mosi   (spi_mosi),
         .o_spi_miso   (spi_miso),
-        .o_led0       (o_led0),
-        .o_led1       (o_led1),
-        .o_led2       (o_led2),
-        .o_led3       (o_led3),
-        .i_btn0       (1'b0),
-        .i_btn1       (1'b0),
-        .i_uart_rx    (1'b1),
-        .o_uart_tx    (),
-        .o_uart_irq   (),
+
+        .o_led_1      (o_led0),
+        .o_led_2      (o_led1),
+        .o_led_3      (o_led2),
+        .o_led_4      (o_led3),
+
         .i_usb_uart_rx(i_usb_uart_rx),
         .o_usb_uart_tx(o_usb_uart_tx),
-        .serial       (serial),
+
         .i_pwm_ch0    (1'b0),
         .i_pwm_ch1    (1'b0),
         .i_pwm_ch2    (1'b0),
         .i_pwm_ch3    (1'b0),
         .i_pwm_ch4    (1'b0),
         .i_pwm_ch5    (1'b0),
+
         .o_motor1     (o_motor1),
         .o_motor2     (o_motor2),
         .o_motor3     (o_motor3),
         .o_motor4     (o_motor4),
+
         .o_neopixel   (o_neopixel),
-        .o_pll_locked (o_pll_locked)
+        .o_debug_0    (),
+        .o_debug_1    (),
+        .o_debug_2    ()
     );
 
     // SPI master clock (i_sclk) and signals - driven by send_spi_byte (bit-banged)
@@ -184,9 +184,8 @@ module tang9k_top_tb();
         i_rst = 0;
         #1000;
         
-        // Wait for PLL Lock
-        wait(o_pll_locked);
-        #100;
+        // Top-level PLL lock is internal to tang9k_top; add a small delay to allow initialization
+        #500;
 
         $display("Test: write LED register");
         spi_wb_transaction(0, 32'h0000, 32'h0000000F, dummy_read);

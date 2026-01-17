@@ -69,11 +69,17 @@ T1L .6us
     localparam [63:0] CONST_HALF_BILLION = 500_000_000;
     localparam [63:0] CONST_BILLION = 1_000_000_000;
 
-    localparam [23:0] T0H_CYC        = (T0H_NS64 * CLK64 + CONST_HALF_BILLION) / CONST_BILLION;
-    localparam [23:0] T1H_CYC        = (T1H_NS64 * CLK64 + CONST_HALF_BILLION) / CONST_BILLION;
-    localparam [23:0] BIT_PERIOD_CYC = (PERIOD_NS64 * CLK64 + CONST_HALF_BILLION) / CONST_BILLION;
-    localparam [23:0] LATCH_CYC      = (LATCH_NS64 * CLK64 + CONST_HALF_BILLION) / CONST_BILLION;
-    localparam [23:0] GAP_CYC        = ((64'd200) * CLK64 + CONST_HALF_BILLION) / CONST_BILLION; // 200ns inter-pixel gap
+    localparam [63:0] T0H_CYC64        = (T0H_NS64 * CLK64 + CONST_HALF_BILLION) / CONST_BILLION;
+    localparam [63:0] T1H_CYC64        = (T1H_NS64 * CLK64 + CONST_HALF_BILLION) / CONST_BILLION;
+    localparam [63:0] BIT_PERIOD_CYC64 = (PERIOD_NS64 * CLK64 + CONST_HALF_BILLION) / CONST_BILLION;
+    localparam [63:0] LATCH_CYC64      = (LATCH_NS64 * CLK64 + CONST_HALF_BILLION) / CONST_BILLION;
+    localparam [63:0] GAP_CYC64        = (((64'd200) * CLK64 + CONST_HALF_BILLION) / CONST_BILLION); // 200ns inter-pixel gap
+
+    localparam [23:0] T0H_CYC        = T0H_CYC64[23:0];
+    localparam [23:0] T1H_CYC        = T1H_CYC64[23:0];
+    localparam [23:0] BIT_PERIOD_CYC = BIT_PERIOD_CYC64[23:0];
+    localparam [23:0] LATCH_CYC      = LATCH_CYC64[23:0];
+    localparam [23:0] GAP_CYC        = GAP_CYC64[23:0];
 
     // Bit count limit: 24 bits for WS2812, 32 bits for SK6812
     localparam [5:0] BIT_COUNT_MAX = IS_SK6812 ? 6'd31 : 6'd23;
@@ -87,7 +93,8 @@ T1L .6us
     reg        is_last_px;
 
     // Pulse width is determined by current MSB
-    wire [23:0] active_threshold = (shift_reg[31]) ? T1H_CYC : T0H_CYC;
+    wire [23:0] active_threshold;
+    assign active_threshold = (shift_reg[31]) ? T1H_CYC : T0H_CYC;
 
     // AXIS ready is high when in IDLE state and not sending
     assign s_axis_tready = (state == IDLE);
@@ -122,10 +129,14 @@ T1L .6us
                     o_serial <= (timer < active_threshold);
                     if (timer >= BIT_PERIOD_CYC - 1) begin
                         timer <= 0;
-                        if (bit_cnt >= BIT_COUNT_MAX) begin
-                            o_serial <= 0;
-                            state <= is_last_px ? LATCH : GAP;
-                        end else begin
+                            if (bit_cnt >= BIT_COUNT_MAX) begin
+                                    o_serial <= 0;
+                                    if (is_last_px) begin
+                                        state <= LATCH;
+                                    end else begin
+                                        state <= GAP;
+                                    end
+                            end else begin
                             bit_cnt   <= bit_cnt + 1;
                             shift_reg <= {shift_reg[30:0], 1'b0};
                         end
