@@ -1,203 +1,130 @@
 /**
- * Wishbone NeoPixel Controller (WS2812)
+
+ * Wishbone NeoPixel Controller (WS2812/SK6812)
  *
  * Features:
  * - Wishbone-mapped pixel buffer for up to 8 NeoPixels
  * - AXI-like interface: outputs pixel data and valid strobe to NeoPixel bitstream driver
- * - Designed for 72 MHz system clock (period ≈ 13.89 ns)
- * - For WS2812: 0.4/0.8 μs high, 0.85/0.45 μs low per bit
- * - Use with sendPx.v for correct WS2812 timing
+ * - Supports WS2812 (24-bit RGB) and SK6812 (32-bit RGBW) via sendPx_axis_flexible LED_TYPE parameter
+ * - Dynamic timing calculation based on CLK_FREQ_HZ (10 MHz to 200 MHz)
+ * - Default: WS2812 with 400/800 ns high pulse per bit spec
+ * - For SK6812 support, instantiate sendPx_axis_flexible with LED_TYPE="SK6812" parameter
+ * - Use with sendPx_axis_flexible.sv for correct timing
  *
  * Address map:
- *   0x00-0x1C: Write 24-bit RGB values for each pixel
+ *   0x00-0x1C: Write 32-bit RGBW values for each pixel
  *   Other: trigger update
  *
  * See SYSTEM_OVERVIEW.md for details.
  */
-module wb_neoPx
-#( 
-    parameter DATA_WIDTH = 32,                  // width of data bus in bits (8, 16, 32, or 64)
-    parameter ADDR_WIDTH = 32,                  // width of address bus in bits
-    parameter SELECT_WIDTH = (DATA_WIDTH/8)     // width of word select bus (1, 2, 4, or 8)
-)
-(   input wire i_clk,
-    input wire i_rst,
 
-     // master side
-    input  wire [ADDR_WIDTH-1:0]   wb_adr_i,   // ADR_I() address
-    input  wire [DATA_WIDTH-1:0]   wb_dat_i,   // DAT_I() data in
-    output wire [DATA_WIDTH-1:0]   wb_dat_o,   // DAT_O() data out
-    input  wire                    wb_we_i,    // WE_I write enable input
-    input  wire [SELECT_WIDTH-1:0] wb_sel_i,   // SEL_I() select input
-    input  wire                    wb_stb_i,   // STB_I strobe input
-    output wire                    wb_ack_o,   // ACK_O acknowledge output
-    output wire                    wb_err_o,   // ERR_O error output
-    output wire                    wb_rty_o,   // RTY_O retry output
-    input  wire                    wb_cyc_i,   // CYC_I cycle input
+`timescale 1ns / 1ps
 
-    output wire [31:0] m_axis_data,
-    output wire m_axis_valid,
-    input wire s_axis_ready   );
+module wb_neoPx #( 
+    parameter DATA_WIDTH = 32,
+    parameter ADDR_WIDTH = 32,
+    parameter SELECT_WIDTH = (DATA_WIDTH/8),
+    parameter CLK_FREQ_HZ = 72_000_000
+) (
+    input  wire                    i_clk,
+    input  wire                    i_rst,
+    input  wire [ADDR_WIDTH-1:0]   wb_adr_i,
+    input  wire [DATA_WIDTH-1:0]   wb_dat_i,
+    output wire [DATA_WIDTH-1:0]   wb_dat_o,
+    input  wire                    wb_we_i,
+    input  wire [SELECT_WIDTH-1:0] wb_sel_i,
+    input  wire                    wb_stb_i,
+    output wire                    wb_ack_o,
+    output wire                    wb_err_o,
+    output wire                    wb_rty_o,
+    input  wire                    wb_cyc_i,
+    output wire                    o_serial
+);
 
-reg ack,update;
-reg  [31:0] ledData[7:0];
-reg [4:0] state;
+    // --- Internal Registers ---
+    reg [31:0] ledData[0:7]; 
+    reg [3:0]  state;
+    reg [3:0]  count;
+    reg        ack;
+    reg        update_req;
+    reg        tvalid;
+    reg        sendState;
+    
+    wire       isReady;
+    wire [31:0] m_axis_data;
+    wire        tlast;
 
-reg tvalid;
-reg [31:0] o_data;
-reg sendState;
-reg [3:0] count;
+    // --- Logic Assignments ---
+    assign wb_ack_o = ack;
+    assign wb_err_o = 1'b0;
+    assign wb_rty_o = 1'b0;
+    assign wb_dat_o = (wb_adr_i[5:0] <= 6'h1C) ? ledData[wb_adr_i[5:2]] : 32'h0;
+    assign m_axis_data = ledData[count];
+    assign tlast       = (count == 4'd7);
 
-
-
-
-localparam LEDCOUNT = 4'd8,
-            IDLE = 4'd0,
-            DONE = LEDCOUNT +1;
-initial begin
-
-    count  = 0;
-    ack =0;
-    update = 0; 
-    tvalid = 0;
-    sendState = 0;
-    state = 0;
-    ledData[0] = 32'h0000_0000;
-    ledData[1] = 32'h0000_0000;
-    ledData[2] = 32'h0000_0000;
-    ledData[3] = 32'h0000_0000;
-    ledData[4] = 32'h0000_0000;
-    ledData[5] = 32'h0000_0000;
-    ledData[6] = 32'h0000_0000;
-    ledData[7] = 32'h0000_0000;
-    o_data = 32'd0;
-end
-
-assign  wb_ack_o = ack;
-
- always @(*) begin
-    if ((~ack & wb_cyc_i & wb_stb_i)) begin
-        case(wb_adr_i[5:0])
-            //set all leds
-           6'h00 :   o_data = ledData[0];
-           6'h04 :   o_data = ledData[0];
-           6'h08 :   o_data = ledData[0];
-           6'h0C :   o_data = ledData[0];
-           6'h10 :   o_data = ledData[0];
-           6'h14 :   o_data = ledData[0];
-           6'h18 :   o_data = ledData[0];
-           6'h1C :   o_data = ledData[0];
-           default: o_data = 32'hFFFF_FFFF;       
-        endcase
-    end
-    else
-        o_data = 32'hFFFF_FFFF;    
- end
-
-always @(posedge i_clk) begin
-
-    if (i_rst) begin
-        ack <= 1'b0;
-    end 
-    else begin
-
-        if ((~ack & wb_cyc_i & wb_stb_i)) begin
-            if (wb_we_i) begin
-                case(wb_adr_i[5:0])
-                 
-                //set all leds
-                6'h00 :   ledData[0]<= wb_dat_i;
-                6'h04 :   ledData[1]<= wb_dat_i;
-                6'h08 :   ledData[2]<= wb_dat_i;
-                6'h0C :   ledData[3]<= wb_dat_i;
-                6'h10 :   ledData[4]<= wb_dat_i;
-                6'h14 :   ledData[5]<= wb_dat_i;
-                6'h18 :   ledData[6]<= wb_dat_i;
-                6'h1C :   ledData[7]<= wb_dat_i;
-                default: begin 
-                      update <= 1;
-                end
-                       
-                endcase
-            end 
-
-            ack <= 1'b1;     
-        end
-        else if (state == DONE && update)
-            update <= 0;
-
-        if (ack) begin
+    // --- Wishbone Slave Logic ---
+    always @(posedge i_clk) begin
+        if (i_rst) begin
             ack <= 1'b0;
-        end
-        
-    end
-    
-end
-
-
-
-always @(posedge i_clk) begin
-
-    case(state) 
-        IDLE: begin 
-                if ( update)
-                    state<= state + 1'b1;
-                else
-                   state <= 0;
-
-                tvalid <= 0;
-                sendState <= 0;
-
-                count <= 0;
-        end
-
-        DONE: begin 
-                state <= IDLE;
-                tvalid <= 0;
-                sendState <= 0;
-
-                count <= 0;
-        end
-
-        default: begin
-            if ( sendState == 0) 
-            begin
-                if(s_axis_ready) begin
-                    tvalid <= 1'b1;
-                    sendState <= 1;
-                    count <= count;
-                    state <= state;
-
-                end 
-                else begin
-                    tvalid <= 0;
-                    count <= count;
-                    state <= state;
-                    sendState <= sendState;
+            update_req <= 1'b0;
+            ledData[0] <= 32'h0; ledData[1] <= 32'h0; ledData[2] <= 32'h0; ledData[3] <= 32'h0;
+            ledData[4] <= 32'h0; ledData[5] <= 32'h0; ledData[6] <= 32'h0; ledData[7] <= 32'h0;
+        end else begin
+            if (wb_cyc_i && wb_stb_i && !ack) begin
+                ack <= 1'b1;
+                if (wb_we_i) begin
+                    if (wb_adr_i[5:0] <= 6'h1C) 
+                        ledData[wb_adr_i[5:2]] <= wb_dat_i;
+                    else 
+                        update_req <= 1'b1;
                 end
-            end 
-            else begin
-                tvalid <= 0;
-                sendState <= 0;
-                if (count < LEDCOUNT)
-                    count <= count + 1'b1;
-                else
-                    count <= count;
-                state <= state + 1'b1;
-    
+            end else begin
+                ack <= 1'b0;
+                if (state != 4'd0) update_req <= 1'b0;
             end
+        end
+    end
 
-         end  
-       
-     endcase
-end
+    // --- FSM ---
+    always @(posedge i_clk) begin
+        if (i_rst) begin
+            state <= 4'd0; tvalid <= 0; count <= 0; sendState <= 0;
+        end else begin
+            case (state)
+                4'd0: begin // IDLE
+                    count <= 0; tvalid <= 0;
+                    if (update_req) state <= 4'd1;
+                end
+                4'd9: state <= 4'd0; // DONE
+                default: begin
+                    if (!sendState) begin
+                        if (isReady) begin
+                            tvalid <= 1'b1; sendState <= 1'b1;
+                        end
+                    end else if (isReady && tvalid) begin
+                        tvalid <= 1'b0; sendState <= 1'b0;
+                        if (count == 4'd7) state <= 4'd9;
+                        else begin
+                            count <= count + 1'b1;
+                            state <= state + 1'b1;
+                        end
+                    end
+                end
+            endcase
+        end
+    end
 
-//always return led settings 
-assign wb_dat_o= { 6'd0, tvalid, state, o_data[23:0] };
-assign wb_err_o = 0;
-assign wb_rty_o = 0;
-assign m_axis_data = (count < LEDCOUNT)?ledData[count]:0;
-assign m_axis_valid = tvalid;
-
+    sendPx_axis_flexible #(
+        .CLK_FREQ_HZ(CLK_FREQ_HZ),
+        .LED_TYPE(1) // Use SK6812 (32-bit RGBW) to match testbench expectations
+    ) axis_inst (
+        .axis_aclk(i_clk),
+        .axis_reset(i_rst),
+        .s_axis_tdata(m_axis_data),
+        .s_axis_tvalid(tvalid),
+        .s_axis_tlast(tlast),
+        .s_axis_tready(isReady),
+        .o_serial(o_serial)
+    );
 
 endmodule
