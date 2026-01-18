@@ -125,7 +125,30 @@ help:
 	@echo "  make oss-version - Check local tools VERSION vs latest GitHub release (checks $$OSS_CAD_INSTALL_DIR, $HOME/.tools/oss-cad-suite, $HOME/tools then project/oss-cad-suite)"
 	@echo "  make simulate   - Run SPI slave simulation (delegates to spiSlave/Makefile)"
 	@echo "  make -C neoPXStrip help - List NeoPixel (sendPx) testbench and simulation targets in neoPXStrip/Makefile"
+	@echo ""
+	@echo "Testbench / simulation targets (testbenches live under src/tb):"
+	@echo "  make tb-design       - Compile & run src/tb/design_tb.sv (uses tools/Makefile)."
+	@echo "  make tb-passthrough  - Compile & run src/tb/tang9k_top_tb.sv (uses tools/Makefile)."
+	@echo "  make test-tb         - Run both tb-design and tb-passthrough (invokes tb targets)."
+	@echo ""
+	@echo "Passing plusargs / runtime options to testbenches:"
+	@echo "  The tb targets invoke vvp and accept simulator plusargs via the VVP_ARGS make variable."
+	@echo "  Example: make tb-design VVP_ARGS=\"+TEST_VERSION +VERBOSE\""
+	@echo "  You can also ask for testbench-specific help defined in tools/Makefile: make tools-help"
+	@echo ""
+	@echo "Supported test plusargs (use with VVP_ARGS):"
+	@echo "  +TEST_LED       - Run LED controller tests"
+	@echo "  +TEST_MUX       - Run Mux controller tests"
+	@echo "  +TEST_DSHOT     - Run DSHOT controller tests"
+	@echo "  +TEST_PWM       - Run PWM decoder tests"
+	@echo "  +TEST_VERSION   - Run Version readback test"
+	@echo "  +TEST_NEOPIXEL  - Run NeoPixel controller test"
 	@echo "Note: running 'make' will no longer automatically reinstall tools; to force reinstall run: 'make install-tools-local REINSTALL=1'"
+	@echo ""
+	# If tools/Makefile is present, show its help too so all options appear together
+	@if [ -f tools/Makefile ]; then \
+		$(MAKE) -s -f tools/Makefile tools-help; \
+	fi
 	@echo "  make clean      - Remove build artifacts"
 	@echo "  make lint       - Syntax check with iverilog"
 
@@ -199,22 +222,7 @@ view:
 # Testbench targets (run testbenches located under src/tb)
 .PHONY: tb-design tb-passthrough test-tb
 
-tb-design:
-	@echo "Running design testbench (src/tb/design_tb.sv)"
-	@if ! command -v iverilog > /dev/null; then \
-		echo "Error: iverilog not found. Install iverilog to run testbenches."; exit 1; \
-	fi
-	iverilog -g2009 -o /tmp/tb_design.vvp src/tb/design_tb.sv $(SRCS)
-	vvp /tmp/tb_design.vvp
-
-tb-passthrough:
-	@echo "Running passthrough testbench (src/tb/tang9k_top_tb.sv)"
-	@if ! command -v iverilog > /dev/null; then \
-		echo "Error: iverilog not found. Install iverilog to run testbenches."; exit 1; \
-	fi
-	iverilog -g2009 -o /tmp/tb_passthrough.vvp src/tb/tang9k_top_tb.sv $(SRCS)
-	vvp /tmp/tb_passthrough.vvp
-
+# tb-design and tb-passthrough are defined in tools/Makefile
 test-tb: tb-design tb-passthrough
 
 
@@ -242,4 +250,7 @@ clean:
 	# remove any local tool caches or temporary folders
 	@rm -rf .cache .tmp .yosys* .nextpnr* || true
 	@echo "Cleanup complete!"
+
+# optionally include tools/Makefile (testbench targets)
+-include tools/Makefile
 

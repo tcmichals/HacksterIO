@@ -1,0 +1,403 @@
+Running design testbench (src/tb/design_tb.sv)
+iverilog -g2009 -o /tmp/tb_design.vvp src/tb/design_tb.sv spiSlave/spi_slave.sv src/pll.sv src/coredesign.sv src/uart_passthrough_bridge.sv src/wb_dshot_controller.sv src/wb_serial_dshot_mux.sv src/wb_led_controller.sv src/tang9k_top.sv pwmDecoder/pwmdecoder.v pwmDecoder/pwmdecoder_wb.v neoPXStrip/sendPx_axis_flexible.sv neoPXStrip/wb_neoPx.v version/wb_version.sv verilog-wishbone/rtl/axis_wb_master.v src/wb_mux_6.v src/spi_axis_adapter.sv dshot/dshot_out.v src/uart_tx.sv src/uart_rx.sv verilog-uart/rtl/uart_tx.v verilog-uart/rtl/uart_rx.v 
+vvp /tmp/tb_design.vvp +TEST_VERSION
+[INFO] T0H_CYC=22 T1H_CYC=43 BIT_PERIOD_CYC=90 LATCH_CYC=21600 GAP_CYC=14 BIT_COUNT_MAX=31
+VCD info: dumpfile tb_design.vcd opened for output.
+
+[TEST 5] Version Module Readback
+[SPI TRX 0] Start transaction (shared):  READ addr=0x00000600 wdata=0x00000000
+[SPI 77000] send_spi_byte (sync): TX=0xa1 msb_first=1
+[spi_slave 133000] tx_shift_reg underflow -> sending 0x00
+[SPI 413000] send_spi_byte (sync): DONE TX=0xa1 RX=0xX0
+[SPI TRX 413000] Cmd phase RX=0xX0
+[SPI 427000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 469000] RX byte complete: 0x42 cs=1
+[spi_axis_adapter 483000] Received spi_rx_data -> forwarding to m_axis: 0x42
+[spi_slave 483000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 497000] m_axis_tdata=0x42 m_axis_tvalid=1 m_axis_tready=1
+[SPI 763000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI 777000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 819000] RX byte complete: 0x00 cs=1
+[spi_slave 833000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 833000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 847000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 1113000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI 1127000] send_spi_byte (sync): TX=0x06 msb_first=1
+[spi_slave 1169000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 1183000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 1183000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 1197000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 1463000] send_spi_byte (sync): DONE TX=0x06 RX=0x00
+[SPI 1477000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 1519000] RX byte complete: 0x0c cs=1
+[spi_slave 1533000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 1533000] Received spi_rx_data -> forwarding to m_axis: 0x0c
+[spi_axis_adapter 1547000] m_axis_tdata=0x0c m_axis_tvalid=1 m_axis_tready=1
+[SPI 1813000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI 1827000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 1869000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 1883000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 1883000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 1897000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 2163000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI 2177000] send_spi_byte (sync): TX=0x04 msb_first=1
+[spi_slave 2219000] RX byte complete: 0x00 cs=1
+[spi_slave 2233000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 2233000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 2247000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 2513000] send_spi_byte (sync): DONE TX=0x04 RX=0x00
+[SPI 2527000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 2569000] RX byte complete: 0x08 cs=1
+[spi_axis_adapter 2583000] Received spi_rx_data -> forwarding to m_axis: 0x08
+[spi_slave 2583000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 2597000] m_axis_tdata=0x08 m_axis_tvalid=1 m_axis_tready=1
+[SPI 2863000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 2863000] Poll RX=0x00 (timeout=0)
+[SPI 2877000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 2919000] RX byte complete: 0x00 cs=1
+[spi_slave 2933000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 2933000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 2947000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 3213000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 3213000] Poll RX=0x00 (timeout=1)
+[SPI 3227000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 3269000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 3283000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 3283000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 3297000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 3563000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 3563000] Poll RX=0x00 (timeout=2)
+[SPI 3577000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 3619000] RX byte complete: 0x00 cs=1
+[spi_slave 3633000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 3633000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 3647000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 3913000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 3913000] Poll RX=0x00 (timeout=3)
+[SPI 3927000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 3969000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 3983000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 3983000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 3997000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 4263000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 4263000] Poll RX=0x00 (timeout=4)
+[SPI 4277000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 4319000] RX byte complete: 0x00 cs=1
+[spi_slave 4333000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 4333000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 4347000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 4613000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 4613000] Poll RX=0x00 (timeout=5)
+[SPI 4627000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 4669000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 4683000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 4683000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 4697000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 4963000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 4963000] Poll RX=0x00 (timeout=6)
+[SPI 4977000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 5019000] RX byte complete: 0x00 cs=1
+[spi_slave 5033000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 5033000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 5047000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 5313000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 5313000] Poll RX=0x00 (timeout=7)
+[SPI 5327000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 5369000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 5383000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 5383000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 5397000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 5663000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 5663000] Poll RX=0x00 (timeout=8)
+[SPI 5677000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 5719000] RX byte complete: 0x00 cs=1
+[spi_slave 5733000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 5733000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 5747000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 6013000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 6013000] Poll RX=0x00 (timeout=9)
+[SPI 6027000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 6069000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 6083000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 6083000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 6097000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 6363000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 6363000] Poll RX=0x00 (timeout=10)
+[SPI 6377000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 6419000] RX byte complete: 0x00 cs=1
+[spi_slave 6433000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 6433000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 6447000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 6713000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 6713000] Poll RX=0x00 (timeout=11)
+[SPI 6727000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 6769000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 6783000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 6783000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 6797000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 7063000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 7063000] Poll RX=0x00 (timeout=12)
+[SPI 7077000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 7119000] RX byte complete: 0x00 cs=1
+[spi_slave 7133000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 7133000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 7147000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 7413000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 7413000] Poll RX=0x00 (timeout=13)
+[SPI 7427000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 7469000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 7483000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 7483000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 7497000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 7763000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 7763000] Poll RX=0x00 (timeout=14)
+[SPI 7777000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 7819000] RX byte complete: 0x00 cs=1
+[spi_slave 7833000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 7833000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 7847000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 8113000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 8113000] Poll RX=0x00 (timeout=15)
+[SPI 8127000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 8169000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 8183000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 8183000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 8197000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 8463000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 8463000] Poll RX=0x00 (timeout=16)
+[SPI 8477000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 8519000] RX byte complete: 0x00 cs=1
+[spi_slave 8533000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 8533000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 8547000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 8813000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 8813000] Poll RX=0x00 (timeout=17)
+[SPI 8827000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 8869000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 8883000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 8883000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 8897000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 9163000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 9163000] Poll RX=0x00 (timeout=18)
+[SPI 9177000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 9219000] RX byte complete: 0x00 cs=1
+[spi_slave 9233000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 9233000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 9247000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 9513000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 9513000] Poll RX=0x00 (timeout=19)
+[SPI 9527000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 9569000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 9583000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 9583000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 9597000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 9863000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 9863000] Poll RX=0x00 (timeout=20)
+[SPI 9877000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 9919000] RX byte complete: 0x00 cs=1
+[spi_slave 9933000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 9933000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 9947000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 10213000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 10213000] Poll RX=0x00 (timeout=21)
+[SPI 10227000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 10269000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 10283000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 10283000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 10297000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 10563000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 10563000] Poll RX=0x00 (timeout=22)
+[SPI 10577000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 10619000] RX byte complete: 0x00 cs=1
+[spi_slave 10633000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 10633000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 10647000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 10913000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 10913000] Poll RX=0x00 (timeout=23)
+[SPI 10927000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 10969000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 10983000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 10983000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 10997000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 11263000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 11263000] Poll RX=0x00 (timeout=24)
+[SPI 11277000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 11319000] RX byte complete: 0x00 cs=1
+[spi_slave 11333000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 11333000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 11347000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 11613000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 11613000] Poll RX=0x00 (timeout=25)
+[SPI 11627000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 11669000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 11683000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 11683000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 11697000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 11963000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 11963000] Poll RX=0x00 (timeout=26)
+[SPI 11977000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 12019000] RX byte complete: 0x00 cs=1
+[spi_slave 12033000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 12033000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 12047000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 12313000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 12313000] Poll RX=0x00 (timeout=27)
+[SPI 12327000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 12369000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 12383000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 12383000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 12397000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 12663000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 12663000] Poll RX=0x00 (timeout=28)
+[SPI 12677000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 12719000] RX byte complete: 0x00 cs=1
+[spi_slave 12733000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 12733000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 12747000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 13013000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 13013000] Poll RX=0x00 (timeout=29)
+[SPI 13027000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 13069000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 13083000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 13083000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 13097000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 13363000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 13363000] Poll RX=0x00 (timeout=30)
+[SPI 13377000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 13419000] RX byte complete: 0x00 cs=1
+[spi_slave 13433000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 13433000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 13447000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 13713000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 13713000] Poll RX=0x00 (timeout=31)
+[SPI 13727000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 13769000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 13783000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 13783000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 13797000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 14063000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 14063000] Poll RX=0x00 (timeout=32)
+[SPI 14077000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 14119000] RX byte complete: 0x00 cs=1
+[spi_slave 14133000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 14133000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 14147000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 14413000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 14413000] Poll RX=0x00 (timeout=33)
+[SPI 14427000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 14469000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 14483000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 14483000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 14497000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 14763000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 14763000] Poll RX=0x00 (timeout=34)
+[SPI 14777000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 14819000] RX byte complete: 0x00 cs=1
+[spi_slave 14833000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 14833000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 14847000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 15113000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 15113000] Poll RX=0x00 (timeout=35)
+[SPI 15127000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 15169000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 15183000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 15183000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 15197000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 15463000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 15463000] Poll RX=0x00 (timeout=36)
+[SPI 15477000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 15519000] RX byte complete: 0x00 cs=1
+[spi_slave 15533000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 15533000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 15547000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 15813000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 15813000] Poll RX=0x00 (timeout=37)
+[SPI 15827000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 15869000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 15883000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 15883000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 15897000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 16163000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 16163000] Poll RX=0x00 (timeout=38)
+[SPI 16177000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 16219000] RX byte complete: 0x00 cs=1
+[spi_slave 16233000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 16233000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 16247000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 16513000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 16513000] Poll RX=0x00 (timeout=39)
+[SPI 16527000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 16569000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 16583000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 16583000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 16597000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 16863000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 16863000] Poll RX=0x00 (timeout=40)
+[SPI 16877000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 16919000] RX byte complete: 0x00 cs=1
+[spi_slave 16933000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 16933000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 16947000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 17213000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 17213000] Poll RX=0x00 (timeout=41)
+[SPI 17227000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 17269000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 17283000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 17283000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 17297000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 17563000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 17563000] Poll RX=0x00 (timeout=42)
+[SPI 17577000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 17619000] RX byte complete: 0x00 cs=1
+[spi_slave 17633000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 17633000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 17647000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 17913000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 17913000] Poll RX=0x00 (timeout=43)
+[SPI 17927000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 17969000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 17983000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 17983000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 17997000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 18263000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 18263000] Poll RX=0x00 (timeout=44)
+[SPI 18277000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 18319000] RX byte complete: 0x00 cs=1
+[spi_slave 18333000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 18333000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 18347000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 18613000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 18613000] Poll RX=0x00 (timeout=45)
+[SPI 18627000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 18669000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 18683000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 18683000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 18697000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 18963000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 18963000] Poll RX=0x00 (timeout=46)
+[SPI 18977000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 19019000] RX byte complete: 0x00 cs=1
+[spi_slave 19033000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 19033000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 19047000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 19313000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 19313000] Poll RX=0x00 (timeout=47)
+[SPI 19327000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 19369000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 19383000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 19383000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 19397000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 19663000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 19663000] Poll RX=0x00 (timeout=48)
+[SPI 19677000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 19719000] RX byte complete: 0x00 cs=1
+[spi_slave 19733000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 19733000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 19747000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 20013000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 20013000] Poll RX=0x00 (timeout=49)
+Error: Read Response Header (A3) not found (shared)
+FAILURE: Version Readback 0xbaadf00d != 0xDEADBEEF
+
+design_tb finished
+src/tb/design_tb.sv:239: $finish called at 25293000 (1ps)

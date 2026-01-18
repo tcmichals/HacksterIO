@@ -7,10 +7,10 @@ module design_tb();
     always #7 i_clk = ~i_clk;
 
     // SPI master signals
-    reg i_sclk = 0;
-    reg spi_cs_n = 1; // active LOW (asserted = 0)
-    reg spi_mosi = 0;
-    wire spi_miso;
+    logic i_sclk = 0;
+    logic spi_cs_n = 1; // active LOW (asserted = 0)
+    logic spi_mosi = 0;
+    logic spi_miso;
 
     // LEDs and status (map to top-level LED outputs)
     wire o_led0, o_led1, o_led2, o_led3;
@@ -26,10 +26,15 @@ module design_tb();
     reg [31:0] tmp32;
     reg [31:0] readback;
     logic [31:0] pixel_data;
+    // Local testbench temporaries
+    integer led_i;
+    reg [31:0] expected;
     
     // DSHOT Monitor variables
     reg [15:0] dshot_frame;
     reg dshot_monitor_active = 0;
+    // Control verbose output via plusarg +VERBOSE
+    bit tb_verbose = 0;
 
     // Instantiate the top-level module tang9k_top
     tang9k_top dut (
@@ -118,87 +123,120 @@ module design_tb();
     endtask
 
     // Simple reset + initialize
+    // Support running individual tests via plusargs: +TEST_LED +TEST_MUX +TEST_DSHOT +TEST_PWM +TEST_VERSION +TEST_NEOPIXEL
+    function bit run_test_from_plusarg(input string name);
+        begin
+            run_test_from_plusarg = $test$plusargs({"TEST_", name});
+        end
+    endfunction
+
     initial begin
+        // Determine whether any TEST_* plusargs are present; if so run only those tests.
+        bit any_test_plusarg;
         $dumpfile("tb_design.vcd");
         $dumpvars(0, design_tb);
+
+        // Set verbose flag from plusarg +VERBOSE
+        tb_verbose = $test$plusargs("VERBOSE");
 
         // Fork monitors
         fork
             monitor_dshot();
         join_none
+        any_test_plusarg = $test$plusargs("TEST_LED") || $test$plusargs("TEST_MUX") || $test$plusargs("TEST_DSHOT") || $test$plusargs("TEST_PWM") || $test$plusargs("TEST_VERSION") || $test$plusargs("TEST_NEOPIXEL");
 
         // --- Test 1: LED Controller ---
-        $display("\n[TEST 1] LED Controller");
-        // Write 0x0F to LED Register (Addr 0x00)
-        spi_wb_transaction(0, 32'h0, 32'h0000000F, tmp32); 
-        // Read back
-        spi_wb_transaction(1, 32'h0000, 32'h0, readback);
-        if (readback[3:0] == 4'hF) $display("SUCCESS: LED Readback correct");
-        else $display("FAILURE: LED Readback 0x%x (!= 0xF)", readback[3:0]);
+        if (!any_test_plusarg || $test$plusargs("TEST_LED")) begin
+            if (tb_verbose) $display("\n[TEST 1] LED Controller (per-LED writes)");
+            // We'll set LED1, LED2, LED3 individually (bits 0,1,2) and read back after each write.
+            for (led_i = 0; led_i < 3; led_i = led_i + 1) begin
+                expected = (32'h1 << led_i);
+                if (tb_verbose) $display("Setting LED %0d -> 0x%02x", led_i+1, expected[3:0]);
+                spi_wb_transaction(0, 32'h0000, expected, tmp32);
+                // Read back
+                spi_wb_transaction(1, 32'h0000, 32'h0, readback);
+                // concise result output
+                if (readback[3:0] & expected[3:0]) begin
+                    $display("TEST LED %0d: PASS", led_i+1);
+                end else begin
+                    $display("TEST LED %0d: FAIL (read=0x%01x expected=0x%01x)", led_i+1, readback[3:0], expected[3:0]);
+                end
+            end
+        end
 
         // --- Test 2: Mux Controller ---
-        $display("\n[TEST 2] Mux Switch to DSHOT");
-        spi_wb_transaction(0, 32'h0400, 32'h00000001, tmp32); // Set Mux to 1 (DSHOT)
-        spi_wb_transaction(1, 32'h0400, 32'h0, readback);
-        $display("Readback Mux register: 0x%08x", readback);
+        if (!any_test_plusarg || $test$plusargs("TEST_MUX")) begin
+            if (tb_verbose) $display("\n[TEST 2] Mux Switch to DSHOT");
+            spi_wb_transaction(0, 32'h0400, 32'h00000001, tmp32); // Set Mux to 1 (DSHOT)
+            spi_wb_transaction(1, 32'h0400, 32'h0, readback);
+            $display("TEST MUX: Readback Mux register: 0x%08x", readback);
+        end
         
         // --- Test 3: DSHOT Controller ---
-        $display("\n[TEST 3] DSHOT Motor 1 Output");
-        // Write 48 (Minimal Throttle 0) -> Frame 0x60? 48 << 1 = 96.
-        spi_wb_transaction(0, 32'h0300, 32'h00000030, tmp32); 
-        
-        // Wait for DSHOT frame transmission
-        #150000;
+        if (!any_test_plusarg || $test$plusargs("TEST_DSHOT")) begin
+            if (tb_verbose) $display("\n[TEST 3] DSHOT Motor 1 Output");
+            // Write 48 (Minimal Throttle 0) -> Frame 0x60? 48 << 1 = 96.
+            spi_wb_transaction(0, 32'h0300, 32'h00000030, tmp32); 
+            
+            // Wait for DSHOT frame transmission
+            #150000;
+        end
         
         // --- Test 4: PWM Decoder ---
-        $display("\n[TEST 4] PWM Decoder Input");
-        // Generate a 1500us PWM pulse
-        $display("Generating 1500us PWM pulse on CH0...");
-        generate_pwm_pulse(1500);
-        
-        // Read back Address 0x0200 (Channel 0)
-        spi_wb_transaction(1, 32'h0200, 32'h0, readback);
-        $display("Readback PWM Ch0: %d (Expected ~1500)", readback);
-        
-        // 1480-1520 covers slight simulation clock mismatches (71.4MHz vs 72MHz)
-        if (readback > 1450 && readback < 1550) 
-            $display("SUCCESS: PWM Measurement is within standard range (1000-2000us)");
-        else begin
-            $display("FAILURE: PWM Measurement out of range");
-            $display("Debug: %x", readback);
+        if (!any_test_plusarg || $test$plusargs("TEST_PWM")) begin
+            if (tb_verbose) $display("\n[TEST 4] PWM Decoder Input");
+            // Generate a 1500us PWM pulse
+            if (tb_verbose) $display("Generating 1500us PWM pulse on CH0...");
+            generate_pwm_pulse(1500);
+            
+            // Read back Address 0x0200 (Channel 0)
+            spi_wb_transaction(1, 32'h0200, 32'h0, readback);
+            $display("TEST PWM: Readback PWM Ch0: %d (Expected ~1500)", readback);
+            
+            // 1480-1520 covers slight simulation clock mismatches (71.4MHz vs 72MHz)
+            if (readback > 1450 && readback < 1550) 
+                $display("TEST PWM: PASS (value %d)", readback);
+            else begin
+                $display("TEST PWM: FAIL (value %d)", readback);
+                if (tb_verbose) $display("Debug: %x", readback);
+            end
         end
 
         // --- Test 5: Version Module ---
-        $display("\n[TEST 5] Version Module Readback");
-        // Read Address 0x0600
-        spi_wb_transaction(1, 32'h0600, 32'h0, readback);
-        if (readback == 32'hDEADBEEF) 
-            $display("SUCCESS: Version Readback 0xDEADBEEF");
-        else 
-            $display("FAILURE: Version Readback 0x%x != 0xDEADBEEF", readback);
+        if (!any_test_plusarg || $test$plusargs("TEST_VERSION")) begin
+            if (tb_verbose) $display("\n[TEST 5] Version Module Readback");
+            // Read Address 0x0600
+            spi_wb_transaction(1, 32'h0600, 32'h0, readback);
+            if (readback == 32'hDEADBEEF) 
+                $display("TEST VERSION: PASS");
+            else 
+                $display("TEST VERSION: FAIL (0x%x)", readback);
+        end
         
         // --- Test 6: NeoPixel Controller ---
-        $display("\n[TEST 6] NeoPixel Controller (Address 0x0500)");
-        // Write 0x00AABBCC to Pixel 0
-        spi_wb_transaction(0, 32'h0500, 32'h00AABBCC, tmp32); 
-        
-        // Trigger Update (Write to offset 0x20)
-        // Use fork/join to start monitor BEFORE the pulse could possibly be missed
-        $display("Monitoring NeoPixel Output...");
-        fork
-            monitor_neopixel(pixel_data);
-            begin
-                #100; // Small delay
-                spi_wb_transaction(0, 32'h0520, 32'h00000001, tmp32);
-            end
-        join
-        
-        // Expected: 0xAABBCC (24 bits)
-        // Note: sendPx now sends 24 bits (MSB first).
-        if (pixel_data == 32'h00AABBCC) 
-            $display("SUCCESS: NeoPixel Serial Output 0x%06x Matches", pixel_data[23:0]);
-        else 
-            $display("FAILURE: NeoPixel Serial Output 0x%06x (Expected 0xAABBCC)", pixel_data[23:0]);
+        if (!any_test_plusarg || $test$plusargs("TEST_NEOPIXEL")) begin
+            if (tb_verbose) $display("\n[TEST 6] NeoPixel Controller (Address 0x0500)");
+            // Write 0x00AABBCC to Pixel 0
+            spi_wb_transaction(0, 32'h0500, 32'h00AABBCC, tmp32); 
+            
+            // Trigger Update (Write to offset 0x20)
+            // Use fork/join to start monitor BEFORE the pulse could possibly be missed
+            if (tb_verbose) $display("Monitoring NeoPixel Output...");
+            fork
+                monitor_neopixel(pixel_data);
+                begin
+                    #100; // Small delay
+                    spi_wb_transaction(0, 32'h0520, 32'h00000001, tmp32);
+                end
+            join
+            
+            // Expected: 0xAABBCC (24 bits)
+            // Note: sendPx now sends 24 bits (MSB first).
+            if (pixel_data == 32'h00AABBCC) 
+                $display("TEST NEOPIXEL: PASS (0x%06x)", pixel_data[23:0]);
+            else 
+                $display("TEST NEOPIXEL: FAIL (0x%06x)", pixel_data[23:0]);
+        end
 
         // --- End of Tests ---
         #5000;
@@ -237,115 +275,8 @@ module design_tb();
         end
     endtask
 
-    // SPI send/receive (MSB first)
-    task send_spi_byte(input [7:0] tx, output [7:0] rx);
-        integer i;
-        begin
-            rx = 8'h00;
-            for (i = 7; i >= 0; i = i - 1) begin
-                // Drive MOSI
-                spi_mosi = tx[i];
-                repeat(4) @(posedge i_clk);
-                
-                // SCLK High
-                i_sclk = 1'b1;
-                repeat(4) @(posedge i_clk);
-                
-                // Sample MISO
-                rx[i] = spi_miso;
-                
-                // SCLK Low
-                i_sclk = 1'b0;
-                repeat(4) @(posedge i_clk);
-            end
-        end
-    endtask
-
-    // SPI -> Wishbone transaction helper
-    localparam [7:0] READ_REQ  = 8'hA1;
-    localparam [7:0] WRITE_REQ = 8'hA2;
-    localparam [7:0] READ_RESP = 8'hA3;
-    localparam [7:0] WRITE_RESP = 8'hA4;
-
-    task spi_wb_transaction(input bit is_read, input [31:0] addr, input [31:0] wdata, output [31:0] rdata);
-        integer i;
-        reg [7:0] tmp;
-        integer timeout;
-        bit header_found;
-        begin
-            // Assert CS (active LOW)
-            @(posedge i_clk);
-            spi_cs_n = 1'b0;
-            repeat (4) @(posedge i_clk);
-            
-            header_found = 0;
-
-            // 1. Send Command
-            send_spi_byte(is_read ? READ_REQ : WRITE_REQ, tmp);
-            if (tmp == (is_read ? READ_RESP : WRITE_RESP)) header_found = 1;
-
-            // 2. Send Address (MSB First)
-            send_spi_byte(addr[31:24], tmp);
-            send_spi_byte(addr[23:16], tmp);
-            send_spi_byte(addr[15:8], tmp);
-            send_spi_byte(addr[7:0], tmp);
-
-            // 3. Send Length (MSB First: 00 01)
-            send_spi_byte(8'h00, tmp);
-            send_spi_byte(8'h04, tmp);
-
-            if (!is_read) begin
-                // Write Data (LSB First)
-                send_spi_byte(wdata[7:0], tmp);
-                send_spi_byte(wdata[15:8], tmp);
-                send_spi_byte(wdata[23:16], tmp);
-                send_spi_byte(wdata[31:24], tmp);
-
-                // If header not found yet, poll briefly
-                timeout = 0;
-                while (!header_found && timeout < 50) begin
-                   send_spi_byte(8'h00, tmp);
-                   if (tmp == WRITE_RESP) header_found = 1;
-                   timeout++;
-                end
-
-                if (!header_found) $display("Warning: Write Response Header (A4) not found");
-
-                spi_cs_n = 1'b1;
-                repeat (20) @(posedge i_clk);
-                
-            end else begin
-                // Read
-                // If header not found yet, poll
-                timeout = 0;
-                while (!header_found && timeout < 50) begin
-                    send_spi_byte(8'h00, tmp);
-                    if (tmp == READ_RESP) header_found = 1;
-                    timeout++;
-                end
-
-                if (!header_found) begin
-                    $display("Error: Read Response Header (A3) not found");
-                    rdata = 32'hBAADF00D;
-                end else begin
-                     // Drain the last Echo byte (Ln0)
-                     send_spi_byte(8'h00, tmp);
-                     $display("  Drained Echo: %x", tmp);
-                     
-                    // Read 4 bytes of Data (LSB first)
-                    rdata = 0;
-                    for (i = 0; i < 4; i = i + 1) begin
-                        send_spi_byte(8'h00, tmp);
-                        $display("  Data[%d]: %x", i, tmp);
-                        rdata = rdata | (tmp << (i*8));
-                    end
-                end
-                
-                spi_cs_n = 1'b1;
-                repeat (20) @(posedge i_clk);
-            end
-        end
-    endtask
+    // Include shared TB comms (send_spi_byte, spi_wb_transaction)
+`include "src/tb/lib/tb_comm.sv"
 
 endmodule
 

@@ -1,0 +1,2079 @@
+Running design testbench (src/tb/design_tb.sv)
+iverilog -g2009 -o /tmp/tb_design.vvp src/tb/design_tb.sv spiSlave/spi_slave.sv src/pll.sv src/coredesign.sv src/uart_passthrough_bridge.sv src/wb_dshot_controller.sv src/wb_serial_dshot_mux.sv src/wb_led_controller.sv src/tang9k_top.sv pwmDecoder/pwmdecoder.v pwmDecoder/pwmdecoder_wb.v neoPXStrip/sendPx_axis_flexible.sv neoPXStrip/wb_neoPx.v version/wb_version.sv verilog-wishbone/rtl/axis_wb_master.v src/wb_mux_6.v src/spi_axis_adapter.sv dshot/dshot_out.v src/uart_tx.sv src/uart_rx.sv verilog-uart/rtl/uart_tx.v verilog-uart/rtl/uart_rx.v 
+vvp /tmp/tb_design.vvp +TEST_VERSION
+[INFO] T0H_CYC=22 T1H_CYC=43 BIT_PERIOD_CYC=90 LATCH_CYC=21600 GAP_CYC=14 BIT_COUNT_MAX=31
+VCD info: dumpfile tb_design.vcd opened for output.
+
+[TEST 5] Version Module Readback
+[SPI TRX 0] Start transaction (shared):  READ addr=0x00000600 wdata=0x00000000
+[SPI 77000] send_spi_byte (sync): TX=0xa1 msb_first=1
+[SPI 413000] send_spi_byte (sync): DONE TX=0xa1 RX=0xxx
+[SPI TRX 413000] Cmd phase RX=0xxx
+[SPI 427000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 427000] RX byte complete: 0xa1 cs=1
+[spi_slave 441000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 441000] Received spi_rx_data -> forwarding to m_axis: 0xa1
+[axis_wb_master 441000] INT OUTPUT byte=0xa3 state=0
+[spi_axis_adapter 455000] m_axis_tdata=0xa1 m_axis_tvalid=1 m_axis_tready=1
+[SPI 763000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI 777000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 777000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 791000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 791000] tx_shift_reg underflow -> sending 0x00
+[axis_wb_master 791000] INT OUTPUT byte=0x00 state=1
+[axis_wb_master 791000] INT OUTPUT byte=0x00 state=1
+[spi_axis_adapter 805000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=1
+[SPI 1113000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI 1127000] send_spi_byte (sync): TX=0x06 msb_first=1
+[spi_slave 1127000] RX byte complete: 0x00 cs=1
+[spi_slave 1141000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 1141000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 1155000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1169000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1183000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1197000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1211000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1225000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1239000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1253000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1267000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1281000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1295000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1309000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1323000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1337000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1351000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1365000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1379000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1393000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1407000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1421000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1435000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1449000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 1463000] send_spi_byte (sync): DONE TX=0x06 RX=0x00
+[spi_axis_adapter 1463000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 1477000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 1477000] RX byte complete: 0x06 cs=1
+[spi_axis_adapter 1477000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1491000] Received spi_rx_data -> forwarding to m_axis: 0x06
+[spi_slave 1491000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 1491000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1505000] m_axis_tdata=0x06 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1519000] m_axis_tdata=0x06 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1533000] m_axis_tdata=0x06 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1547000] m_axis_tdata=0x06 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1561000] m_axis_tdata=0x06 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1575000] m_axis_tdata=0x06 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1589000] m_axis_tdata=0x06 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1603000] m_axis_tdata=0x06 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1617000] m_axis_tdata=0x06 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1631000] m_axis_tdata=0x06 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1645000] m_axis_tdata=0x06 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1659000] m_axis_tdata=0x06 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1673000] m_axis_tdata=0x06 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1687000] m_axis_tdata=0x06 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1701000] m_axis_tdata=0x06 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1715000] m_axis_tdata=0x06 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1729000] m_axis_tdata=0x06 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1743000] m_axis_tdata=0x06 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1757000] m_axis_tdata=0x06 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1771000] m_axis_tdata=0x06 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1785000] m_axis_tdata=0x06 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1799000] m_axis_tdata=0x06 m_axis_tvalid=1 m_axis_tready=x
+[SPI 1813000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[spi_axis_adapter 1813000] m_axis_tdata=0x06 m_axis_tvalid=1 m_axis_tready=x
+[SPI 1827000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 1827000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 1827000] m_axis_tdata=0x06 m_axis_tvalid=1 m_axis_tready=x
+[spi_slave 1841000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 1841000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 1841000] m_axis_tdata=0x06 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1855000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1869000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1883000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1897000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1911000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1925000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1939000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1953000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1967000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1981000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 1995000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2009000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2023000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2037000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2051000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2065000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2079000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2093000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2107000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2121000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2135000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2149000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 2163000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[spi_axis_adapter 2163000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 2177000] send_spi_byte (sync): TX=0x04 msb_first=1
+[spi_slave 2177000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 2177000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2191000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 2191000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 2191000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2205000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2219000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2233000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2247000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2261000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2275000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2289000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2303000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2317000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2331000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2345000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2359000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2373000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2387000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2401000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2415000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2429000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2443000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2457000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2471000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2485000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2499000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 2513000] send_spi_byte (sync): DONE TX=0x04 RX=0x00
+[spi_axis_adapter 2513000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 2527000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 2527000] RX byte complete: 0x04 cs=1
+[spi_axis_adapter 2527000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_slave 2541000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 2541000] Received spi_rx_data -> forwarding to m_axis: 0x04
+[spi_axis_adapter 2541000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2555000] m_axis_tdata=0x04 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2569000] m_axis_tdata=0x04 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2583000] m_axis_tdata=0x04 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2597000] m_axis_tdata=0x04 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2611000] m_axis_tdata=0x04 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2625000] m_axis_tdata=0x04 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2639000] m_axis_tdata=0x04 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2653000] m_axis_tdata=0x04 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2667000] m_axis_tdata=0x04 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2681000] m_axis_tdata=0x04 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2695000] m_axis_tdata=0x04 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2709000] m_axis_tdata=0x04 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2723000] m_axis_tdata=0x04 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2737000] m_axis_tdata=0x04 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2751000] m_axis_tdata=0x04 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2765000] m_axis_tdata=0x04 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2779000] m_axis_tdata=0x04 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2793000] m_axis_tdata=0x04 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2807000] m_axis_tdata=0x04 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2821000] m_axis_tdata=0x04 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2835000] m_axis_tdata=0x04 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2849000] m_axis_tdata=0x04 m_axis_tvalid=1 m_axis_tready=x
+[SPI 2863000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 2863000] Poll RX=0x00 (timeout=0)
+[spi_axis_adapter 2863000] m_axis_tdata=0x04 m_axis_tvalid=1 m_axis_tready=x
+[SPI 2877000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 2877000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 2877000] m_axis_tdata=0x04 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2891000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 2891000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 2891000] m_axis_tdata=0x04 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2905000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2919000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2933000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2947000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2961000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2975000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 2989000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3003000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3017000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3031000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3045000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3059000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3073000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3087000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3101000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3115000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3129000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3143000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3157000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3171000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3185000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3199000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 3213000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 3213000] Poll RX=0x00 (timeout=1)
+[spi_axis_adapter 3213000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 3227000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 3227000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 3227000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_slave 3241000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 3241000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 3241000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3255000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3269000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3283000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3297000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3311000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3325000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3339000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3353000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3367000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3381000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3395000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3409000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3423000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3437000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3451000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3465000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3479000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3493000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3507000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3521000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3535000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3549000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 3563000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 3563000] Poll RX=0x00 (timeout=2)
+[spi_axis_adapter 3563000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 3577000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 3577000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 3577000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3591000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 3591000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 3591000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3605000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3619000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3633000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3647000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3661000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3675000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3689000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3703000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3717000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3731000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3745000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3759000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3773000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3787000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3801000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3815000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3829000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3843000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3857000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3871000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3885000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3899000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 3913000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 3913000] Poll RX=0x00 (timeout=3)
+[spi_axis_adapter 3913000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 3927000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 3927000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 3927000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_slave 3941000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 3941000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 3941000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3955000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3969000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3983000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 3997000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4011000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4025000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4039000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4053000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4067000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4081000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4095000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4109000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4123000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4137000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4151000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4165000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4179000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4193000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4207000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4221000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4235000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4249000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 4263000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 4263000] Poll RX=0x00 (timeout=4)
+[spi_axis_adapter 4263000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 4277000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 4277000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 4277000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4291000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 4291000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 4291000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4305000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4319000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4333000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4347000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4361000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4375000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4389000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4403000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4417000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4431000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4445000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4459000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4473000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4487000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4501000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4515000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4529000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4543000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4557000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4571000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4585000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4599000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 4613000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 4613000] Poll RX=0x00 (timeout=5)
+[spi_axis_adapter 4613000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 4627000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 4627000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 4627000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_slave 4641000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 4641000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 4641000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4655000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4669000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4683000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4697000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4711000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4725000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4739000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4753000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4767000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4781000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4795000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4809000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4823000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4837000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4851000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4865000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4879000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4893000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4907000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4921000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4935000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4949000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 4963000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 4963000] Poll RX=0x00 (timeout=6)
+[spi_axis_adapter 4963000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 4977000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 4977000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 4977000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 4991000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 4991000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 4991000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5005000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5019000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5033000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5047000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5061000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5075000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5089000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5103000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5117000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5131000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5145000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5159000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5173000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5187000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5201000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5215000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5229000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5243000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5257000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5271000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5285000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5299000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 5313000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 5313000] Poll RX=0x00 (timeout=7)
+[spi_axis_adapter 5313000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 5327000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 5327000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 5327000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_slave 5341000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 5341000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 5341000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5355000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5369000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5383000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5397000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5411000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5425000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5439000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5453000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5467000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5481000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5495000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5509000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5523000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5537000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5551000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5565000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5579000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5593000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5607000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5621000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5635000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5649000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 5663000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 5663000] Poll RX=0x00 (timeout=8)
+[spi_axis_adapter 5663000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 5677000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 5677000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 5677000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5691000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 5691000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 5691000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5705000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5719000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5733000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5747000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5761000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5775000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5789000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5803000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5817000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5831000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5845000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5859000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5873000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5887000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5901000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5915000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5929000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5943000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5957000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5971000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5985000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 5999000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 6013000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 6013000] Poll RX=0x00 (timeout=9)
+[spi_axis_adapter 6013000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 6027000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 6027000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 6027000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_slave 6041000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 6041000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 6041000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6055000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6069000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6083000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6097000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6111000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6125000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6139000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6153000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6167000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6181000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6195000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6209000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6223000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6237000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6251000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6265000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6279000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6293000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6307000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6321000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6335000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6349000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 6363000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 6363000] Poll RX=0x00 (timeout=10)
+[spi_axis_adapter 6363000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 6377000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 6377000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 6377000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6391000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 6391000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 6391000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6405000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6419000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6433000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6447000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6461000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6475000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6489000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6503000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6517000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6531000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6545000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6559000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6573000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6587000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6601000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6615000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6629000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6643000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6657000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6671000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6685000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6699000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 6713000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 6713000] Poll RX=0x00 (timeout=11)
+[spi_axis_adapter 6713000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 6727000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 6727000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 6727000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_slave 6741000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 6741000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 6741000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6755000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6769000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6783000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6797000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6811000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6825000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6839000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6853000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6867000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6881000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6895000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6909000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6923000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6937000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6951000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6965000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6979000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 6993000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7007000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7021000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7035000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7049000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 7063000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 7063000] Poll RX=0x00 (timeout=12)
+[spi_axis_adapter 7063000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 7077000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 7077000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 7077000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7091000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 7091000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 7091000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7105000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7119000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7133000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7147000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7161000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7175000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7189000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7203000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7217000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7231000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7245000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7259000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7273000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7287000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7301000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7315000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7329000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7343000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7357000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7371000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7385000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7399000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 7413000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 7413000] Poll RX=0x00 (timeout=13)
+[spi_axis_adapter 7413000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 7427000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 7427000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 7427000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_slave 7441000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 7441000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 7441000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7455000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7469000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7483000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7497000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7511000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7525000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7539000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7553000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7567000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7581000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7595000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7609000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7623000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7637000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7651000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7665000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7679000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7693000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7707000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7721000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7735000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7749000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 7763000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 7763000] Poll RX=0x00 (timeout=14)
+[spi_axis_adapter 7763000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 7777000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 7777000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 7777000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7791000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 7791000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 7791000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7805000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7819000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7833000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7847000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7861000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7875000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7889000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7903000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7917000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7931000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7945000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7959000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7973000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 7987000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8001000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8015000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8029000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8043000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8057000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8071000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8085000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8099000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 8113000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 8113000] Poll RX=0x00 (timeout=15)
+[spi_axis_adapter 8113000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 8127000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 8127000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 8127000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_slave 8141000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 8141000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 8141000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8155000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8169000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8183000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8197000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8211000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8225000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8239000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8253000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8267000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8281000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8295000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8309000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8323000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8337000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8351000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8365000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8379000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8393000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8407000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8421000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8435000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8449000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 8463000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 8463000] Poll RX=0x00 (timeout=16)
+[spi_axis_adapter 8463000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 8477000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 8477000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 8477000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8491000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 8491000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 8491000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8505000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8519000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8533000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8547000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8561000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8575000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8589000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8603000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8617000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8631000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8645000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8659000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8673000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8687000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8701000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8715000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8729000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8743000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8757000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8771000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8785000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8799000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 8813000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 8813000] Poll RX=0x00 (timeout=17)
+[spi_axis_adapter 8813000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 8827000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 8827000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 8827000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_slave 8841000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 8841000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 8841000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8855000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8869000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8883000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8897000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8911000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8925000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8939000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8953000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8967000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8981000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 8995000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9009000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9023000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9037000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9051000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9065000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9079000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9093000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9107000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9121000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9135000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9149000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 9163000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 9163000] Poll RX=0x00 (timeout=18)
+[spi_axis_adapter 9163000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 9177000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 9177000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 9177000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9191000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 9191000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 9191000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9205000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9219000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9233000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9247000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9261000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9275000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9289000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9303000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9317000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9331000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9345000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9359000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9373000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9387000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9401000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9415000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9429000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9443000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9457000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9471000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9485000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9499000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 9513000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 9513000] Poll RX=0x00 (timeout=19)
+[spi_axis_adapter 9513000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 9527000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 9527000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 9527000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_slave 9541000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 9541000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 9541000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9555000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9569000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9583000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9597000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9611000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9625000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9639000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9653000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9667000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9681000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9695000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9709000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9723000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9737000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9751000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9765000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9779000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9793000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9807000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9821000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9835000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9849000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 9863000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 9863000] Poll RX=0x00 (timeout=20)
+[spi_axis_adapter 9863000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 9877000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 9877000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 9877000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9891000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 9891000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 9891000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9905000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9919000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9933000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9947000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9961000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9975000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 9989000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10003000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10017000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10031000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10045000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10059000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10073000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10087000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10101000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10115000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10129000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10143000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10157000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10171000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10185000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10199000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 10213000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 10213000] Poll RX=0x00 (timeout=21)
+[spi_axis_adapter 10213000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 10227000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 10227000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 10227000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_slave 10241000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 10241000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 10241000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10255000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10269000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10283000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10297000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10311000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10325000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10339000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10353000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10367000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10381000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10395000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10409000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10423000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10437000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10451000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10465000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10479000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10493000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10507000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10521000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10535000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10549000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 10563000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 10563000] Poll RX=0x00 (timeout=22)
+[spi_axis_adapter 10563000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 10577000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 10577000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 10577000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10591000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 10591000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 10591000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10605000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10619000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10633000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10647000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10661000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10675000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10689000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10703000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10717000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10731000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10745000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10759000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10773000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10787000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10801000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10815000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10829000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10843000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10857000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10871000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10885000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10899000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 10913000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 10913000] Poll RX=0x00 (timeout=23)
+[spi_axis_adapter 10913000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 10927000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 10927000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 10927000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_slave 10941000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 10941000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 10941000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10955000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10969000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10983000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 10997000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11011000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11025000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11039000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11053000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11067000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11081000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11095000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11109000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11123000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11137000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11151000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11165000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11179000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11193000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11207000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11221000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11235000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11249000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 11263000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 11263000] Poll RX=0x00 (timeout=24)
+[spi_axis_adapter 11263000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 11277000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 11277000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 11277000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11291000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 11291000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 11291000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11305000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11319000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11333000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11347000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11361000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11375000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11389000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11403000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11417000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11431000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11445000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11459000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11473000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11487000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11501000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11515000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11529000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11543000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11557000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11571000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11585000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11599000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 11613000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 11613000] Poll RX=0x00 (timeout=25)
+[spi_axis_adapter 11613000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 11627000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 11627000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 11627000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_slave 11641000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 11641000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 11641000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11655000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11669000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11683000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11697000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11711000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11725000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11739000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11753000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11767000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11781000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11795000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11809000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11823000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11837000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11851000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11865000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11879000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11893000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11907000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11921000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11935000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11949000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 11963000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 11963000] Poll RX=0x00 (timeout=26)
+[spi_axis_adapter 11963000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 11977000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 11977000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 11977000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 11991000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 11991000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 11991000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12005000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12019000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12033000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12047000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12061000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12075000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12089000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12103000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12117000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12131000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12145000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12159000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12173000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12187000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12201000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12215000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12229000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12243000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12257000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12271000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12285000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12299000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 12313000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 12313000] Poll RX=0x00 (timeout=27)
+[spi_axis_adapter 12313000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 12327000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 12327000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 12327000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_slave 12341000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 12341000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 12341000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12355000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12369000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12383000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12397000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12411000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12425000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12439000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12453000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12467000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12481000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12495000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12509000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12523000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12537000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12551000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12565000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12579000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12593000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12607000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12621000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12635000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12649000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 12663000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 12663000] Poll RX=0x00 (timeout=28)
+[spi_axis_adapter 12663000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 12677000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 12677000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 12677000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12691000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 12691000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 12691000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12705000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12719000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12733000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12747000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12761000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12775000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12789000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12803000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12817000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12831000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12845000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12859000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12873000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12887000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12901000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12915000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12929000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12943000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12957000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12971000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12985000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 12999000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 13013000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 13013000] Poll RX=0x00 (timeout=29)
+[spi_axis_adapter 13013000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 13027000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 13027000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 13027000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_slave 13041000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 13041000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 13041000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13055000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13069000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13083000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13097000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13111000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13125000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13139000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13153000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13167000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13181000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13195000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13209000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13223000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13237000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13251000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13265000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13279000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13293000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13307000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13321000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13335000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13349000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 13363000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 13363000] Poll RX=0x00 (timeout=30)
+[spi_axis_adapter 13363000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 13377000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 13377000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 13377000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13391000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 13391000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 13391000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13405000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13419000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13433000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13447000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13461000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13475000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13489000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13503000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13517000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13531000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13545000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13559000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13573000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13587000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13601000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13615000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13629000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13643000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13657000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13671000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13685000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13699000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 13713000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 13713000] Poll RX=0x00 (timeout=31)
+[spi_axis_adapter 13713000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 13727000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 13727000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 13727000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_slave 13741000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 13741000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 13741000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13755000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13769000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13783000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13797000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13811000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13825000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13839000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13853000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13867000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13881000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13895000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13909000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13923000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13937000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13951000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13965000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13979000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 13993000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14007000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14021000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14035000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14049000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 14063000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 14063000] Poll RX=0x00 (timeout=32)
+[spi_axis_adapter 14063000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 14077000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 14077000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 14077000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14091000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 14091000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 14091000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14105000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14119000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14133000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14147000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14161000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14175000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14189000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14203000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14217000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14231000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14245000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14259000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14273000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14287000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14301000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14315000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14329000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14343000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14357000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14371000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14385000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14399000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 14413000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 14413000] Poll RX=0x00 (timeout=33)
+[spi_axis_adapter 14413000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 14427000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 14427000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 14427000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_slave 14441000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 14441000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 14441000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14455000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14469000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14483000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14497000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14511000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14525000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14539000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14553000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14567000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14581000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14595000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14609000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14623000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14637000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14651000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14665000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14679000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14693000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14707000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14721000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14735000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14749000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 14763000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 14763000] Poll RX=0x00 (timeout=34)
+[spi_axis_adapter 14763000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 14777000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 14777000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 14777000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14791000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 14791000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 14791000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14805000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14819000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14833000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14847000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14861000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14875000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14889000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14903000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14917000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14931000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14945000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14959000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14973000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 14987000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15001000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15015000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15029000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15043000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15057000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15071000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15085000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15099000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 15113000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 15113000] Poll RX=0x00 (timeout=35)
+[spi_axis_adapter 15113000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 15127000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 15127000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 15127000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_slave 15141000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 15141000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 15141000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15155000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15169000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15183000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15197000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15211000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15225000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15239000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15253000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15267000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15281000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15295000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15309000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15323000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15337000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15351000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15365000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15379000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15393000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15407000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15421000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15435000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15449000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 15463000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 15463000] Poll RX=0x00 (timeout=36)
+[spi_axis_adapter 15463000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 15477000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 15477000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 15477000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15491000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 15491000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 15491000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15505000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15519000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15533000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15547000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15561000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15575000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15589000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15603000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15617000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15631000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15645000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15659000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15673000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15687000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15701000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15715000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15729000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15743000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15757000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15771000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15785000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15799000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 15813000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 15813000] Poll RX=0x00 (timeout=37)
+[spi_axis_adapter 15813000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 15827000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 15827000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 15827000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_slave 15841000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 15841000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 15841000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15855000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15869000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15883000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15897000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15911000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15925000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15939000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15953000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15967000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15981000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 15995000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16009000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16023000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16037000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16051000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16065000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16079000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16093000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16107000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16121000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16135000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16149000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 16163000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 16163000] Poll RX=0x00 (timeout=38)
+[spi_axis_adapter 16163000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 16177000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 16177000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 16177000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16191000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 16191000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 16191000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16205000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16219000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16233000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16247000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16261000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16275000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16289000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16303000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16317000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16331000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16345000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16359000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16373000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16387000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16401000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16415000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16429000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16443000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16457000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16471000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16485000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16499000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 16513000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 16513000] Poll RX=0x00 (timeout=39)
+[spi_axis_adapter 16513000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 16527000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 16527000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 16527000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_slave 16541000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 16541000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 16541000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16555000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16569000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16583000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16597000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16611000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16625000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16639000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16653000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16667000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16681000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16695000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16709000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16723000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16737000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16751000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16765000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16779000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16793000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16807000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16821000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16835000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16849000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 16863000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 16863000] Poll RX=0x00 (timeout=40)
+[spi_axis_adapter 16863000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 16877000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 16877000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 16877000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16891000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 16891000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 16891000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16905000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16919000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16933000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16947000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16961000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16975000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 16989000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17003000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17017000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17031000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17045000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17059000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17073000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17087000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17101000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17115000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17129000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17143000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17157000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17171000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17185000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17199000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 17213000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 17213000] Poll RX=0x00 (timeout=41)
+[spi_axis_adapter 17213000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 17227000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 17227000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 17227000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_slave 17241000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 17241000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 17241000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17255000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17269000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17283000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17297000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17311000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17325000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17339000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17353000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17367000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17381000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17395000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17409000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17423000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17437000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17451000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17465000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17479000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17493000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17507000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17521000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17535000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17549000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 17563000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 17563000] Poll RX=0x00 (timeout=42)
+[spi_axis_adapter 17563000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 17577000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 17577000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 17577000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17591000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 17591000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 17591000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17605000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17619000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17633000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17647000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17661000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17675000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17689000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17703000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17717000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17731000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17745000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17759000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17773000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17787000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17801000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17815000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17829000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17843000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17857000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17871000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17885000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17899000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 17913000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 17913000] Poll RX=0x00 (timeout=43)
+[spi_axis_adapter 17913000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 17927000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 17927000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 17927000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_slave 17941000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 17941000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 17941000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17955000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17969000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17983000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 17997000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18011000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18025000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18039000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18053000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18067000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18081000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18095000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18109000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18123000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18137000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18151000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18165000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18179000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18193000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18207000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18221000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18235000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18249000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 18263000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 18263000] Poll RX=0x00 (timeout=44)
+[spi_axis_adapter 18263000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 18277000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 18277000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 18277000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18291000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 18291000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 18291000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18305000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18319000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18333000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18347000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18361000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18375000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18389000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18403000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18417000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18431000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18445000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18459000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18473000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18487000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18501000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18515000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18529000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18543000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18557000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18571000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18585000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18599000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 18613000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 18613000] Poll RX=0x00 (timeout=45)
+[spi_axis_adapter 18613000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 18627000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 18627000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 18627000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_slave 18641000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 18641000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 18641000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18655000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18669000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18683000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18697000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18711000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18725000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18739000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18753000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18767000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18781000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18795000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18809000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18823000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18837000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18851000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18865000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18879000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18893000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18907000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18921000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18935000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18949000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 18963000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 18963000] Poll RX=0x00 (timeout=46)
+[spi_axis_adapter 18963000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 18977000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 18977000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 18977000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 18991000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 18991000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 18991000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19005000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19019000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19033000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19047000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19061000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19075000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19089000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19103000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19117000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19131000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19145000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19159000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19173000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19187000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19201000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19215000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19229000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19243000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19257000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19271000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19285000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19299000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 19313000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 19313000] Poll RX=0x00 (timeout=47)
+[spi_axis_adapter 19313000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 19327000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 19327000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 19327000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_slave 19341000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 19341000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 19341000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19355000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19369000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19383000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19397000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19411000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19425000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19439000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19453000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19467000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19481000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19495000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19509000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19523000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19537000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19551000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19565000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19579000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19593000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19607000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19621000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19635000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19649000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 19663000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 19663000] Poll RX=0x00 (timeout=48)
+[spi_axis_adapter 19663000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 19677000] send_spi_byte (sync): TX=0x00 msb_first=1
+[spi_slave 19677000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 19677000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19691000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_slave 19691000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 19691000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19705000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19719000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19733000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19747000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19761000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19775000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19789000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19803000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19817000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19831000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19845000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19859000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19873000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19887000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19901000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19915000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19929000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19943000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19957000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19971000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19985000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 19999000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[SPI 20013000] send_spi_byte (sync): DONE TX=0x00 RX=0x00
+[SPI TRX 20013000] Poll RX=0x00 (timeout=49)
+Error: Read Response Header (A3) not found (shared)
+[spi_axis_adapter 20013000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_slave 20027000] RX byte complete: 0x00 cs=1
+[spi_axis_adapter 20027000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_slave 20041000] tx_shift_reg underflow -> sending 0x00
+[spi_axis_adapter 20041000] Received spi_rx_data -> forwarding to m_axis: 0x00
+[spi_axis_adapter 20041000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 20055000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=x
+[spi_axis_adapter 20069000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20083000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20097000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20111000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20125000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20139000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20153000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20167000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20181000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20195000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20209000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20223000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20237000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20251000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20265000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20279000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+FAILURE: Version Readback 0xbaadf00d != 0xDEADBEEF
+[spi_axis_adapter 20293000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20307000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20321000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20335000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20349000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20363000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20377000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20391000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20405000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20419000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20433000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20447000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20461000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20475000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20489000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20503000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20517000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20531000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20545000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20559000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20573000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20587000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20601000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20615000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20629000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20643000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20657000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20671000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20685000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20699000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20713000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20727000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20741000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20755000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20769000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20783000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20797000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20811000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20825000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20839000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20853000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20867000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20881000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20895000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20909000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20923000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20937000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20951000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20965000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20979000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 20993000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21007000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21021000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21035000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21049000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21063000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21077000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21091000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21105000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21119000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21133000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21147000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21161000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21175000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21189000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21203000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21217000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21231000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21245000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21259000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21273000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21287000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21301000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21315000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21329000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21343000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21357000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21371000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21385000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21399000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21413000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21427000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21441000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21455000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21469000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21483000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21497000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21511000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21525000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21539000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21553000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21567000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21581000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21595000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21609000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21623000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21637000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21651000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21665000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21679000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21693000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21707000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21721000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21735000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21749000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21763000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21777000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21791000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21805000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21819000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21833000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21847000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21861000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21875000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21889000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21903000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21917000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21931000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21945000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21959000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21973000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 21987000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22001000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22015000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22029000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22043000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22057000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22071000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22085000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22099000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22113000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22127000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22141000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22155000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22169000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22183000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22197000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22211000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22225000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22239000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22253000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22267000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22281000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22295000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22309000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22323000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22337000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22351000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22365000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22379000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22393000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22407000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22421000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22435000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22449000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22463000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22477000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22491000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22505000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22519000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22533000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22547000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22561000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22575000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22589000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22603000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22617000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22631000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22645000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22659000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22673000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22687000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22701000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22715000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22729000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22743000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22757000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22771000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22785000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22799000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22813000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22827000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22841000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22855000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22869000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22883000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22897000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22911000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22925000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22939000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22953000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22967000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22981000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 22995000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23009000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23023000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23037000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23051000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23065000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23079000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23093000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23107000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23121000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23135000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23149000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23163000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23177000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23191000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23205000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23219000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23233000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23247000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23261000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23275000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23289000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23303000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23317000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23331000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23345000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23359000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23373000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23387000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23401000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23415000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23429000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23443000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23457000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23471000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23485000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23499000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23513000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23527000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23541000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23555000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23569000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23583000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23597000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23611000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23625000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23639000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23653000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23667000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23681000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23695000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23709000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23723000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23737000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23751000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23765000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23779000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23793000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23807000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23821000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23835000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23849000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23863000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23877000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23891000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23905000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23919000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23933000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23947000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23961000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23975000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 23989000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24003000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24017000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24031000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24045000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24059000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24073000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24087000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24101000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24115000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24129000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24143000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24157000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24171000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24185000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24199000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24213000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24227000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24241000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24255000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24269000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24283000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24297000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24311000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24325000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24339000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24353000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24367000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24381000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24395000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24409000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24423000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24437000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24451000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24465000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24479000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24493000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24507000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24521000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24535000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24549000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24563000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24577000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24591000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24605000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24619000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24633000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24647000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24661000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24675000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24689000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24703000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24717000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24731000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24745000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24759000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24773000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24787000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24801000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24815000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24829000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24843000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24857000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24871000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24885000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24899000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24913000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24927000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24941000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24955000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24969000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24983000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 24997000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 25011000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 25025000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 25039000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 25053000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 25067000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 25081000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 25095000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 25109000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 25123000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 25137000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 25151000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 25165000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 25179000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 25193000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 25207000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 25221000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 25235000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 25249000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 25263000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 25277000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+[spi_axis_adapter 25291000] m_axis_tdata=0x00 m_axis_tvalid=1 m_axis_tready=0
+
+design_tb finished
+src/tb/design_tb.sv:239: $finish called at 25293000 (1ps)

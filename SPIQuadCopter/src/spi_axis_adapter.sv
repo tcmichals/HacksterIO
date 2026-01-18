@@ -66,6 +66,10 @@ assign m_axis_tlast = 1'b0;
             if (spi_rx_valid) begin
                 m_tvalid <= 1'b1;
                 spiData <= spi_rx_data;
+                // debug: incoming AXIS->SPI path (from SPI->AXIS loopback)
+`ifdef VERBOSE
+                $display("[spi_axis_adapter %0t] Received spi_rx_data -> forwarding to m_axis: 0x%02x", $time, spi_rx_data);
+`endif
             end
             else if (m_axis_tready) begin
                 m_tvalid <= 1'b0;
@@ -74,5 +78,27 @@ assign m_axis_tlast = 1'b0;
 
 
     end
+
+// Monitor SPI TX forwarding to help debug missing response bytes
+always @(posedge clk) begin
+    if (!rst) begin
+        if (spi_tx_valid) begin
+    `ifdef VERBOSE
+            $display("[spi_axis_adapter %0t] spi_tx_valid=1 data=0x%02x spi_tx_ready=%0d spi_busy=%0d spi_cs_n=%0d", $time, spi_tx_data, spi_tx_ready, spi_busy, spi_cs_n);
+    `endif
+        end
+    end
+end
+
+// Monitor m_axis handshake and show when data is presented to axis_wb_master
+always @(posedge clk) begin
+    if (!rst) begin
+        if (m_tvalid) begin
+    `ifdef VERBOSE
+            $display("[spi_axis_adapter %0t] m_axis_tdata=0x%02x m_axis_tvalid=%0d m_axis_tready=%0d", $time, spiData, m_tvalid, m_axis_tready);
+    `endif
+        end
+    end
+end
 
 endmodule

@@ -89,7 +89,12 @@ rPLL #( // For GW1NR-9C C6/I5 (Tang Nano 9K proto dev board)
 `else
     // Behavioral simulation model - Bypass for testbench driving 72MHz directly
     assign clk72 = clkin;
-    assign locked = 1'b1;
+    reg locked_reg = 0;
+    assign locked = locked_reg;
+    initial begin
+        #100;
+        locked_reg = 1;
+    end
 
 `endif
 

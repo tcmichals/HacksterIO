@@ -13,6 +13,7 @@ IVERILOG_FLAGS = -g2009 -o $(VVP_FILE)
 
 .PHONY: all compile simulate wave view clean help
 
+# Keep local compile helper, but delegate simulate/wave/view to top-level Makefile
 all: compile
 
 compile:
@@ -20,20 +21,21 @@ compile:
 	$(IVERILOG) $(IVERILOG_FLAGS) $(RTL_FILES)
 	@echo "Compilation complete!"
 
-wave: simulate
-	@echo "Opening GTKWave..."
-	@if [ -f $(VCD_FILE) ]; then \
-		$(GTK) $(VCD_FILE) & \
-	else \
-		echo "Error: $(VCD_FILE) not found!"; \
-	fi
+# Delegate simulate/wave/view to project root so users can run make from src/
+.PHONY: simulate
+simulate:
+	@echo "Delegating simulate to project root: invoking 'make -C .. simulate'"
+	@cd .. && $(MAKE) simulate
 
+.PHONY: wave
+wave:
+	@echo "Delegating wave to project root: invoking 'make -C .. wave'"
+	@cd .. && $(MAKE) wave
+
+.PHONY: view
 view:
-	@if [ -f $(VCD_FILE) ]; then \
-		$(GTK) $(VCD_FILE) & \
-	else \
-		echo "Error: $(VCD_FILE) not found! Run 'make simulate' first."; \
-	fi
+	@echo "Delegating view to project root: invoking 'make -C .. view'"
+	@cd .. && $(MAKE) view
 
 clean:
 	@echo "Cleaning up generated files..."
@@ -44,8 +46,18 @@ help:
 	@echo "Available targets:"
 	@echo "  make all       - Compile and simulate"
 	@echo "  make compile   - Compile only"
-	@echo "  make simulate  - Compile and run simulation"
-	@echo "  make wave      - Simulate and view waveform"
-	@echo "  make view      - View existing waveform"
+	@echo "  make simulate  - Compile and run simulation (delegates to project root)"
+	@echo "  make wave      - Simulate and view waveform (delegates to project root)"
+	@echo "  make view      - View existing waveform (delegates to project root)"
 	@echo "  make clean     - Clean generated files"
 	@echo "  make help      - Show this message"
+
+# Convenience targets to run top-level testbenches from this subdirectory
+.PHONY: tb-design tb-passthrough
+tb-design:
+	@echo "Forwarding tb-design to project root"
+	@cd .. && $(MAKE) tb-design
+
+tb-passthrough:
+	@echo "Forwarding tb-passthrough to project root"
+	@cd .. && $(MAKE) tb-passthrough

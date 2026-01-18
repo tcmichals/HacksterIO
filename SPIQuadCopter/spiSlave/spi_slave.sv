@@ -91,6 +91,10 @@ module spi_slave #(
                     if (bit_cnt == 0) begin
                         o_rx_data    <= {rx_shift_reg[DATA_WIDTH-2:0], mosi_sync[1]};
                         o_data_valid <= 1'b1;
+                        // debug: log completed received byte
+`ifdef VERBOSE
+                        $display("[spi_slave %0t] RX byte complete: 0x%02x cs=%0d", $time, {rx_shift_reg[DATA_WIDTH-2:0], mosi_sync[1]}, cs_active);
+`endif
                     end
                 end
 
@@ -107,8 +111,14 @@ module spi_slave #(
                         if (o_tx_ready == 1'b0) begin
                             tx_shift_reg <= tx_holding_reg;
                             o_tx_ready   <= 1'b1; // Unlock buffer
+`ifdef VERBOSE
+                            $display("[spi_slave %0t] Loaded tx_shift_reg from holding: 0x%02x", $time, tx_holding_reg);
+`endif
                         end else begin
                             tx_shift_reg <= '0; // Underflow: Send Zeros
+`ifdef VERBOSE
+                            $display("[spi_slave %0t] tx_shift_reg underflow -> sending 0x00", $time);
+`endif
                         end
                     end
                 end
