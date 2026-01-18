@@ -90,6 +90,21 @@ module uart_passthrough_bridge #(
     logic       serial_out;
     logic       serial_oe;      // Output enable for tri-state
     
+    // Synchronize enable signal (2-FF synchronizer) to prevent metastability
+    // when mux_sel register changes during operation
+    logic enable_meta;
+    logic enable_sync;
+    
+    always_ff @(posedge clk) begin
+        if (rst) begin
+            enable_meta <= 1'b0;
+            enable_sync <= 1'b0;
+        end else begin
+            enable_meta <= enable;
+            enable_sync <= enable_meta;
+        end
+    end
+    
     uart_rx_wrapper #(
         .CLK_FREQ_HZ(CLK_FREQ_HZ),
         .BAUD_RATE(BAUD_RATE)
@@ -116,21 +131,23 @@ module uart_passthrough_bridge #(
     );
     
     // Tri-state control: expose TX data and OE for external pad driver
-    assign serial_tx_oe = serial_tx_active & enable;
+    // Use synchronized enable to prevent glitches during mode changes
+    assign serial_tx_oe = serial_tx_active & enable_sync;
     
     // =============================
     // Bridging Logic
     // =============================
     // USB RX → Serial TX (PC to ESC)
     assign serial_tx_data = usb_rx_data;
-    assign serial_tx_valid = usb_rx_valid & enable;
+    assign serial_tx_valid = usb_rx_valid & enable_sync;
     
     // Serial RX → USB TX (ESC to PC)
     // Prevent echo: do not forward received bytes while we are actively driving the serial pin
+    // Use synchronized enable for clean gating
     assign usb_tx_data = serial_rx_data;
-    assign usb_tx_valid = serial_rx_valid & enable & (~serial_oe) & (DISABLE_AUTO_ECHO == 0);
+    assign usb_tx_valid = serial_rx_valid & enable_sync & (~serial_tx_oe) & (DISABLE_AUTO_ECHO == 0);
     
     // Status
-    assign active = enable & (serial_tx_active | usb_tx_valid | serial_rx_valid);
+    assign active = enable_sync & (serial_tx_active | usb_tx_valid | serial_rx_valid);
 
 endmodule

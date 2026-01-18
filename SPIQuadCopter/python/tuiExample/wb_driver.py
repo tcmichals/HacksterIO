@@ -194,27 +194,27 @@ class WishboneDriver:
     # --- LED Methods ---
     def set_leds(self, val):
         """
-        Set on-board LEDs (4 bits).
+        Set on-board LEDs (5 bits for LED 1-5).
         Base: 0x000 (Slave 0). Offset 0x00.
         """
         # Pack 32-bit (byte 0 is LSB, which is what we want)
-        data = struct.pack('<I', val & 0xF)
+        data = struct.pack('<I', val & 0x1F)  # 5 bits for 5 LEDs
         self.write(0x000, data)
 
     def get_leds(self):
         """
-        Read on-board LEDs state.
+        Read on-board LEDs state (5 bits for LED 1-5).
         Base: 0x000 (Slave 0). Offset 0x00.
         """
         data = self.read(0x000, 4)
         # Assume byte 0 is LSB
-        return data[0] & 0xF
+        return data[0] & 0x1F  # 5 bits for 5 LEDs
 
     def toggle_leds(self, mask):
         """
-        Toggle LEDs based on mask.
+        Toggle LEDs based on mask (5 bits for LED 1-5).
         Base: 0x000 (Slave 0). Offset 0x04.
         """
         offset = 0x04
-        data = struct.pack('<I', mask & 0xF)
+        data = struct.pack('<I', mask & 0x1F)  # 5 bits for 5 LEDs
         self.write(offset, data)

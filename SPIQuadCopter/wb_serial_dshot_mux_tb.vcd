@@ -1,0 +1,2121 @@
+$date
+	Sun Jan 18 11:18:15 2026
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1ps
+$end
+$scope module wb_serial_dshot_mux_tb $end
+$var wire 4 ! pad_motor [3:0] $end
+$var wire 1 " wb_stall_o $end
+$var wire 32 # wb_dat_o [31:0] $end
+$var wire 1 $ wb_ack_o $end
+$var wire 1 % serial_rx_o $end
+$var reg 4 & dshot_in [3:0] $end
+$var reg 1 ' esc_drive_en $end
+$var reg 4 ( esc_drive_val [3:0] $end
+$var reg 1 ) serial_oe_i $end
+$var reg 1 * serial_tx_i $end
+$var reg 2 + tb_mux_force_ch [1:0] $end
+$var reg 1 , tb_mux_force_en $end
+$var reg 1 - tb_mux_force_sel $end
+$var reg 32 . wb_adr_i [31:0] $end
+$var reg 1 / wb_clk $end
+$var reg 1 0 wb_cyc_i $end
+$var reg 32 1 wb_dat_i [31:0] $end
+$var reg 1 2 wb_rst $end
+$var reg 4 3 wb_sel_i [3:0] $end
+$var reg 1 4 wb_stb_i $end
+$var reg 1 5 wb_we_i $end
+$scope begin ESC_DRIVE[0] $end
+$var wire 1 6 pad_tri $end
+$var parameter 2 7 gi $end
+$upscope $end
+$scope begin ESC_DRIVE[1] $end
+$var wire 1 8 pad_tri $end
+$var parameter 2 9 gi $end
+$upscope $end
+$scope begin ESC_DRIVE[2] $end
+$var wire 1 : pad_tri $end
+$var parameter 3 ; gi $end
+$upscope $end
+$scope begin ESC_DRIVE[3] $end
+$var wire 1 < pad_tri $end
+$var parameter 3 = gi $end
+$upscope $end
+$scope module dut $end
+$var wire 4 > dshot_in [3:0] $end
+$var wire 4 ? pad_motor [3:0] $end
+$var wire 1 @ sel $end
+$var wire 1 ) serial_oe_i $end
+$var wire 1 * serial_tx_i $end
+$var wire 2 A tb_mux_force_ch [1:0] $end
+$var wire 1 , tb_mux_force_en $end
+$var wire 1 - tb_mux_force_sel $end
+$var wire 32 B wb_adr_i [31:0] $end
+$var wire 1 / wb_clk_i $end
+$var wire 1 0 wb_cyc_i $end
+$var wire 32 C wb_dat_i [31:0] $end
+$var wire 1 2 wb_rst_i $end
+$var wire 4 D wb_sel_i [3:0] $end
+$var wire 1 " wb_stall_o $end
+$var wire 1 4 wb_stb_i $end
+$var wire 1 5 wb_we_i $end
+$var wire 1 % serial_rx_o $end
+$var wire 4 E rx_tap_array [3:0] $end
+$var wire 1 F effective_mux_sel $end
+$var wire 2 G effective_mux_ch [1:0] $end
+$var reg 1 H global_tristate $end
+$var reg 2 I mux_ch [1:0] $end
+$var reg 1 J mux_sel $end
+$var reg 2 K prev_mux_ch [1:0] $end
+$var reg 1 L prev_mux_sel $end
+$var reg 1 M serial_rx_meta $end
+$var reg 1 N serial_rx_sync $end
+$var reg 1 $ wb_ack_o $end
+$var reg 32 O wb_dat_o [31:0] $end
+$scope begin gen_pads[0] $end
+$var wire 1 P dshot_val $end
+$var wire 1 Q final_drive_enable $end
+$var wire 1 R pad_input_val $end
+$var wire 1 S is_target $end
+$var parameter 2 T i $end
+$var reg 1 U pad_oe_active_high $end
+$var reg 1 V pad_out_data $end
+$upscope $end
+$scope begin gen_pads[1] $end
+$var wire 1 W dshot_val $end
+$var wire 1 X final_drive_enable $end
+$var wire 1 Y pad_input_val $end
+$var wire 1 Z is_target $end
+$var parameter 2 [ i $end
+$var reg 1 \ pad_oe_active_high $end
+$var reg 1 ] pad_out_data $end
+$upscope $end
+$scope begin gen_pads[2] $end
+$var wire 1 ^ dshot_val $end
+$var wire 1 _ final_drive_enable $end
+$var wire 1 ` pad_input_val $end
+$var wire 1 a is_target $end
+$var parameter 3 b i $end
+$var reg 1 c pad_oe_active_high $end
+$var reg 1 d pad_out_data $end
+$upscope $end
+$scope begin gen_pads[3] $end
+$var wire 1 e dshot_val $end
+$var wire 1 f final_drive_enable $end
+$var wire 1 g pad_input_val $end
+$var wire 1 h is_target $end
+$var parameter 3 i i $end
+$var reg 1 j pad_oe_active_high $end
+$var reg 1 k pad_out_data $end
+$upscope $end
+$scope begin tap_connection[0] $end
+$var parameter 2 l i $end
+$upscope $end
+$scope begin tap_connection[1] $end
+$var parameter 2 m i $end
+$upscope $end
+$scope begin tap_connection[2] $end
+$var parameter 3 n i $end
+$upscope $end
+$scope begin tap_connection[3] $end
+$var parameter 3 o i $end
+$upscope $end
+$upscope $end
+$scope task force_mux $end
+$upscope $end
+$scope task release_mux $end
+$upscope $end
+$scope task test_dshot_to_passthrough_handover $end
+$upscope $end
+$scope task test_non_target_tri_state $end
+$upscope $end
+$scope task test_rapid_toggle_stress $end
+$upscope $end
+$scope task test_serial_rx_synchronizer $end
+$upscope $end
+$scope task wb_read_mux $end
+$upscope $end
+$scope task wb_write_mux $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$comment Show the parameter values. $end
+$dumpall
+b11 o
+b10 n
+b1 m
+b0 l
+b11 i
+b10 b
+b1 [
+b0 T
+b11 =
+b10 ;
+b1 9
+b0 7
+$end
+#0
+$dumpvars
+0k
+1j
+xh
+0g
+1f
+0e
+0d
+1c
+xa
+0`
+1_
+0^
+0]
+1\
+xZ
+0Y
+1X
+0W
+0V
+1U
+xS
+0R
+1Q
+0P
+bx O
+1N
+1M
+0L
+b0 K
+xJ
+bx I
+0H
+bx G
+xF
+b0 E
+b1111 D
+b0 C
+b0 B
+bx A
+0@
+b0 ?
+b0 >
+z<
+z:
+z8
+z6
+05
+04
+b1111 3
+12
+b0 1
+00
+0/
+b0 .
+x-
+x,
+bx +
+0*
+0)
+b0 (
+0'
+b0 &
+1%
+x$
+bx #
+0"
+b0 !
+$end
+#5000
+b0 #
+b0 O
+0$
+b0 I
+0J
+1/
+#10000
+0/
+#15000
+1/
+#20000
+0/
+#25000
+1/
+#30000
+0/
+#35000
+1/
+#40000
+0/
+#45000
+1/
+#50000
+0/
+#55000
+1/
+#60000
+0/
+#65000
+1/
+#70000
+0/
+#75000
+1/
+#80000
+0/
+#85000
+1/
+#90000
+0/
+#95000
+1/
+#100000
+0/
+02
+#105000
+xM
+1/
+#110000
+0/
+#115000
+x%
+xN
+1/
+#120000
+0/
+#125000
+1/
+#130000
+0/
+#135000
+1/
+#140000
+0/
+#145000
+1/
+#150000
+0/
+#155000
+1/
+#160000
+0/
+#165000
+1/
+#170000
+0/
+#175000
+1/
+#180000
+0/
+#185000
+1/
+#190000
+0/
+#195000
+1/
+#200000
+b100 E
+1`
+b100 !
+b100 ?
+1%
+1d
+1F
+0S
+0Z
+1a
+0h
+b10 G
+1^
+0/
+b10 +
+b10 A
+1-
+1,
+b100 &
+b100 >
+#205000
+bz E
+zR
+zY
+z`
+zg
+bz !
+bz ?
+0Q
+0X
+0_
+0f
+1M
+b10 K
+1L
+1H
+1/
+#210000
+0/
+#215000
+b0 E
+0R
+0Y
+0`
+0g
+b0 !
+b0 ?
+1Q
+1X
+1_
+1f
+0H
+1N
+zM
+1%
+0d
+0F
+0-
+1)
+1/
+#220000
+0/
+#225000
+bz E
+zR
+zY
+z`
+zg
+bz !
+bz ?
+0Q
+0X
+0_
+0f
+z%
+zN
+0M
+0L
+1H
+1/
+#230000
+0/
+#235000
+b0 E
+0R
+0Y
+0`
+0g
+b0 !
+b0 ?
+1Q
+1X
+1_
+1f
+0%
+0H
+0N
+zM
+1/
+#240000
+0/
+#245000
+z%
+zN
+0M
+1/
+#250000
+0/
+#255000
+0%
+0N
+1S
+0a
+b0 G
+0,
+1/
+#260000
+0/
+#265000
+bz E
+zR
+zY
+z`
+zg
+bz !
+bz ?
+0Q
+0X
+0_
+0f
+b0 K
+1H
+0S
+1Z
+b1 G
+b1 +
+b1 A
+1,
+1/
+#270000
+0/
+#275000
+b1 K
+zM
+1/
+#280000
+0/
+#285000
+b10 E
+0R
+1Y
+0`
+0g
+b10 !
+b10 ?
+1Q
+1X
+1_
+1f
+z%
+zN
+0H
+1]
+1*
+1/
+#290000
+0/
+#295000
+1M
+b1 E
+1R
+0Y
+b1 !
+b1 ?
+1V
+0]
+1S
+0Z
+b0 G
+0,
+1/
+#300000
+0/
+#305000
+bz E
+zR
+zY
+z`
+zg
+bz !
+bz ?
+0Q
+0X
+0_
+0f
+1%
+1N
+b0 K
+1H
+b0 +
+b0 A
+1,
+1/
+#310000
+0/
+#315000
+b1 E
+1R
+0Y
+0`
+0g
+b1 !
+b1 ?
+1Q
+1X
+1_
+1f
+0H
+zM
+1/
+#320000
+0/
+#325000
+z%
+zN
+1M
+b1 !
+b1 ?
+16
+0Q
+0U
+b1 (
+1'
+0)
+1/
+#330000
+0/
+#335000
+1%
+1N
+1/
+#340000
+0/
+#345000
+1/
+#350000
+0/
+#355000
+xR
+b10x E
+1`
+b10x !
+b10x ?
+1Q
+1U
+0V
+1d
+1F
+1-
+1/
+#360000
+0/
+#365000
+bz1 E
+1R
+zY
+z`
+zg
+bz1 !
+bz1 ?
+0Q
+0X
+0_
+0f
+xM
+1L
+1H
+1/
+#370000
+0/
+#375000
+b10x E
+xR
+0Y
+1`
+0g
+b10x !
+b10x ?
+1Q
+1X
+1_
+1f
+0H
+xN
+1M
+1/
+#380000
+0/
+#385000
+1N
+xM
+0`
+b0z E
+zR
+1%
+0Q
+b0z !
+b0z ?
+0U
+1V
+0d
+z6
+0F
+0,
+b0 (
+0'
+1/
+#390000
+0/
+#395000
+zY
+z`
+zg
+0X
+0_
+0f
+x%
+0L
+1H
+xN
+zM
+bz E
+zR
+bz !
+bz ?
+0Q
+1U
+0^
+1e
+0-
+1,
+1)
+b1000 &
+b1000 >
+1/
+#400000
+0/
+#405000
+b1 E
+1R
+0Y
+0`
+0g
+b1 !
+b1 ?
+1Q
+1X
+1_
+1f
+z%
+zN
+0H
+1/
+#410000
+0/
+#415000
+1M
+1/
+#420000
+0/
+#425000
+1%
+1N
+0,
+1/
+#430000
+0/
+#435000
+b1000 E
+0R
+1g
+b1000 !
+b1000 ?
+1k
+0V
+1F
+0S
+1Z
+b1 G
+b1 +
+b1 A
+1-
+1,
+1/
+#440000
+0/
+#445000
+bz E
+zR
+zY
+z`
+zg
+bz !
+bz ?
+0Q
+0X
+0_
+0f
+0M
+b1 K
+1L
+1H
+1/
+#450000
+0/
+#455000
+b1000 E
+0R
+0Y
+0`
+1g
+b1000 !
+b1000 ?
+1Q
+1X
+1_
+1f
+0H
+0N
+zM
+1/
+#460000
+0/
+#465000
+zN
+0M
+b1 E
+1R
+0g
+b1 !
+b1 ?
+z%
+0k
+1V
+0F
+1S
+0Z
+b0 G
+0,
+1/
+#470000
+0/
+#475000
+zY
+zg
+0Q
+0X
+0_
+0f
+0%
+b0 K
+0L
+1H
+0N
+1M
+bz E
+zR
+z`
+bz !
+bz ?
+0V
+1d
+0S
+1a
+b10 G
+b10 +
+b10 A
+0-
+1,
+1/
+#480000
+0/
+#485000
+1%
+1N
+zM
+b10 K
+1/
+#490000
+0/
+#495000
+b100 E
+0R
+0Y
+1`
+0g
+b100 !
+b100 ?
+1Q
+1X
+1_
+1f
+z%
+0H
+zN
+1/
+#500000
+0/
+#505000
+1M
+b1 E
+1R
+0`
+b1 !
+b1 ?
+1V
+0d
+1S
+0a
+b0 G
+0,
+1/
+#510000
+0/
+#515000
+zY
+z`
+0Q
+0X
+0_
+0f
+b0 K
+1H
+1N
+bz E
+zR
+zg
+bz !
+bz ?
+1%
+0V
+1k
+1F
+0S
+1h
+b11 G
+b11 +
+b11 A
+1-
+1,
+1/
+#520000
+0/
+#525000
+zM
+b11 K
+1L
+1/
+#530000
+0/
+#535000
+b1000 E
+0R
+0Y
+0`
+1g
+b1000 !
+b1000 ?
+1Q
+1X
+1_
+1f
+0H
+zN
+1/
+#540000
+0/
+#545000
+1M
+b1 E
+1R
+0g
+b1 !
+b1 ?
+z%
+1V
+0k
+0F
+1S
+0h
+b0 G
+0,
+1/
+#550000
+0/
+#555000
+bz E
+zR
+zY
+z`
+zg
+bz !
+bz ?
+0Q
+0X
+0_
+0f
+1%
+b0 K
+0L
+1H
+1N
+b0 +
+b0 A
+0-
+1,
+1/
+#560000
+0/
+#565000
+b1 E
+1R
+0Y
+0`
+0g
+b1 !
+b1 ?
+1Q
+1X
+1_
+1f
+zM
+0H
+1/
+#570000
+0/
+#575000
+z%
+zN
+1M
+1/
+#580000
+0/
+#585000
+1%
+1N
+0,
+1/
+#590000
+0/
+#595000
+b1000 E
+0R
+1g
+b1000 !
+b1000 ?
+1k
+0V
+1F
+0S
+1Z
+b1 G
+b1 +
+b1 A
+1-
+1,
+1/
+#600000
+0/
+#605000
+bz E
+zR
+zY
+z`
+zg
+bz !
+bz ?
+0Q
+0X
+0_
+0f
+0M
+b1 K
+1L
+1H
+1/
+#610000
+0/
+#615000
+b1000 E
+0R
+0Y
+0`
+1g
+b1000 !
+b1000 ?
+1Q
+1X
+1_
+1f
+0H
+0N
+zM
+1/
+#620000
+0/
+#625000
+zN
+0M
+b1 E
+1R
+0g
+b1 !
+b1 ?
+z%
+0k
+1V
+0F
+1S
+0Z
+b0 G
+0,
+1/
+#630000
+0/
+#635000
+zY
+zg
+0Q
+0X
+0_
+0f
+0%
+b0 K
+0L
+1H
+0N
+1M
+bz E
+zR
+z`
+bz !
+bz ?
+0V
+1d
+0S
+1a
+b10 G
+b10 +
+b10 A
+0-
+1,
+1/
+#640000
+0/
+#645000
+1%
+1N
+zM
+b10 K
+1/
+#650000
+0/
+#655000
+b100 E
+0R
+0Y
+1`
+0g
+b100 !
+b100 ?
+1Q
+1X
+1_
+1f
+z%
+0H
+zN
+1/
+#660000
+0/
+#665000
+1M
+b1 E
+1R
+0`
+b1 !
+b1 ?
+1V
+0d
+1S
+0a
+b0 G
+0,
+1/
+#670000
+0/
+#675000
+zY
+z`
+0Q
+0X
+0_
+0f
+b0 K
+1H
+1N
+bz E
+zR
+zg
+bz !
+bz ?
+1%
+0V
+1k
+1F
+0S
+1h
+b11 G
+b11 +
+b11 A
+1-
+1,
+1/
+#680000
+0/
+#685000
+zM
+b11 K
+1L
+1/
+#690000
+0/
+#695000
+b1000 E
+0R
+0Y
+0`
+1g
+b1000 !
+b1000 ?
+1Q
+1X
+1_
+1f
+0H
+zN
+1/
+#700000
+0/
+#705000
+1M
+b1 E
+1R
+0g
+b1 !
+b1 ?
+z%
+1V
+0k
+0F
+1S
+0h
+b0 G
+0,
+1/
+#710000
+0/
+#715000
+bz E
+zR
+zY
+z`
+zg
+bz !
+bz ?
+0Q
+0X
+0_
+0f
+1%
+b0 K
+0L
+1H
+1N
+b0 +
+b0 A
+0-
+1,
+1/
+#720000
+0/
+#725000
+b1 E
+1R
+0Y
+0`
+0g
+b1 !
+b1 ?
+1Q
+1X
+1_
+1f
+zM
+0H
+1/
+#730000
+0/
+#735000
+z%
+zN
+1M
+1/
+#740000
+0/
+#745000
+1%
+1N
+0,
+1/
+#750000
+0/
+#755000
+b1000 E
+0R
+1g
+b1000 !
+b1000 ?
+1k
+0V
+1F
+0S
+1Z
+b1 G
+b1 +
+b1 A
+1-
+1,
+1/
+#760000
+0/
+#765000
+bz E
+zR
+zY
+z`
+zg
+bz !
+bz ?
+0Q
+0X
+0_
+0f
+0M
+b1 K
+1L
+1H
+1/
+#770000
+0/
+#775000
+b1000 E
+0R
+0Y
+0`
+1g
+b1000 !
+b1000 ?
+1Q
+1X
+1_
+1f
+0H
+0N
+zM
+1/
+#780000
+0/
+#785000
+zN
+0M
+b1 E
+1R
+0g
+b1 !
+b1 ?
+z%
+0k
+1V
+0F
+1S
+0Z
+b0 G
+0,
+1/
+#790000
+0/
+#795000
+zY
+zg
+0Q
+0X
+0_
+0f
+0%
+b0 K
+0L
+1H
+0N
+1M
+bz E
+zR
+z`
+bz !
+bz ?
+0V
+1d
+0S
+1a
+b10 G
+b10 +
+b10 A
+0-
+1,
+1/
+#800000
+0/
+#805000
+1%
+1N
+zM
+b10 K
+1/
+#810000
+0/
+#815000
+b100 E
+0R
+0Y
+1`
+0g
+b100 !
+b100 ?
+1Q
+1X
+1_
+1f
+z%
+0H
+zN
+1/
+#820000
+0/
+#825000
+1M
+b1 E
+1R
+0`
+b1 !
+b1 ?
+1V
+0d
+1S
+0a
+b0 G
+0,
+1/
+#830000
+0/
+#835000
+zY
+z`
+0Q
+0X
+0_
+0f
+b0 K
+1H
+1N
+bz E
+zR
+zg
+bz !
+bz ?
+1%
+0V
+1k
+1F
+0S
+1h
+b11 G
+b11 +
+b11 A
+1-
+1,
+1/
+#840000
+0/
+#845000
+zM
+b11 K
+1L
+1/
+#850000
+0/
+#855000
+b1000 E
+0R
+0Y
+0`
+1g
+b1000 !
+b1000 ?
+1Q
+1X
+1_
+1f
+0H
+zN
+1/
+#860000
+0/
+#865000
+1M
+b1 E
+1R
+0g
+b1 !
+b1 ?
+z%
+1V
+0k
+0F
+1S
+0h
+b0 G
+0,
+1/
+#870000
+0/
+#875000
+bz E
+zR
+zY
+z`
+zg
+bz !
+bz ?
+0Q
+0X
+0_
+0f
+1%
+b0 K
+0L
+1H
+1N
+b0 +
+b0 A
+0-
+1,
+1/
+#880000
+0/
+#885000
+b1 E
+1R
+0Y
+0`
+0g
+b1 !
+b1 ?
+1Q
+1X
+1_
+1f
+zM
+0H
+1/
+#890000
+0/
+#895000
+z%
+zN
+1M
+1/
+#900000
+0/
+#905000
+1%
+1N
+0,
+1/
+#910000
+0/
+#915000
+b1000 E
+0R
+1g
+b1000 !
+b1000 ?
+1k
+0V
+1F
+0S
+1Z
+b1 G
+b1 +
+b1 A
+1-
+1,
+1/
+#920000
+0/
+#925000
+bz E
+zR
+zY
+z`
+zg
+bz !
+bz ?
+0Q
+0X
+0_
+0f
+0M
+b1 K
+1L
+1H
+1/
+#930000
+0/
+#935000
+b1000 E
+0R
+0Y
+0`
+1g
+b1000 !
+b1000 ?
+1Q
+1X
+1_
+1f
+0H
+0N
+zM
+1/
+#940000
+0/
+#945000
+zN
+0M
+b1 E
+1R
+0g
+b1 !
+b1 ?
+z%
+0k
+1V
+0F
+1S
+0Z
+b0 G
+0,
+1/
+#950000
+0/
+#955000
+zY
+zg
+0Q
+0X
+0_
+0f
+0%
+b0 K
+0L
+1H
+0N
+1M
+bz E
+zR
+z`
+bz !
+bz ?
+0V
+1d
+0S
+1a
+b10 G
+b10 +
+b10 A
+0-
+1,
+1/
+#960000
+0/
+#965000
+1%
+1N
+zM
+b10 K
+1/
+#970000
+0/
+#975000
+b100 E
+0R
+0Y
+1`
+0g
+b100 !
+b100 ?
+1Q
+1X
+1_
+1f
+z%
+0H
+zN
+1/
+#980000
+0/
+#985000
+1M
+b1 E
+1R
+0`
+b1 !
+b1 ?
+1V
+0d
+1S
+0a
+b0 G
+0,
+1/
+#990000
+0/
+#995000
+zY
+z`
+0Q
+0X
+0_
+0f
+b0 K
+1H
+1N
+bz E
+zR
+zg
+bz !
+bz ?
+1%
+0V
+1k
+1F
+0S
+1h
+b11 G
+b11 +
+b11 A
+1-
+1,
+1/
+#1000000
+0/
+#1005000
+zM
+b11 K
+1L
+1/
+#1010000
+0/
+#1015000
+b1000 E
+0R
+0Y
+0`
+1g
+b1000 !
+b1000 ?
+1Q
+1X
+1_
+1f
+0H
+zN
+1/
+#1020000
+0/
+#1025000
+1M
+b1 E
+1R
+0g
+b1 !
+b1 ?
+z%
+1V
+0k
+0F
+1S
+0h
+b0 G
+0,
+1/
+#1030000
+0/
+#1035000
+bz E
+zR
+zY
+z`
+zg
+bz !
+bz ?
+0Q
+0X
+0_
+0f
+1%
+b0 K
+0L
+1H
+1N
+b0 +
+b0 A
+0-
+1,
+1/
+#1040000
+0/
+#1045000
+b1 E
+1R
+0Y
+0`
+0g
+b1 !
+b1 ?
+1Q
+1X
+1_
+1f
+zM
+0H
+1/
+#1050000
+0/
+#1055000
+z%
+zN
+1M
+1/
+#1060000
+0/
+#1065000
+1%
+1N
+0,
+1/
+#1070000
+0/
+#1075000
+b1000 E
+0R
+1g
+b1000 !
+b1000 ?
+1k
+0V
+1F
+0S
+1Z
+b1 G
+b1 +
+b1 A
+1-
+1,
+1/
+#1080000
+0/
+#1085000
+bz E
+zR
+zY
+z`
+zg
+bz !
+bz ?
+0Q
+0X
+0_
+0f
+0M
+b1 K
+1L
+1H
+1/
+#1090000
+0/
+#1095000
+b1000 E
+0R
+0Y
+0`
+1g
+b1000 !
+b1000 ?
+1Q
+1X
+1_
+1f
+0H
+0N
+zM
+1/
+#1100000
+0/
+#1105000
+zN
+0M
+b1 E
+1R
+0g
+b1 !
+b1 ?
+z%
+0k
+1V
+0F
+1S
+0Z
+b0 G
+0,
+1/
+#1110000
+0/
+#1115000
+zY
+zg
+0Q
+0X
+0_
+0f
+0%
+b0 K
+0L
+1H
+0N
+1M
+bz E
+zR
+z`
+bz !
+bz ?
+0V
+1d
+0S
+1a
+b10 G
+b10 +
+b10 A
+0-
+1,
+1/
+#1120000
+0/
+#1125000
+1%
+1N
+zM
+b10 K
+1/
+#1130000
+0/
+#1135000
+b100 E
+0R
+0Y
+1`
+0g
+b100 !
+b100 ?
+1Q
+1X
+1_
+1f
+z%
+0H
+zN
+1/
+#1140000
+0/
+#1145000
+1M
+b1 E
+1R
+0`
+b1 !
+b1 ?
+1V
+0d
+1S
+0a
+b0 G
+0,
+1/
+#1150000
+0/
+#1155000
+zY
+z`
+0Q
+0X
+0_
+0f
+b0 K
+1H
+1N
+bz E
+zR
+zg
+bz !
+bz ?
+1%
+0V
+1k
+1F
+0S
+1h
+b11 G
+b11 +
+b11 A
+1-
+1,
+1/
+#1160000
+0/
+#1165000
+zM
+b11 K
+1L
+1/
+#1170000
+0/
+#1175000
+b1000 E
+0R
+0Y
+0`
+1g
+b1000 !
+b1000 ?
+1Q
+1X
+1_
+1f
+0H
+zN
+1/
+#1180000
+0/
+#1185000
+1M
+b1 E
+1R
+0g
+b1 !
+b1 ?
+z%
+1V
+0k
+0F
+1S
+0h
+b0 G
+0,
+1/
+#1190000
+0/
+#1195000
+bz E
+zR
+zY
+z`
+zg
+bz !
+bz ?
+0Q
+0X
+0_
+0f
+1%
+b0 K
+0L
+1H
+1N
+1/
+#1200000
+0/
+#1205000
+b1 E
+1R
+0Y
+0`
+0g
+b1 !
+b1 ?
+1Q
+1X
+1_
+1f
+zM
+0H
+1/
+#1210000
+0/
+#1215000
+z%
+zN
+1M
+1/
+#1220000
+0/
+#1225000
+1%
+1N
+1/
+#1230000
+0/
+#1235000
+1/
+#1240000
+0/
+#1245000
+1/
+#1250000
+0/
+#1255000
+1/
+#1260000
+0/
+#1265000
+1/
+#1270000
+0/
+#1275000
+1/
+#1280000
+0/
+#1285000
+1/
+#1290000
+0/
+#1295000
+1/
+#1300000
+0/
+#1305000
+1/
+#1310000
+0/
+#1315000
+1/
+#1320000
+0/
+#1325000
+1/
+#1330000
+0/
+#1335000
+1/
+#1340000
+0/
+#1345000
+1/
+#1350000
+0/
+#1355000
+1/
+#1360000
+0/
+#1365000
+1/
+#1370000
+0/
+#1375000
+1/
+#1380000
+0/
+#1385000
+1/
+#1390000
+0/
+#1395000
+1/

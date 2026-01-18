@@ -62,6 +62,20 @@ else
 OPENFPGALOADER := $(LOCAL_BIN_DIR)/openFPGALoader
 endif
 
+ifeq ($(wildcard $(LOCAL_BIN_DIR)/iverilog),)
+IVERILOG := iverilog
+else
+IVERILOG := $(LOCAL_BIN_DIR)/iverilog
+endif
+
+ifeq ($(wildcard $(LOCAL_BIN_DIR)/vvp),)
+VVP := vvp
+else
+VVP := $(LOCAL_BIN_DIR)/vvp
+endif
+
+export IVERILOG VVP
+
 # Sources used for synthesis (exclude testbenches)
 
 SRCS := spiSlave/spi_slave.sv src/pll.sv src/coredesign.sv src/uart_passthrough_bridge.sv src/wb_dshot_controller.sv src/wb_serial_dshot_mux.sv src/wb_led_controller.sv src/tang9k_top.sv \
@@ -129,7 +143,12 @@ help:
 	@echo "Testbench / simulation targets (testbenches live under src/tb):"
 	@echo "  make tb-design       - Compile & run src/tb/design_tb.sv (uses tools/Makefile)."
 	@echo "  make tb-passthrough  - Compile & run src/tb/tang9k_top_tb.sv (uses tools/Makefile)."
-	@echo "  make test-tb         - Run both tb-design and tb-passthrough (invokes tb targets)."
+	@echo "  make tb-bridge       - Compile & run UART bridge testbench (half-duplex logic)."
+	@echo "  make tb-wb-mux       - Compile & run Wishbone/Motor Mux testbench."
+	@echo "  make test-tb         - Run all primary system testbenches."
+	@echo ""
+	@echo "Convenience Scripts:"
+	@echo "  src/run_passthrough_tb.sh - Direct runner for the UART bridge simulation."
 	@echo ""
 	@echo "Passing plusargs / runtime options to testbenches:"
 	@echo "  The tb targets invoke vvp and accept simulator plusargs via the VVP_ARGS make variable."
@@ -224,6 +243,102 @@ view:
 
 # tb-design and tb-passthrough are defined in tools/Makefile
 test-tb: tb-design tb-passthrough
+
+
+# -----------------------------------------------------------------------------
+# WB Serial DSHOT MUX testbench (migrated from src/Makefile.wb_mux_tb)
+# -----------------------------------------------------------------------------
+# Directory and build
+WB_MUX_DIR := src
+WB_MUX_BUILD := $(WB_MUX_DIR)/build
+
+WB_MUX_TB_SRC := $(WB_MUX_DIR)/wb_serial_dshot_mux_tb.sv
+WB_MUX_DUT_SRC := $(WB_MUX_DIR)/wb_serial_dshot_mux.sv
+
+WB_MUX_VVP := $(WB_MUX_BUILD)/wb_serial_dshot_mux_tb.vvp
+WB_MUX_VCD := $(WB_MUX_DIR)/wb_serial_dshot_mux_tb.vcd
+WB_MUX_GTKW := $(WB_MUX_DIR)/wb_serial_dshot_mux_tb.gtkw
+
+WB_MUX_IVERILOG_FLAGS := -g2012 -Wall -Wno-timescale -D SIM_CONTROL
+
+.PHONY: wb-mux-compile tb-wb-mux wb-mux-view wb-mux-clean
+
+$(WB_MUX_BUILD):
+	mkdir -p $(WB_MUX_BUILD)
+
+wb-mux-compile: $(WB_MUX_BUILD)
+	@echo "Compiling WB mux testbench..."
+	@rm -f $(WB_MUX_VVP)
+	$(IVERILOG) $(WB_MUX_IVERILOG_FLAGS) -o $(WB_MUX_VVP) \
+		$(WB_MUX_TB_SRC) \
+		$(WB_MUX_DUT_SRC)
+
+tb-wb-mux: wb-mux-compile
+	@echo "Running WB mux simulation..."
+	$(VVP) $(WB_MUX_VVP)
+	@echo "WB mux simulation complete. VCD file: $(WB_MUX_VCD)"
+
+wb-mux-view: $(WB_MUX_VCD)
+	@echo "Opening WB mux waveform..."
+	@if [ -f $(WB_MUX_GTKW) ]; then \
+		gtkwave $(WB_MUX_VCD) $(WB_MUX_GTKW) &; \
+	else \
+		gtkwave $(WB_MUX_VCD) &; \
+	fi
+
+wb-mux-clean:
+	@rm -rf $(WB_MUX_BUILD)
+	@rm -f $(WB_MUX_DIR)/*.vcd $(WB_MUX_DIR)/*.vvp
+
+
+# -----------------------------------------------------------------------------
+# UART Passthrough Bridge testbench (migrated from src/Makefile.passthrough_tb)
+# -----------------------------------------------------------------------------
+PASSTHROUGH_DIR := src
+PASSTHROUGH_BUILD := $(PASSTHROUGH_DIR)/build
+
+PASSTHROUGH_TB_SRC := $(PASSTHROUGH_DIR)/uart_passthrough_bridge_tb.sv
+PASSTHROUGH_DUT_SRC := $(PASSTHROUGH_DIR)/uart_passthrough_bridge.sv
+PASSTHROUGH_UART_WRAPPERS := $(PASSTHROUGH_DIR)/uart_rx.sv $(PASSTHROUGH_DIR)/uart_tx.sv
+PASSTHROUGH_VERILOG_UART_DIR := verilog-uart/rtl
+PASSTHROUGH_UART_CORE := $(PASSTHROUGH_VERILOG_UART_DIR)/uart_rx.v $(PASSTHROUGH_VERILOG_UART_DIR)/uart_tx.v
+
+PASSTHROUGH_VVP := $(PASSTHROUGH_BUILD)/uart_passthrough_bridge_tb.vvp
+PASSTHROUGH_VCD := $(PASSTHROUGH_DIR)/uart_passthrough_bridge_tb.vcd
+PASSTHROUGH_GTKW := $(PASSTHROUGH_DIR)/uart_passthrough_bridge_tb.gtkw
+
+PASSTHROUGH_IVERILOG_FLAGS := -g2012 -Wall -Wno-timescale
+
+.PHONY: bridge-compile tb-bridge bridge-view bridge-clean
+
+$(PASSTHROUGH_BUILD):
+	mkdir -p $(PASSTHROUGH_BUILD)
+
+bridge-compile: $(PASSTHROUGH_BUILD)
+	@echo "Compiling passthrough testbench..."
+	@rm -f $(PASSTHROUGH_VVP)
+	$(IVERILOG) $(PASSTHROUGH_IVERILOG_FLAGS) -o $(PASSTHROUGH_VVP) \
+		$(PASSTHROUGH_TB_SRC) \
+		$(PASSTHROUGH_DUT_SRC) \
+		$(PASSTHROUGH_UART_WRAPPERS) \
+		$(PASSTHROUGH_UART_CORE)
+
+tb-bridge: bridge-compile
+	@echo "Running bridge simulation..."
+	$(VVP) $(PASSTHROUGH_VVP)
+	@echo "Simulation complete. VCD file: $(PASSTHROUGH_VCD)"
+
+bridge-view: $(PASSTHROUGH_VCD)
+	@echo "Opening passthrough waveform..."
+	@if [ -f $(PASSTHROUGH_GTKW) ]; then \
+		gtkwave $(PASSTHROUGH_VCD) $(PASSTHROUGH_GTKW) &; \
+	else \
+		gtkwave $(PASSTHROUGH_VCD) &; \
+	fi
+
+bridge-clean:
+	@rm -rf $(PASSTHROUGH_BUILD)
+	@rm -f $(PASSTHROUGH_DIR)/*.vcd $(PASSTHROUGH_DIR)/*.vvp
 
 
 lint:

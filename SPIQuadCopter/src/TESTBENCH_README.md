@@ -48,8 +48,11 @@ cd src/
 ### Using Make
 
 ```bash
-cd src/
-make -f Makefile.passthrough_tb sim
+# From project root
+make tb-passthrough
+ 
+# WB mux testbench (migrated from per-dir Makefile)
+make tb-wb-mux
 ```
 
 ### Manual Compilation

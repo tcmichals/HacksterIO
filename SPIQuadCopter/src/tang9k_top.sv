@@ -16,7 +16,7 @@
  *   0x0500-0x05FF: NeoPixel Controller
  *
  * BLHeli Passthrough Mode (mux_sel=0):
- *   PC/BLHeliSuite → USB UART (pins 19-20) → Hardware Bridge → Serial (pin 25) → ESC
+ *   PC/BLHeliSuite -> USB UART (pins 19-20) -> Hardware Bridge -> Serial (routes to Motor Pins) -> ESC
  *   No software intervention needed - pure hardware passthrough at 115200 baud.
  *
  * DSHOT Mode (mux_sel=1):
@@ -60,10 +60,10 @@ module tang9k_top (
 
     // DSHOT Motor Outputs (4 channels)
     // Bidirectional for Serial Passthrough support
-    inout  wire o_motor1,
-    inout  wire o_motor2,
-    inout  wire o_motor3,
-    inout  wire o_motor4,
+    inout  wire  o_motor1,
+    inout  wire  o_motor2,
+    inout  wire  o_motor3,
+    inout  wire  o_motor4,
 
     // NeoPixel Output
     output logic o_neopixel,
@@ -85,17 +85,14 @@ module tang9k_top (
         .locked(pll_locked)
     );
 
-logic [31:0] counter;
+// LED heartbeat counter - optimized to only needed bits
+    logic [25:0] led_counter;
 
-always_ff @(posedge clk_72m) begin
-    if (counter > 32'd72_000_000) 
-        counter <= 0;
-    else
-        counter <= counter + 1'b1;
-end
+    always_ff @(posedge clk_72m) begin
+        led_counter <= led_counter + 1'b1;  // Natural wrap-around
+    end
 
-assign o_led_5 = counter[24];
-assign o_led_6 = counter[25];
+    assign o_led_6 = led_counter[25];
 
     logic sys_reset;
     assign sys_reset = !pll_locked; // System reset is active low when PLL is not locked
@@ -116,6 +113,7 @@ assign o_led_6 = counter[25];
     .o_led1       (o_led_2),
     .o_led2       (o_led_3),
     .o_led3       (o_led_4),
+    .o_led4       (o_led_5),
 
 
 

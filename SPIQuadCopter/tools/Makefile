@@ -41,16 +41,12 @@ tools-help:
 
 tb-design:
 	@echo "Running design testbench (src/tb/design_tb.sv)"
-	@if ! command -v iverilog > /dev/null; then \
-		echo "Error: iverilog not found. Install iverilog to run testbenches."; exit 1; \
-	fi
-	iverilog -g2009 -o /tmp/tb_design.vvp src/tb/design_tb.sv $(SRCS)
-	vvp /tmp/tb_design.vvp $(VVP_ARGS)
+	@rm -f /tmp/tb_design.vvp
+	$(IVERILOG) -g2009 -o /tmp/tb_design.vvp src/tb/design_tb.sv $(SRCS)
+	$(VVP) /tmp/tb_design.vvp $(VVP_ARGS)
 
 tb-passthrough:
 	@echo "Running passthrough testbench (src/tb/tang9k_top_tb.sv)"
-	@if ! command -v iverilog > /dev/null; then \
-		echo "Error: iverilog not found. Install iverilog to run testbenches."; exit 1; \
-	fi
-	iverilog -g2009 -o /tmp/tb_passthrough.vvp src/tb/tang9k_top_tb.sv $(SRCS)
-	vvp /tmp/tb_passthrough.vvp $(VVP_ARGS)
+	@rm -f /tmp/tb_passthrough.vvp
+	$(IVERILOG) -g2009 -o /tmp/tb_passthrough.vvp src/tb/tang9k_top_tb.sv $(SRCS)
+	$(VVP) /tmp/tb_passthrough.vvp $(VVP_ARGS)

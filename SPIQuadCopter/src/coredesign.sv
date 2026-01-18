@@ -29,49 +29,50 @@ module coredesign #(
     parameter CLK_FREQ_HZ = 72_000_000
 ) (
     // System Clock and Reset
-    input  wire  i_sys_clk,
-    input  wire  i_rst,
+    input  logic  i_sys_clk,
+    input  logic  i_rst,
     // PLL locked indicator from top-level PLL
-    input  wire  i_pll_locked,
+    input  logic  i_pll_locked,
     
     // SPI Slave Interface
-    input  wire i_spi_clk,
-    input  wire i_spi_cs_n,
-    input  wire i_spi_mosi,
-    output wire o_spi_miso,
+    input  logic i_spi_clk,
+    input  logic i_spi_cs_n,
+    input  logic i_spi_mosi,
+    output logic o_spi_miso,
     
     // LED Outputs
-    output wire o_led0,
-    output wire o_led1,
-    output wire o_led2,
-    output wire o_led3,
+    output logic o_led0,
+    output logic o_led1,
+    output logic o_led2,
+    output logic o_led3,
+    output logic o_led4, 
     
 
     // USB UART Interface (for BLHeli passthrough to PC)
-    input  wire i_usb_uart_rx,
-    output wire o_usb_uart_tx,
+    input  logic i_usb_uart_rx,
+    output logic o_usb_uart_tx,
     
     // PWM Decoder Inputs (6 channels)
-    input  wire i_pwm_ch0,
-    input  wire i_pwm_ch1,
-    input  wire i_pwm_ch2,
-    input  wire i_pwm_ch3,
-    input  wire i_pwm_ch4,
-    input  wire i_pwm_ch5,
+    input  logic i_pwm_ch0,
+    input  logic i_pwm_ch1,
+    input  logic i_pwm_ch2,
+    input  logic i_pwm_ch3,
+    input  logic i_pwm_ch4,
+    input  logic i_pwm_ch5,
     
     // DSHOT Motor Outputs (4 channels)
     // Bidirectional for Serial Passthrough support
-    inout wire o_motor1,
-    inout wire o_motor2,
-    inout wire o_motor3,
-    inout wire o_motor4,
+    inout  wire o_motor1,
+    inout  wire o_motor2,
+    inout  wire o_motor3,
+    inout  wire o_motor4,
 
     // NeoPixel Output
-    output wire o_neopixel,
+    output logic o_neopixel,
     // Debug probe: mirrors SPI byte-ready (exposed to top-level as `o_debug`)
-    output wire o_debug_0,
-    output wire o_debug_1,
-    output wire o_debug_2
+    output logic o_debug_0,
+    output logic o_debug_1,
+    output logic o_debug_2
     
 );
 
@@ -418,7 +419,7 @@ module coredesign #(
     // LED Controller (Wishbone) - slave 0 on mux
     // =============================
     wb_led_controller #(
-        .LED_WIDTH(4),
+        .LED_WIDTH(5),
         .LED_POLARITY(0) // Active Low
     ) u_wb_led (
         .clk        (i_sys_clk),
@@ -431,7 +432,7 @@ module coredesign #(
         .wbs_cyc_i  (wbs0_cyc_o),
         .wbs_dat_o  (wb_led_dat_s2m),
         .wbs_ack_o  (wb_led_ack),
-        .led_out    ({o_led3, o_led2, o_led1, o_led0})
+        .led_out    ({o_led4, o_led3, o_led2, o_led1, o_led0})
     );
     
     // DSHOT Motor Signals (Internal)
