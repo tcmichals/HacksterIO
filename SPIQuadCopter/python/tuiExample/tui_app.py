@@ -103,7 +103,12 @@ class App:
     def _handle_menu_input(self, c):
         if c == ord('1'): self.mode = 'PWM'
         elif c == ord('2'): self.mode = 'DSHOT'
-        elif c == ord('3'): self.mode = 'NEO'
+        elif c == ord('3'): 
+            self.mode = 'NEO'
+            try:
+                self.neo_values = self.driver.get_neopixels()
+            except:
+                pass
         elif c == ord('4'): self.mode = 'LED'
         elif c == ord('5'): self.mode = 'SERIAL'
         elif c == ord('q'): exit(0)
@@ -163,6 +168,11 @@ class App:
             vals[self.neo_cursor_comp] = max(0, vals[self.neo_cursor_comp] - 10)
             self.neo_values[idx] = tuple(vals)
             self.update_pixel(idx)
+        elif c == ord('c') or c == ord('C'):
+            self.neo_values = [(0,0,0,0)] * 8
+            for i in range(8):
+                self.update_pixel(i)
+            self.driver.trigger_neopixel_update()
         elif c == ord(' '):
             self.driver.trigger_neopixel_update()
 
@@ -234,7 +244,7 @@ class App:
         
         help_msg = ""
         if self.mode == 'DSHOT': help_msg = "[q/a] M1 [w/s] M2 [e/d] M3 [r/f] M4 | [!] Stop All"
-        elif self.mode == 'NEO': help_msg = "Arrows: Nav | PgUp/Dn: Val +/- | Space: Update"
+        elif self.mode == 'NEO': help_msg = "Arrows: Nav | PgUp/Dn: Val +/- | [c] Clear All | Space: Update"
         elif self.mode == 'LED': help_msg = "Press [1-5] to toggle LEDs"
         elif self.mode == 'SERIAL': help_msg = "[m] Mode Toggle | [1-4] Select Motor"
             

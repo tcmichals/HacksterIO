@@ -13,18 +13,18 @@ Quick links:
 - **[Half-Duplex UART Technical](docs/HALF_DUPLEX_UART_TECHNICAL.md)** - Tri-state UART implementation
 - **[BLHeli Passthrough](docs/BLHELI_PASSTHROUGH.md)** - ESC configuration guide
 
-## 🚀 Quick Start
+# 🚀 Quick Start
 
 ```bash
 # 1. Build the FPGA bitstream
-make clean && make synth && make pnr && make bitstream
+make build
 
 # 2. Program the FPGA
-make program
+make upload
 
 # 3. Run the Python TUI
-cd python/tuiTest
-python tang9k_tui.py
+cd python/tuiExample
+python tui_app.py
 ```
 
 ## 🎯 Features
@@ -47,7 +47,7 @@ SPIQuadCopter/
 │   ├── coredesign.sv       # Core system design
 │   └── tb/                 # Testbenches
 ├── python/                  # Python control software
-│   └── tuiTest/            # Terminal UI application
+│   └── tuiExample/          # Main terminal UI application
 ├── dshot/                   # DSHOT motor controller
 ├── pwmDecoder/             # PWM decoder
 ├── neoPXStrip/             # NeoPixel controller
@@ -66,8 +66,8 @@ SPIQuadCopter/
 ## 💻 Software
 
 - **Toolchain:** OSS CAD Suite (Yosys, nextpnr, openFPGALoader)
-- **Python:** 3.7+ with spidev, textual, pyserial
-- **See:** [Install OSS CAD Suite](docs/INSTALL_OSS_CAD.md)
+- **Python:** 3.7+ with `spidev`
+- **TUI Documentation:** [Python TUI README](python/tuiExample/README.md)
 
 ## 📖 Key Documentation
 
@@ -78,7 +78,7 @@ SPIQuadCopter/
 | Hardware Setup | [Hardware Pins](docs/HARDWARE_PINS.md) |
 | ESC Config | [BLHeli Passthrough](docs/BLHELI_PASSTHROUGH.md) |
 | UART Details | [Half-Duplex UART Technical](docs/HALF_DUPLEX_UART_TECHNICAL.md) |
-| Python API | [Tang9K Library](python/tuiTest/TANG9K_LIBRARY.md) |
+| Python TUI | [TUI Module](python/tuiExample/README.md) |
 | Testing | [Testbench README](src/TESTBENCH_README.md) |
 
 ## 🧪 Testing

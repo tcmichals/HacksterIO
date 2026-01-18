@@ -183,6 +183,27 @@ class WishboneDriver:
         data = struct.pack('<I', val)
         self.write(addr, data)
 
+    def get_neopixels(self):
+        """
+        Read all 8 NeoPixel colors from the FPGA.
+        Returns a list of 8 tuples: (r, g, b, w)
+        """
+        # Read 32 bytes (8 pixels * 4 bytes)
+        raw_data = self.read(0x500, 32)
+        
+        results = []
+        for i in range(8):
+            offset = i * 4
+            # We packed it as (g << 24) | (r << 16) | (b << 8) | w
+            # Our read() returns bytes in LSB-first order (Little Endian).
+            # Byte 0 = w, Byte 1 = b, Byte 2 = r, Byte 3 = g
+            w = raw_data[offset]
+            b = raw_data[offset+1]
+            r = raw_data[offset+2]
+            g = raw_data[offset+3]
+            results.append((r, g, b, w))
+        return results
+
     def trigger_neopixel_update(self):
         """
         Write to an address outside 0x00-0x1C (e.g., 0x20) relative to 0x500
