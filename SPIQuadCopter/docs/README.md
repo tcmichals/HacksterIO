@@ -46,8 +46,9 @@ mmdc -i docs/system_block_diagram.md -o docs/system_block_diagram.png
 ```
 
 └── src/tb/              # Testbenches
-- **[HARDWARE_PINS.md](docs/HARDWARE_PINS.md)** - Complete pin assignments and mux details
-- **[tang9k.cst](tang9k.cst)** - Pin constraint file
+- **[PINOUT.md](docs/PINOUT.md)** - Motor, PWM, and NeoPixel pin mapping (TangNano 9K)
+- **[HARDWARE_PINS.md](docs/HARDWARE_PINS.md)** - Detailed hardware wiring and mux details
+- **[tang9k.cst](tang9k.cst)** - Physical constraint file
 
 ### System Architecture
 - **[SYSTEM_OVERVIEW.md](docs/SYSTEM_OVERVIEW.md)** - Complete architecture and Wishbone address map

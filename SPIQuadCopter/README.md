@@ -9,8 +9,7 @@ A complete FPGA-based quadcopter flight controller implementation for the Tang N
 Quick links:
 - **[Documentation Index](docs/README.md)** - Complete documentation listing
 - **[Quick Start Guide](docs/QUICK_START.md)** - Get started quickly
-- **[System Overview](docs/SYSTEM_OVERVIEW.md)** - Architecture and design
-- **[Half-Duplex UART Technical](docs/HALF_DUPLEX_UART_TECHNICAL.md)** - Tri-state UART implementation
+- **[TangNano 9K Pinout](docs/PINOUT.md)** - Clear motor, PWM, and NeoPixel pin mapping
 - **[BLHeli Passthrough](docs/BLHELI_PASSTHROUGH.md)** - ESC configuration guide
 
 # 🚀 Quick Start
@@ -75,7 +74,7 @@ SPIQuadCopter/
 |-------|----------|
 | Getting Started | [Quick Start](docs/QUICK_START.md) |
 | System Design | [System Overview](docs/SYSTEM_OVERVIEW.md) |
-| Hardware Setup | [Hardware Pins](docs/HARDWARE_PINS.md) |
+| Hardware Setup | [Detailed Pinout](docs/PINOUT.md) |
 | ESC Config | [BLHeli Passthrough](docs/BLHELI_PASSTHROUGH.md) |
 | UART Details | [Half-Duplex UART Technical](docs/HALF_DUPLEX_UART_TECHNICAL.md) |
 | Python TUI | [TUI Module](python/tuiExample/README.md) |

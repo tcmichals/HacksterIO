@@ -5,7 +5,7 @@
  * This module operates independently of Wishbone - it's pure hardware passthrough.
  *
  * Architecture:
- *   PC (BLHeli) ←→ USB UART (115200) ←→ This Module ←→ Half-Duplex Serial (115200) ←→ ESC
+ *   PC (BLHeli) ←→ USB UART (115200) ←→ This Module ←→ Half-Duplex Serial (19200) ←→ ESC
  *
  * Features:
  *   - Automatic half-duplex control (tri-state buffering)
@@ -15,7 +15,8 @@
 
 module uart_passthrough_bridge #(
     parameter CLK_FREQ_HZ = 72_000_000,
-    parameter BAUD_RATE = 115200,
+    parameter USB_BAUD_RATE = 115200,
+    parameter SERIAL_BAUD_RATE = 19200,
     // Configuration parameter: when set to 1 disables automatic echo
     // (prevents serial->USB forwarding). Default 0 = echo enabled.
     parameter DISABLE_AUTO_ECHO = 0
@@ -52,7 +53,7 @@ module uart_passthrough_bridge #(
     
     uart_rx_wrapper #(
         .CLK_FREQ_HZ(CLK_FREQ_HZ),
-        .BAUD_RATE(BAUD_RATE)
+        .BAUD_RATE(USB_BAUD_RATE)
     ) u_usb_uart_rx (
         .clk(clk),
         .rst(rst),
@@ -64,7 +65,7 @@ module uart_passthrough_bridge #(
     
     uart_tx_wrapper #(
         .CLK_FREQ_HZ(CLK_FREQ_HZ),
-        .BAUD_RATE(BAUD_RATE)
+        .BAUD_RATE(USB_BAUD_RATE)
     ) u_usb_uart_tx (
         .clk(clk),
         .rst(rst),
@@ -107,7 +108,7 @@ module uart_passthrough_bridge #(
     
     uart_rx_wrapper #(
         .CLK_FREQ_HZ(CLK_FREQ_HZ),
-        .BAUD_RATE(BAUD_RATE)
+        .BAUD_RATE(SERIAL_BAUD_RATE)
     ) u_serial_rx (
         .clk(clk),
         .rst(rst),
@@ -119,7 +120,7 @@ module uart_passthrough_bridge #(
     
     uart_tx_wrapper #(
         .CLK_FREQ_HZ(CLK_FREQ_HZ),
-        .BAUD_RATE(BAUD_RATE)
+        .BAUD_RATE(SERIAL_BAUD_RATE)
     ) u_serial_tx (
         .clk(clk),
         .rst(rst),
@@ -137,9 +138,40 @@ module uart_passthrough_bridge #(
     // =============================
     // Bridging Logic
     // =============================
+    // Small FIFO for serial transmission (4 bytes deep)
+    localparam FIFO_DEPTH = 4;
+    logic [7:0] serial_tx_fifo [FIFO_DEPTH-1:0];
+    logic [1:0] serial_tx_wr_ptr;
+    logic [1:0] serial_tx_rd_ptr;
+    logic [2:0] serial_tx_count;
+    
+    wire serial_tx_fifo_empty = (serial_tx_count == 0);
+    wire serial_tx_fifo_full = (serial_tx_count == FIFO_DEPTH);
+    
+    always_ff @(posedge clk) begin
+        if (rst) begin
+            serial_tx_wr_ptr <= 2'b00;
+            serial_tx_rd_ptr <= 2'b00;
+            serial_tx_count <= 3'b000;
+        end else begin
+            // Write to FIFO
+            if (usb_rx_valid & enable_sync & ~serial_tx_fifo_full) begin
+                serial_tx_fifo[serial_tx_wr_ptr] <= usb_rx_data;
+                serial_tx_wr_ptr <= serial_tx_wr_ptr + 1;
+                serial_tx_count <= serial_tx_count + 1;
+            end
+            
+            // Read from FIFO
+            if (serial_tx_valid & serial_tx_ready & ~serial_tx_fifo_empty) begin
+                serial_tx_rd_ptr <= serial_tx_rd_ptr + 1;
+                serial_tx_count <= serial_tx_count - 1;
+            end
+        end
+    end
+    
     // USB RX → Serial TX (PC to ESC)
-    assign serial_tx_data = usb_rx_data;
-    assign serial_tx_valid = usb_rx_valid & enable_sync;
+    assign serial_tx_data = serial_tx_fifo[serial_tx_rd_ptr];
+    assign serial_tx_valid = ~serial_tx_fifo_empty & enable_sync;
     
     // Serial RX → USB TX (ESC to PC)
     // Prevent echo: do not forward received bytes while we are actively driving the serial pin
@@ -148,6 +180,6 @@ module uart_passthrough_bridge #(
     assign usb_tx_valid = serial_rx_valid & enable_sync & (~serial_tx_oe) & (DISABLE_AUTO_ECHO == 0);
     
     // Status
-    assign active = enable_sync & (serial_tx_active | usb_tx_valid | serial_rx_valid);
+    assign active = enable_sync & (serial_tx_active | usb_tx_valid | serial_rx_valid | ~serial_tx_fifo_empty);
 
 endmodule

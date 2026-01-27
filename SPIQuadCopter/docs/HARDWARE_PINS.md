@@ -4,26 +4,20 @@
 
 | Pin | Signal Name | Direction | Function | Connection |
 |-----|-------------|-----------|----------|------------|
-| 3   | i_rst_n | Input | Reset (active low) | Reset button or pull-up |
-| 4   | i_spi_clk | Input | SPI Clock | Raspberry Pi SCLK |
-| 5   | i_spi_cs_n | Input | SPI Chip Select | Raspberry Pi CE0 |
-| 6   | i_spi_mosi | Input | SPI MOSI | Raspberry Pi MOSI |
-| 7   | o_spi_miso | Output | SPI MISO | Raspberry Pi MISO |
-| 8-11 | o_led[0-3] | Output | Debug LEDs | LEDs with resistors |
-| 15  | i_btn0 | Input | Button 0 | Push button |
-| 16  | i_btn1 | Input | Button 1 | Push button |
-| 17  | i_uart_rx | Input | Debug U ART RX | Optional console |
-| 18  | o_uart_tx | Output | Debug UART TX | Optional console |
+| 3   | i_rst_n | Input | Reset (active low) | Reset button |
+| 25  | i_spi_clk | Input | SPI Clock | Raspberry Pi SCLK |
+| 26  | i_spi_cs_n | Input | SPI Chip Select | Raspberry Pi CE0 |
+| 27  | i_spi_mosi | Input | SPI MOSI | Raspberry Pi MOSI |
+| 28  | o_spi_miso | Output | SPI MISO | Raspberry Pi MISO |
+| 10-16| o_led[1-6]| Output | Debug LEDs | On-board LEDs |
 | 19 | i_usb_uart_rx | Input | USB UART RX | USB adapter TX |
 | 20 | o_usb_uart_tx | Output | USB UART TX | USB adapter RX |
-| ~~25~~ | ~~serial~~ | ~~Inout~~ | **REMOVED** - Serial passthrough now uses motor pins | ~~LVCMOS33~~ |
-| 26-29 | i_pwm_ch[0-3] | Input | PWM Inputs | RC receiver channels |
-| 30-31 | i_pwm_ch[4-5] | Input | PWM Inputs (Aux) | RC receiver aux channels |
-| **32** | **o_motor1** | **Inout** | **DSHOT Motor 1 / Serial Passthrough** | **LVCMOS33 PULL_MODE=UP** |
-| **33** | **o_motor2** | **Inout** | **DSHOT Motor 2 / Serial Passthrough** | **LVCMOS33 PULL_MODE=UP** |
-| **34** | **o_motor3** | **Inout** | **DSHOT Motor 3 / Serial Passthrough** | **LVCMOS33 PULL_MODE=UP** |
+| 69, 68, 57, 56, 54, 53 | i_pwm_ch[0-5] | Input | PWM Inputs | RC receiver channels |
+| **51** | **o_motor1** | **Inout** | **DSHOT Motor 1 / Serial Passthrough** | **LVCMOS33 PULL_MODE=UP** |
+| **42** | **o_motor2** | **Inout** | **DSHOT Motor 2 / Serial Passthrough** | **LVCMOS33 PULL_MODE=UP** |
+| **41** | **o_motor3** | **Inout** | **DSHOT Motor 3 / Serial Passthrough** | **LVCMOS33 PULL_MODE=UP** |
 | **35** | **o_motor4** | **Inout** | **DSHOT Motor 4 / Serial Passthrough** | **LVCMOS33 PULL_MODE=UP** |
-| 51-54 | o_status_led[0-2] | Output | Status LEDs | Board status indicators |
+| **40** | **o_neopixel**| **Output**| **NeoPixel Data** | **WS2812 Strip DIN** |
 | 52  | i_sys_clk | Input | System Clock | 27 MHz oscillator |
 
 ## BLHeli Passthrough Connections
@@ -51,13 +45,13 @@
                     ┌────────────────────────────────────────────┐
                     │           Tang9K FPGA Board               │
                     │                                            │
-                    │  Pin 19 (i_usb_uart_rx) ◄── TX           │
-                    │  Pin 20 (o_usb_uart_tx) ──► RX           │
-                    │  GND ◄────────────────────── GND          │
-                    │                                            │
-                    │  **Pins 32-35 (o_motorX)** ◄──► **ESC Signal**    │
-                    │  (Select ONE motor pin via mux_ch)       │
-                    │  GND ◄───────────────► ESC GND            │
+                     │  Pin 19 (i_usb_uart_rx) ◄── TX           │
+                     │  Pin 20 (o_usb_uart_tx) ──► RX           │
+                     │  GND ◄────────────────────── GND          │
+                     │                                            │
+                     │  **Pins 51, 42, 41, 35** ◄──► **ESC Signal**    │
+                     │  (Select ONE motor pin via mux_ch)       │
+                     │  GND ◄───────────────► ESC GND            │
                     └────────────────────────────────────────────┘
                                    │
                                    ▼
@@ -82,14 +76,14 @@
 
 | ESC Wire    | Tang9K Pin | Notes |
 |-------------|------------|--------|
-| Signal      | **Pin 32, 33, 34, or 35** | **Connect to ONE motor pin**. Select which pin via mux register (bits 2:1) |
+| Signal      | **Pin 51, 42, 41, or 35** | **Connect to ONE motor pin**. Select which pin via mux register (bits 2:1) |
 | GND         | GND        | Common ground with Tang9K and adapter |
 | +5V (motor) | **DO NOT CONNECT** | ESC powered separately |
 
 **Mux Register Channel Selection (0x0400 bits 2:1)**:
-- `0x00`: Motor 1 (Pin 32) - Front Right
-- `0x02`: Motor 2 (Pin 33) - Rear Right
-- `0x04`: Motor 3 (Pin 34) - Rear Left
+- `0x00`: Motor 1 (Pin 51) - Front Right
+- `0x02`: Motor 2 (Pin 42) - Rear Right
+- `0x04`: Motor 3 (Pin 41) - Rear Left
 - `0x06`: Motor 4 (Pin 35) - Front Left
 
 **Step 3: Power Connections**
@@ -131,9 +125,9 @@ FPGA Internal Architecture:
 │  │  If mux_sel=1: Route DSHOT to all motors      │          │
 │  └────────────────────────────────────────────────┘          │
 │                     │           │                           │
-│  Pin 32 (Motor1) ◄──┤           │◄── DSHOT 1                │
-│  Pin 33 (Motor2) ◄──┤           │◄── DSHOT 2                │
-│  Pin 34 (Motor3) ◄──┤           │◄── DSHOT 3                │
+│  Pin 51 (Motor1) ◄──┤           │◄── DSHOT 1                │
+│  Pin 42 (Motor2) ◄──┤           │◄── DSHOT 2                │
+│  Pin 41 (Motor3) ◄──┤           │◄── DSHOT 3                │
 │  Pin 35 (Motor4) ◄──┴───────────┴◄── DSHOT 4                │
 │                  (bidirectional inout)                       │
 └─────────────────────────────────────────────────────────────┘
@@ -199,11 +193,7 @@ Examples:
 
 ### Issue: Wrong pin connections
 
-**Common Mistake:** Connecting ESC to pins 19/20 instead of pin 25
-- Pins 19/20: USB UART (PC to FPGA)
-- Pin 25: ESC Serial (FPGA to ESC)
-
-**Correct Flow:** PC → USB Adapter → Pins 19/20 → FPGA Bridge → Pin 25 → ESC
+**Correct Flow:** PC → USB Adapter → Pins 19/20 → FPGA Bridge → Motor Pins (51,42,41,35) → ESC
 
 ### Issue: No ground connection
 

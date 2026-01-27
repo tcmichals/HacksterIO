@@ -76,6 +76,9 @@ module coredesign #(
     
 );
 
+
+assign o_debug_0 = o_usb_uart_tx;
+assign o_debug_1 = o_usb_uart_rx;
     // System reset driven from external PLL lock
     logic sys_rst;
 
@@ -485,7 +488,8 @@ module coredesign #(
     
     uart_passthrough_bridge #(
         .CLK_FREQ_HZ(CLK_FREQ_HZ),
-        .BAUD_RATE(115200)
+        .USB_BAUD_RATE(115200),
+        .SERIAL_BAUD_RATE(19200)
     ) u_uart_passthrough (
         .clk(i_sys_clk),
         .rst(sys_rst),

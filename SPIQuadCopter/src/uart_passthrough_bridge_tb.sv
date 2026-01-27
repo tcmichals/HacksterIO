@@ -49,7 +49,8 @@ module uart_passthrough_bridge_tb;
 
     uart_passthrough_bridge #(
         .CLK_FREQ_HZ(72_000_000),
-        .BAUD_RATE(115200)
+        .USB_BAUD_RATE(115200),
+        .SERIAL_BAUD_RATE(19200)
     ) dut (
         .clk(clk),
         .rst(rst),
@@ -72,6 +73,8 @@ module uart_passthrough_bridge_tb;
     
     // UART bit timing at 115200 baud
     localparam BIT_PERIOD = 8680;  // ns (1/115200 = 8.68 us)
+    // UART bit timing at 19200 baud for serial
+    localparam BIT_PERIOD_SERIAL = 52083;  // ns (1/19200 ≈ 52.083 us)
     
     // Task to send a byte via USB UART RX (PC to FPGA)
     task automatic send_usb_byte(input logic [7:0] data);
@@ -100,17 +103,17 @@ module uart_passthrough_bridge_tb;
             serial_drive = 1;
             // Start bit
             serial_drive_value = 0;
-            #BIT_PERIOD;
+            #BIT_PERIOD_SERIAL;
             // Data bits (LSB first)
             for (i = 0; i < 8; i++) begin
                 serial_drive_value = data[i];
-                #BIT_PERIOD;
+                #BIT_PERIOD_SERIAL;
             end
             // Stop bit
             serial_drive_value = 1;
-            #BIT_PERIOD;
+            #BIT_PERIOD_SERIAL;
             serial_drive = 0;  // Release the line
-            #BIT_PERIOD;
+            #BIT_PERIOD_SERIAL;
         end
     endtask
     
@@ -145,13 +148,13 @@ module uart_passthrough_bridge_tb;
             // Wait for start bit
             wait(serial == 0);
             $display("[%0t] FPGA → ESC: Start bit detected (serial=%b)", $time, serial);
-            #(BIT_PERIOD + BIT_PERIOD/2);  // Wait to middle of first data bit
+            #(BIT_PERIOD_SERIAL + BIT_PERIOD_SERIAL/2);  // Wait to middle of first data bit
             
             // Read data bits
             for (i = 0; i < 8; i++) begin
                 data[i] = serial;
                 $display("[%0t]   Bit %0d: %b (serial=%b)", $time, i, data[i], serial);
-                #BIT_PERIOD;
+                #BIT_PERIOD_SERIAL;
             end
             
             // Check stop bit
@@ -189,10 +192,10 @@ module uart_passthrough_bridge_tb;
         #1000;
         send_usb_byte(8'h55);
         #(BIT_PERIOD * 20);
-        if (serial === 1'bz) begin
-            $display("[%0t] PASS: Serial line is tri-stated when disabled", $time);
+        if (serial === 1'b1) begin
+            $display("[%0t] PASS: Serial line is pulled high when disabled", $time);
         end else begin
-            $display("[%0t] FAIL: Serial line should be tri-stated", $time);
+            $display("[%0t] FAIL: Serial line should be pulled high (serial=%b)", $time, serial);
         end
         
         $display("\n[%0t] TEST 2: PC → ESC (USB UART to Serial)", $time);
@@ -269,7 +272,7 @@ module uart_passthrough_bridge_tb;
             end
             begin
                 // Check that serial line is driven during TX
-                #(BIT_PERIOD * 2);  // Wait past start bit
+                #(BIT_PERIOD_SERIAL * 2);  // Wait past start bit at serial baud rate
                 if (serial !== 1'bz && serial !== 1'bx) begin
                     $display("[%0t] PASS: Serial line driven during transmission", $time);
                 end else begin
@@ -277,7 +280,7 @@ module uart_passthrough_bridge_tb;
                 end
                 
                 // Wait for transmission to complete
-                #(BIT_PERIOD * 10);
+                #(BIT_PERIOD_SERIAL * 10);
                 
                 // Check that line goes back to tri-state
                 if (serial === 1'bz || serial === 1'b1) begin
