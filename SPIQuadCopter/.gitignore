@@ -1,0 +1,38 @@
+# Build artifacts
+_build/
+*.fs
+*.bin
+*.bit
+*.pnr
+*.rpt
+*.edif
+*.json
+
+# Simulation files
+*.vcd
+*.vvp
+*.vpd
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE files
+.vscode/settings.json
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+.cache
+.tmp
+.yosys*
+.nextpnr*
+
+# Tool-specific
+oss-cad-suite/
+.oss-cad-suite/
