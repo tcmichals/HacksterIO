@@ -78,12 +78,13 @@ export IVERILOG VVP
 
 # Sources used for synthesis (exclude testbenches)
 
-SRCS := spiSlave/spi_slave.sv src/pll.sv src/coredesign.sv src/uart_passthrough_bridge.sv src/wb_dshot_controller.sv src/wb_serial_dshot_mux.sv src/wb_led_controller.sv src/tang9k_top.sv \
+SRCS := spiSlave/spi_slave.sv src/pll.sv src/coredesign.sv src/uart_passthrough_bridge.sv src/msp_handler.sv src/four_way_handler.sv src/shared_buffer_ram.sv src/wb_dshot_controller.sv src/wb_serial_dshot_mux.sv src/wb_led_controller.sv src/tang9k_top.sv \
 	pwmDecoder/pwmdecoder.v pwmDecoder/pwmdecoder_wb.v \
 	neoPXStrip/sendPx_axis_flexible.sv neoPXStrip/wb_neoPx.v \
 	version/wb_version.sv \
 	verilog-wishbone/rtl/axis_wb_master.v \
-     		src/wb_mux_6.v \
+     		src/wb_mux_7.v \
+		src/wb_uart_wrapper.sv \
 		src/spi_axis_adapter.sv \
 		dshot/dshot_out.v \
 		src/uart_tx.sv src/uart_rx.sv \
@@ -96,7 +97,7 @@ CST := tang9k.cst
 YOSYS_FLAGS := -m slang -Q -p "synth_gowin -top $(TOP) -json $(BUILD_DIR)/hardware.json"
 NEXTPNR_FLAGS := --device GW1NR-LV9QN88PC6/I5 --json $(BUILD_DIR)/hardware.json \
 				 --write $(BUILD_DIR)/hardware.pnr.json --report $(BUILD_DIR)/hardware.pnr \
-				 --vopt family=GW1N-9C --vopt cst=$(CST) --sdc tang9k_timing.sdc
+				 --vopt family=GW1N-9C --vopt cst=$(CST) --sdc tang9k_timing.sdc --seed 42
 GOWIN_PACK_FLAGS := -d GW1N-9C -o $(BUILD_DIR)/hardware.fs $(BUILD_DIR)/hardware.pnr.json
 
 .PHONY: install-tools
@@ -141,15 +142,11 @@ help:
 	@echo "  make -C neoPXStrip help - List NeoPixel (sendPx) testbench and simulation targets in neoPXStrip/Makefile"
 	@echo ""
 	@echo "Testbench / simulation targets (testbenches live under src/tb):"
-	@echo "  make tb-design       - Compile & run src/tb/design_tb.sv (uses tools/Makefile)."
-	@echo "  make tb-passthrough  - Compile & run src/tb/tang9k_top_tb.sv (uses tools/Makefile)."
-	@echo "  make tb-bridge       - Compile & run UART bridge testbench (half-duplex logic)."
-	@echo "  make tb-wb-mux       - Compile & run Wishbone/Motor Mux testbench."
-	@echo "  make test-tb         - Run all primary system testbenches."
-	@echo ""
-	@echo "Convenience Scripts:"
-	@echo "  src/run_passthrough_tb.sh - Direct runner for the UART bridge simulation."
-	@echo ""
+	@echo "  make tb-design       - Compile & run src/tb/design_tb.sv."
+	@echo "  make tb-version      - Compile & run version/wb_version_tb.sv."
+	@echo "  make tb-bridge       - Compile & run UART bridge testbench."
+	@echo "  make tb-msp-mux      - Compile & run MSP / Motor Mux testbench."
+	@echo "  make test-tb         - Run all consolidated system testbenches."
 	@echo "Passing plusargs / runtime options to testbenches:"
 	@echo "  The tb targets invoke vvp and accept simulator plusargs via the VVP_ARGS make variable."
 	@echo "  Example: make tb-design VVP_ARGS=\"+TEST_VERSION +VERBOSE\""
@@ -239,56 +236,60 @@ view:
 	@cd spiSlave && make view
 
 # Testbench targets (run testbenches located under src/tb)
-.PHONY: tb-design tb-passthrough test-tb
+.PHONY: tb-design tb-version test-tb
 
-# tb-design and tb-passthrough are defined in tools/Makefile
-test-tb: tb-design tb-passthrough
+# Streamlined core testbenches
+test-tb: tb-design tb-msp-mux tb-bridge tb-version
 
 
+# MSP Serial / Motor Mux testbench (formerly tb-wb-mux)
 # -----------------------------------------------------------------------------
-# WB Serial DSHOT MUX testbench (migrated from src/Makefile.wb_mux_tb)
-# -----------------------------------------------------------------------------
-# Directory and build
-WB_MUX_DIR := src
-WB_MUX_BUILD := $(WB_MUX_DIR)/build
+TB_BUILD_DIR := src/build
+MSP_MUX_TB_SRC  := src/wb_serial_dshot_mux_tb.sv
+MSP_MUX_DUT_SRC  := src/wb_serial_dshot_mux.sv
+MSP_MUX_VVP      := $(TB_BUILD_DIR)/wb_serial_dshot_mux_tb.vvp
+MSP_MUX_VCD      := src/wb_serial_dshot_mux_tb.vcd
+MSP_MUX_GTKW     := src/wb_serial_dshot_mux_tb.gtkw
+MSP_MUX_DIR      := src
 
-WB_MUX_TB_SRC := $(WB_MUX_DIR)/wb_serial_dshot_mux_tb.sv
-WB_MUX_DUT_SRC := $(WB_MUX_DIR)/wb_serial_dshot_mux.sv
+MSP_MUX_UART_WRAPPERS := src/uart_rx.sv src/uart_tx.sv
+MSP_MUX_UART_CORE_DIR := verilog-uart/rtl
+MSP_MUX_UART_CORE     := $(MSP_MUX_UART_CORE_DIR)/uart_rx.v $(MSP_MUX_UART_CORE_DIR)/uart_tx.v
 
-WB_MUX_VVP := $(WB_MUX_BUILD)/wb_serial_dshot_mux_tb.vvp
-WB_MUX_VCD := $(WB_MUX_DIR)/wb_serial_dshot_mux_tb.vcd
-WB_MUX_GTKW := $(WB_MUX_DIR)/wb_serial_dshot_mux_tb.gtkw
+TB_BUILD_DIR := src/build
 
-WB_MUX_IVERILOG_FLAGS := -g2012 -Wall -Wno-timescale -D SIM_CONTROL
+MSP_MUX_IVERILOG_FLAGS := -g2012 -Wall -Wno-timescale -D SIM_CONTROL
 
-.PHONY: wb-mux-compile tb-wb-mux wb-mux-view wb-mux-clean
+.PHONY: msp-mux-compile tb-msp-mux msp-mux-view msp-mux-clean
 
-$(WB_MUX_BUILD):
-	mkdir -p $(WB_MUX_BUILD)
+$(TB_BUILD_DIR):
+	mkdir -p $(TB_BUILD_DIR)
 
-wb-mux-compile: $(WB_MUX_BUILD)
-	@echo "Compiling WB mux testbench..."
-	@rm -f $(WB_MUX_VVP)
-	$(IVERILOG) $(WB_MUX_IVERILOG_FLAGS) -o $(WB_MUX_VVP) \
-		$(WB_MUX_TB_SRC) \
-		$(WB_MUX_DUT_SRC)
+msp-mux-compile: $(TB_BUILD_DIR)
+	@echo "Compiling MSP mux testbench..."
+	@rm -f $(MSP_MUX_VVP)
+	$(IVERILOG) $(MSP_MUX_IVERILOG_FLAGS) -o $(MSP_MUX_VVP) \
+		$(MSP_MUX_TB_SRC) \
+		$(MSP_MUX_DUT_SRC) \
+		$(MSP_MUX_UART_WRAPPERS) \
+		$(MSP_MUX_UART_CORE)
 
-tb-wb-mux: wb-mux-compile
-	@echo "Running WB mux simulation..."
-	$(VVP) $(WB_MUX_VVP)
-	@echo "WB mux simulation complete. VCD file: $(WB_MUX_VCD)"
+tb-msp-mux: msp-mux-compile
+	@echo "Running MSP mux simulation..."
+	$(VVP) $(MSP_MUX_VVP)
+	@echo "MSP mux simulation complete. VCD file: $(MSP_MUX_VCD)"
 
-wb-mux-view: $(WB_MUX_VCD)
-	@echo "Opening WB mux waveform..."
-	@if [ -f $(WB_MUX_GTKW) ]; then \
-		gtkwave $(WB_MUX_VCD) $(WB_MUX_GTKW) &; \
+msp-mux-view: $(MSP_MUX_VCD)
+	@echo "Opening MSP mux waveform..."
+	@if [ -f $(MSP_MUX_GTKW) ]; then \
+		gtkwave $(MSP_MUX_VCD) $(MSP_MUX_GTKW) &; \
 	else \
-		gtkwave $(WB_MUX_VCD) &; \
+		gtkwave $(MSP_MUX_VCD) &; \
 	fi
 
-wb-mux-clean:
-	@rm -rf $(WB_MUX_BUILD)
-	@rm -f $(WB_MUX_DIR)/*.vcd $(WB_MUX_DIR)/*.vvp
+msp-mux-clean:
+	@rm -rf $(TB_BUILD_DIR)
+	@rm -f $(MSP_MUX_DIR)/*.vcd $(MSP_MUX_DIR)/*.vvp
 
 
 # -----------------------------------------------------------------------------
@@ -297,24 +298,19 @@ wb-mux-clean:
 PASSTHROUGH_DIR := src
 PASSTHROUGH_BUILD := $(PASSTHROUGH_DIR)/build
 
-PASSTHROUGH_TB_SRC := $(PASSTHROUGH_DIR)/uart_passthrough_bridge_tb.sv
-PASSTHROUGH_DUT_SRC := $(PASSTHROUGH_DIR)/uart_passthrough_bridge.sv
-PASSTHROUGH_UART_WRAPPERS := $(PASSTHROUGH_DIR)/uart_rx.sv $(PASSTHROUGH_DIR)/uart_tx.sv
+PASSTHROUGH_TB_SRC := src/uart_passthrough_bridge_tb.sv
+PASSTHROUGH_DUT_SRC := src/uart_passthrough_bridge.sv
+PASSTHROUGH_UART_WRAPPERS := src/uart_rx.sv src/uart_tx.sv
 PASSTHROUGH_VERILOG_UART_DIR := verilog-uart/rtl
 PASSTHROUGH_UART_CORE := $(PASSTHROUGH_VERILOG_UART_DIR)/uart_rx.v $(PASSTHROUGH_VERILOG_UART_DIR)/uart_tx.v
 
-PASSTHROUGH_VVP := $(PASSTHROUGH_BUILD)/uart_passthrough_bridge_tb.vvp
-PASSTHROUGH_VCD := $(PASSTHROUGH_DIR)/uart_passthrough_bridge_tb.vcd
-PASSTHROUGH_GTKW := $(PASSTHROUGH_DIR)/uart_passthrough_bridge_tb.gtkw
+PASSTHROUGH_VVP := $(TB_BUILD_DIR)/uart_passthrough_bridge_tb.vvp
+PASSTHROUGH_VCD := src/uart_passthrough_bridge_tb.vcd
+PASSTHROUGH_GTKW := src/uart_passthrough_bridge_tb.gtkw
 
 PASSTHROUGH_IVERILOG_FLAGS := -g2012 -Wall -Wno-timescale
 
-.PHONY: bridge-compile tb-bridge bridge-view bridge-clean
-
-$(PASSTHROUGH_BUILD):
-	mkdir -p $(PASSTHROUGH_BUILD)
-
-bridge-compile: $(PASSTHROUGH_BUILD)
+bridge-compile: $(TB_BUILD_DIR)
 	@echo "Compiling passthrough testbench..."
 	@rm -f $(PASSTHROUGH_VVP)
 	$(IVERILOG) $(PASSTHROUGH_IVERILOG_FLAGS) -o $(PASSTHROUGH_VVP) \
@@ -337,7 +333,7 @@ bridge-view: $(PASSTHROUGH_VCD)
 	fi
 
 bridge-clean:
-	@rm -rf $(PASSTHROUGH_BUILD)
+	@rm -rf $(TB_BUILD_DIR)
 	@rm -f $(PASSTHROUGH_DIR)/*.vcd $(PASSTHROUGH_DIR)/*.vvp
 
 

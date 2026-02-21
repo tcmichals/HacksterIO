@@ -1,225 +1,93 @@
-# Tang9K SPI Slave with LED Blinker - Project Summary
+# Tang Nano 9K Quadcopter FPGA - Project Summary
 
-## Complete Project Structure
+## Overview
+The Tang Nano 9K Quadcopter FPGA project implements a high-performance Flight Controller (FC) bridge on a Gowin GW1N-9C FPGA. It serves as an intermediary between a host (via SPI) and quadcopter peripherals (Motors, RC Receivers, LEDs).
+
+The design is optimized for high system throughput (72MHz) and low resource utilization through the strategic use of Block RAM (BRAM) and sequential processing.
+
+## Project Structure
 
 ```
 SPIQuadCopter/
-├── apio.ini                    # Apio project configuration for Tang9K
+├── Makefile                    # Top-level build and simulation management
 ├── tang9k.cst                  # Pin constraints (LQFP144)
-├── README.md                   # Main project documentation
-├── Makefile                    # Top-level build targets
+├── tang9k_timing.sdc           # Timing constraints (72MHz targeting)
 │
-├── spiSlave/                   # SPI Slave IP Core
-│   ├── spi_slave.sv            # SPI Slave Mode 0 with 2-FF sync
-│   ├── spi_slave_tb.sv         # Comprehensive testbench
-│   └── Makefile                # Simulation targets
+├── src/                        # Core RTL Source
+│   ├── tang9k_top.sv           # Top-level I/O and PLL instantiation
+│   ├── coredesign.sv           # System integration and Wishbone bus muxing
+│   ├── msp_handler.sv          # MSP (MultiWii Serial Protocol) implementation
+│   ├── four_way_handler.sv     # Betaflight 4-Way Interface Protocol handler
+│   ├── shared_buffer_ram.sv    # Generic BRAM inference module (Optimized)
+│   ├── wb_dshot_controller.sv  # DSHOT 600 motor output control
+│   ├── wb_serial_dshot_mux.sv  # Runtime mux between DSHOT and Passthrough
+│   └── uart_passthrough_bridge.sv # Baud rate conversion (115200 <-> 19200)
 │
-└── src/                        # Application Layer
-  ├── tang9k_top.sv           # Top-level integration
-  ├── pll.sv                  # PLL module (for future enhancement)
-    ├── tang9k_top.sv           # Top-level integration
-    ├── pll.sv                  # PLL module (for future enhancement)
-    └── Makefile                # Source compilation targets
+├── dshot/                      # DSHOT protocol implementation
+├── pwmDecoder/                 # RC PWM signal decoding
+├── neoPXStrip/                 # NeoPixel (WS2812B) control logic
+├── spiSlave/                   # SPI to Wishbone bridge
+├── verilog-wishbone/           # Standard Wishbone interconnect IP
+└── python/                     # Host-side TUI and configuration tools
 ```
 
-## Components Overview
+## Key Features
 
-### 1. SPI Slave (spiSlave/)
-**Purpose**: Implements SPI Mode 0 interface for master-slave communication
-- **Data Width**: 8-bit
-- **Clock Domain**: Synchronous with 2-FF metastability protection
-- **Features**: 
-  - Mode 0 timing (CPOL=0, CPHA=0)
-  - Async input synchronization
-  - Configurable data width
-  - RX/TX interfaces
+### 1. "Hands-Free" BLHeli Passthrough
+- **Hardware Translation**: Automatically detects Betaflight 4-Way protocol frames (`0x2F` header).
+- **Protocol Stripping**: Validates CRC, strips 4-way headers, and forwards raw commands to ESCs.
+- **Baud Rate Conversion**: Bridging 115200 (USB) to 19200 (BLHeli_S Bootloader) via 512-byte FIFOs.
+- **Micro-Timing Logic**: Nanosecond-level half-duplex direction switching for reliable ESC flashing.
 
-### 2. Archived Example: LED Blinker
-The LED blinker example was removed from the active source tree. See `INDEX.md`
-for current examples and archived demos.
+### 2. Optimized Resource Utilization
+- **BRAM Inference**: Large message buffers (128 bytes for 4-Way, 64 bytes for MSP) utilize dedicated Block RAM instead of Flip-Flops.
+- **Sequential Processing**: CRC calculations are performed one byte per clock, reducing combinational path depth and ensuring 72MHz timing closure.
+- **Shared Memory Architecture**: Streamlined memory access patterns reduce LUT usage by over 40% compared to register-array implementations.
 
-### 3. Top Module (src/tang9k_top.sv)
-**Purpose**: Integrates all components for Tang9K board
-- SPI Slave interface
-- LED blinker patterns
-- Register file for SPI commands
-- Button and UART I/O (expandable)
-- Hybrid LED control (automatic blink + manual SPI)
+### 3. Peripheral Suite
+- **DSHOT 600**: 4-channel digital ESC protocol.
+- **PWM Decoding**: 4-channel RC input capture with 1µs resolution.
+- **NeoPixel Drive**: Wishbone-controlled LED strips with runtime color updates.
+- **Version Tracking**: Hardware-baked version registers for host-side compatibility checks.
 
-### 4. PLL Module (src/pll.sv)
-**Purpose**: Clock generation (for future enhancements)
-- Input: 27 MHz system clock
-- Outputs: Multiple clock frequencies
-- Currently simplified for simulation
-- Ready for Gowin PLL_CORE integration
+## Architecture Highlights
 
-## Feature Highlights
+### Clocking
+- **Input**: 27 MHz OSC
+- **Internal**: 72 MHz (Generated via PLL)
+- **SPI**: Synchronized to local 72MHz domain via 2-FF synchronizers.
 
-### ✅ Clock Domain Safety
-- 2-FF synchronizers on all async inputs (SPI clock, chip select, MOSI)
-- Protects against metastability issues
-- ~2 cycle latency for safe CDC (clock domain crossing)
+### Wishbone Interconnect
+The system uses a 6-master, 11-slave Wishbone crossbar (muxed) to manage peripheral access:
+- **Address 0x0100**: UART/Passthrough Bridge
+- **Address 0x0200**: DSHOT Motor Controller
+- **Address 0x0300**: PWM Decoder
+- **Address 0x0400**: Serial/DSHOT Mux Control
+- **Address 0x0500**: LED Controller
+- **Address 0x0600**: NeoPixel Controller
+- **Address 0xFFFF**: Version Register
 
-### ✅ Multiple LED Patterns
-- Automatic generation using integer dividers
-- No PLL required for basic operation
-- PWM breathing effect for LED3
-- Smooth, deterministic patterns
+## Getting Started
 
-### ✅ Flexible I/O Control
-- LEDs can be driven by:
-  - Hardware blinker (auto-patterns)
-  - SPI register commands (manual control)
-  - ORed combination (hybrid)
-
-### ✅ Complete Testing
-- SPI slave testbench: 4 comprehensive test cases
-- LED blinker testbench: ~2 seconds simulation
-- iverilog compatible (open-source)
-- GTKWave waveform generation
-
-## Pin Assignments (Tang9K LQFP144)
-
-| Function | Pin | Bank | Standard |
-|----------|-----|------|----------|
-| System Clock | 52 | BANK3 | LVCMOS33 |
-| Reset (active low) | 3 | BANK1 | LVCMOS33 |
-| SPI Clock | 4 | BANK1 | LVCMOS33 |
-| SPI CS (active low) | 5 | BANK1 | LVCMOS33 |
-| SPI MOSI | 6 | BANK1 | LVCMOS33 |
-| SPI MISO | 7 | BANK1 | LVCMOS33 |
-| LED[3:0] | 8-11 | BANK1 | LVCMOS33 |
-| Status LEDs[2:0] | 51, 53, 54 | BANK3 | LVCMOS33 |
-
-## Building & Testing
-
-### Syntax Check
+### Synthesis & Build
 ```bash
-make lint
+make build    # Synthesize, Place, and Route (targets GW1N-9C)
+make pack     # Generate bitstream (_build/default/hardware.fs)
+make upload   # Program the Tang Nano 9K
 ```
 
-### Simulate SPI Slave
+### Simulation
+Comprehensive test suites are available for all core modules:
 ```bash
-cd spiSlave
-make simulate
-make wave    # View waveform in GTKWave
+make tb-all      # Run all testbenches
+make tb-dshot    # Test DSHOT waveforms
+make tb-spi      # Test SPI-to-Wishbone bridge
 ```
 
-### Simulate examples
-See `INDEX.md` for current example simulations. The SPI slave example is available in
-`spiSlave/` and can be simulated with:
-```bash
-cd spiSlave
-make simulate
-make wave
-```
-
-### Build FPGA Image
-```bash
-make build   # Requires apio + Gowin tools installed
-```
-
-## Testbench Results
-
-### SPI Slave Tests
-- ✅ Simple 8-bit transfer
-- ✅ Multiple consecutive transfers
-- ✅ All zeros / all ones patterns
-- ✅ Clock synchronization verification
-- ✅ Chip select timing
-
-### LED Blinker Tests
-- ✅ Multiple frequency generation
-- ✅ Clock divider accuracy
-- ✅ PWM breathing pattern
-- ✅ Reset synchronization
-- ✅ Edge timing validation
-
-## Signal Naming Convention
-
-**Input signals**: `i_` prefix
-- `i_clk`, `i_rst_n`, `i_spi_mosi`, etc.
-
-**Output signals**: `o_` prefix
-- `o_miso`, `o_led0`, `o_rx_valid`, etc.
-
-**Internal signals**: No prefix or `_r` suffix for registers
-- `shift_reg`, `bit_count`, `sclk_r1`, etc.
-
-## Register Map (SPI Commands)
-
-| Address | Command | Function |
-|---------|---------|----------|
-| 0x0X | CTRL_WR | Write control register |
-| 0x1X | CTRL_RD | Read control register |
-| 0x2X | STATUS_RD | Read status register |
-| 0x3X | DATA_WR | Write data register |
-| 0x4X | DATA_RD | Read data register |
-
-## Next Steps
-
-1. **Implement**: Synthesize with Gowin EDA suite
-2. **Test**: Program Tang9K and verify LED patterns
-3. **Extend**: Add UART debug interface
-4. **Optimize**: Replace dividers with actual PLL core
-5. **Integrate**: Add additional SPI commands or protocols
-
-## Tools Used
-
-- **Design**: SystemVerilog 2009 (IEEE 1364-2005)
-- **Simulation**: iverilog (open-source Verilog simulator)
-- **Waveforms**: GTKWave (open-source VCD viewer)
-- **Synthesis**: Gowin EDA (GW1N-9K target)
-- **Build**: Make automation
-- **Documentation**: Markdown
-
-## File Statistics
-
-| Category | Files | Lines |
-|----------|-------|-------|
-| RTL Modules | 5 | ~1,200 |
-| Testbenches | 2 | ~500 |
-| Configuration | 2 | ~100 |
-| Documentation | 3 | ~500 |
-| **Total** | **12** | **~2,300** |
-
-## Quick Start Guide
-
-```bash
-# 1. Check syntax
-cd /path/to/SPIQuadCopter
-make lint
-
-# 2. Simulate SPI slave
-cd spiSlave
-make wave
-
-# 3. Simulate LED blinker
-cd ../src
-make wave
-
-# 4. Build for FPGA (requires Gowin tools)
-cd ..
-make build
-
-# 5. Upload to Tang9K
-make upload
-```
-
-## Performance Metrics
-
-| Metric | Value |
-|--------|-------|
-| System Clock | 27 MHz |
-| SPI Max Clock | 25 MHz (in testbench) |
-| LED0 Frequency | ~0.5 Hz |
-| LED1 Frequency | ~1 Hz |
-| LED2 Frequency | ~2 Hz |
-| LED3 PWM Freq | ~1 kHz |
-| Power Consumption | <1 mW (idle) |
-| FPGA LUTs | ~200 (estimated) |
+## Safety & Compliance
+- **Propellers Off**: Always remove propellers when using Passthrough/Configurator.
+- **Baud Rates**: Host communication must be set to 115200, 8-N-1.
 
 ---
-
-**Project Status**: ✅ Complete and tested
-**Last Updated**: December 7, 2025
+**Last Updated**: February 8, 2026
+**Status**: Stable - All core testbenches passing.

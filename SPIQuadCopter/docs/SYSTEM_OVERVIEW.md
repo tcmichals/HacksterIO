@@ -33,15 +33,13 @@
 - DSHOT150 protocol, 16-bit frame.
 
 ### Serial/DSHOT Mux (0x0400)
-- Wishbone register at 0x0400 selects operating mode **and target motor pin**:
-  - **Bit 0 (mux_sel)**: 0=Passthrough Mode, 1=DSHOT Mode  
-  - **Bit 2:1 (mux_ch)**: Motor channel (0-3) for passthrough
-  - **Examples**:
-    - Write `0x00`: Passthrough on Motor 1 (Pin 32)
-    - Write `0x02`: Passthrough on Motor 2 (Pin 33)
-    - Write `0x04`: Passthrough on Motor 3 (Pin 34)
-    - Write `0x06`: Passthrough on Motor 4 (Pin 35)
-    - Write `0x01`: DSHOT mode (normal flight)
+- Register at 0x0400 selects operating mode:
+  - **Bit 0 (mux_sel)**: Default Mode (0=Passthrough, 1=DSHOT)  
+  - **Bit 2:1 (mux_ch)**: Motor channel (0-3) for manual passthrough
+  - **Bit 3 (msp_mode)**: 1=Force MSP Discovery Mode
+  
+**Automatic Override (Recommended):**
+Modern configurators use the **4-Way Interface Protocol**. The FPGA automatically hijacks the USB UART TX line and selects the correct motor pin whenever protocol activity is detected, making manual register writes optional for discovery.
 
 ### USB UART Passthrough Bridge
 - **Hardware-only bridge** that bypasses Wishbone entirely
@@ -78,11 +76,10 @@ ESC (BLHeli Firmware)
 ```
 
 ### Passthrough Mode
-1. **Python TUI** writes to mux register (0x0400) to enable passthrough (value = 0)
-2. **Hardware bridge activates** - direct UART-to-serial forwarding in FPGA logic
-3. **BLHeli tools** connect to USB-to-TTL adapter's serial port (e.g., `/dev/ttyUSB0`)
-4. **Data flows in hardware** - no software intervention, no virtual devices
-5. **ESC configuration** happens through pure hardware passthrough at 115200 baud
+1. **Zero-Config**: The FPGA continuously monitors the USB UART for MSP discovery packets.
+2. **Automatic Hijack**: When a configurator tool (like the ESC Configurator web app) connects, the FPGA automatically switches to the MSP handler (`msp_handler.sv`).
+3. **Smart Briding**: The 4-Way Protocol handler (`four_way_handler.sv`) automatically manages command stripping, CRC validation, and 19200 baud communication with the ESC.
+4. **Hardware Performance**: Protocol handling and direction switching happen in RTL, ensuring sub-microsecond timing accuracy.
 
 ### Pin Configuration
 | Function | Pin(s) | Direction | Description |
@@ -156,12 +153,11 @@ python tang9k_tui.py
 4. Update NeoPixel status LEDs (0x0500-0x05FF)
 
 ### ESC Configuration (BLHeli)
-1. Enable passthrough mode in Python TUI
-2. Mux automatically switches to Serial mode
-3. BLHeliSuite connects to virtual serial port
+1. Open the **ESC Configurator PWA** (or desktop tool) and click "Connect".
+2. The FPGA **automatically** detects the MSP discovery handshake and identifies as "TN9K".
+3. The tool communicates via the **4-Way Interface Protocol**, and the FPGA automatically bridges to the ESC signal line (converting 115200 to 19200 baud).
 4. Configure ESC parameters, flash firmware, etc.
-5. Disable passthrough mode
-6. Mux returns to DSHOT mode for flight
+5. Once complete, the system is ready to return to DSHOT mode for flight.
 
 ### Debugging/Development
 1. Use serial console for debug output

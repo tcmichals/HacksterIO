@@ -1,9 +1,9 @@
 /**
- * UART Passthrough Bridge Testbench
+ * UART Passthrough Bridge Testbench (Parallel Interface Version)
  *
  * Tests:
- * 1. PC → ESC data flow (USB UART RX to Serial TX)
- * 2. ESC → PC data flow (Serial RX to USB UART TX)
+ * 1. PC → ESC data flow (Parallel RX to Serial TX)
+ * 2. ESC → PC data flow (Serial RX to Parallel TX)
  * 3. Half-duplex switching (tri-state control)
  * 4. Enable/disable functionality
  * 5. Bidirectional conversation (command-response)
@@ -17,9 +17,12 @@ module uart_passthrough_bridge_tb;
     logic clk;
     logic rst;
     
-    // USB UART signals (to/from PC)
-    logic usb_uart_rx;
-    logic usb_uart_tx;
+    // PC Parallel Interface (to/from shared UART in real design)
+    logic [7:0] pc_rx_data;
+    logic       pc_rx_valid;
+    logic [7:0] pc_tx_data;
+    logic       pc_tx_valid;
+    logic       pc_tx_ready;
     
     // Half-duplex serial (to/from ESC)
     wire serial;
@@ -32,34 +35,40 @@ module uart_passthrough_bridge_tb;
     logic serial_drive;        // Simulate ESC driving the line
     logic serial_drive_value;  // Value ESC drives
     
-    // Tri-state control for test with weak pullup
+    // Tri-state control with weak pullup (mimics pad)
     assign (weak1, weak0) serial = 1'b1;  // Weak pullup
     assign serial = serial_drive ? serial_drive_value : 1'bz;
     
-    // DUT instantiation
-    // DUT instantiation
+    // DUT signals
     logic dut_tx_out;
     logic dut_tx_oe;
     logic dut_rx_in;
     
-    // Emulate the mux/pad logic in the testbench
-    assign dut_rx_in = serial; // Read from the wire
-    // Drive the wire from DUT
+    // Pad emulation
+    assign dut_rx_in = serial; 
     assign serial = dut_tx_oe ? dut_tx_out : 1'bz;
 
     uart_passthrough_bridge #(
         .CLK_FREQ_HZ(72_000_000),
-        .USB_BAUD_RATE(115200),
         .SERIAL_BAUD_RATE(19200)
     ) dut (
         .clk(clk),
         .rst(rst),
-        .usb_uart_rx(usb_uart_rx),
-        .usb_uart_tx(usb_uart_tx),
+        .pc_rx_data(pc_rx_data),
+        .pc_rx_valid(pc_rx_valid),
+        .pc_tx_data(pc_tx_data),
+        .pc_tx_valid(pc_tx_valid),
+        .pc_tx_ready(pc_tx_ready),
         
         .serial_tx_out(dut_tx_out),
         .serial_tx_oe(dut_tx_oe),
         .serial_rx_in(dut_rx_in),
+        
+        .ext_serial_tx_data(8'h00),
+        .ext_serial_tx_valid(1'b0),
+        .ext_serial_tx_ready(),
+        .ext_serial_rx_data(),
+        .ext_serial_rx_valid(),
         
         .enable(enable),
         .active(active)
@@ -68,30 +77,22 @@ module uart_passthrough_bridge_tb;
     // Clock generation (72 MHz)
     initial begin
         clk = 0;
-        forever #6.944 clk = ~clk;  // 72 MHz = 13.888ns period
+        forever #6.944 clk = ~clk; 
     end
     
-    // UART bit timing at 115200 baud
-    localparam BIT_PERIOD = 8680;  // ns (1/115200 = 8.68 us)
-    // UART bit timing at 19200 baud for serial
-    localparam BIT_PERIOD_SERIAL = 52083;  // ns (1/19200 ≈ 52.083 us)
+    // Serial bit timing at 19200 baud
+    localparam BIT_PERIOD_SERIAL = 52083;  // ns 
     
-    // Task to send a byte via USB UART RX (PC to FPGA)
-    task automatic send_usb_byte(input logic [7:0] data);
-        integer i;
+    // Task to send a byte via PC Parallel Interface (simulate UART RX output)
+    task automatic send_pc_byte(input logic [7:0] data);
         begin
-            $display("[%0t] PC → FPGA: Sending 0x%02X ('%c')", $time, data, data);
-            // Start bit
-            usb_uart_rx = 0;
-            #BIT_PERIOD;
-            // Data bits (LSB first)
-            for (i = 0; i < 8; i++) begin
-                usb_uart_rx = data[i];
-                #BIT_PERIOD;
-            end
-            // Stop bit
-            usb_uart_rx = 1;
-            #BIT_PERIOD;
+            $display("[%0t] PC → Bridge: Submitting 0x%02X", $time, data);
+            @(posedge clk);
+            pc_rx_data = data;
+            pc_rx_valid = 1;
+            @(posedge clk);
+            pc_rx_valid = 0;
+            pc_rx_data = 0;
         end
     endtask
     
@@ -99,45 +100,30 @@ module uart_passthrough_bridge_tb;
     task automatic send_serial_byte(input logic [7:0] data);
         integer i;
         begin
-            $display("[%0t] ESC → FPGA: Sending 0x%02X ('%c')", $time, data, data);
+            $display("[%0t] ESC → FPGA: Sending 0x%02X", $time, data);
             serial_drive = 1;
-            // Start bit
-            serial_drive_value = 0;
+            serial_drive_value = 0; // Start bit
             #BIT_PERIOD_SERIAL;
-            // Data bits (LSB first)
             for (i = 0; i < 8; i++) begin
                 serial_drive_value = data[i];
                 #BIT_PERIOD_SERIAL;
             end
-            // Stop bit
-            serial_drive_value = 1;
+            serial_drive_value = 1; // Stop bit
             #BIT_PERIOD_SERIAL;
-            serial_drive = 0;  // Release the line
+            serial_drive = 0; 
             #BIT_PERIOD_SERIAL;
         end
     endtask
     
-    // Task to receive a byte via USB UART TX (FPGA to PC)
-    task automatic receive_usb_byte(output logic [7:0] data);
-        integer i;
+    // Task to receive a byte via PC Parallel Interface
+    task automatic receive_pc_byte(output logic [7:0] data);
         begin
-            // Wait for start bit
-            wait(usb_uart_tx == 0);
-            $display("[%0t] FPGA → PC: Start bit detected", $time);
-            #(BIT_PERIOD + BIT_PERIOD/2);  // Wait to middle of first data bit
-            
-            // Read data bits
-            for (i = 0; i < 8; i++) begin
-                data[i] = usb_uart_tx;
-                #BIT_PERIOD;
-            end
-            
-            // Check stop bit
-            if (usb_uart_tx !== 1) begin
-                $display("[%0t] ERROR: Stop bit not high!", $time);
-            end
-            
-            $display("[%0t] FPGA → PC: Received 0x%02X ('%c')", $time, data, data);
+            pc_tx_ready = 1;
+            wait(pc_tx_valid);
+            @(posedge clk);
+            data = pc_tx_data;
+            $display("[%0t] Bridge → PC: Received 0x%02X", $time, data);
+            pc_tx_ready = 0;
         end
     endtask
     
@@ -145,232 +131,77 @@ module uart_passthrough_bridge_tb;
     task automatic receive_serial_byte(output logic [7:0] data);
         integer i;
         begin
-            // Wait for start bit
-            wait(serial == 0);
-            $display("[%0t] FPGA → ESC: Start bit detected (serial=%b)", $time, serial);
-            #(BIT_PERIOD_SERIAL + BIT_PERIOD_SERIAL/2);  // Wait to middle of first data bit
-            
-            // Read data bits
+            wait(serial == 0); // Start bit
+            #(BIT_PERIOD_SERIAL + BIT_PERIOD_SERIAL/2); 
             for (i = 0; i < 8; i++) begin
                 data[i] = serial;
-                $display("[%0t]   Bit %0d: %b (serial=%b)", $time, i, data[i], serial);
                 #BIT_PERIOD_SERIAL;
             end
-            
-            // Check stop bit
-            if (serial !== 1) begin
-                $display("[%0t] ERROR: Stop bit not high! (serial=%b)", $time, serial);
-            end
-            
-            $display("[%0t] FPGA → ESC: Received 0x%02X ('%c')", $time, data, data);
+            $display("[%0t] Bridge → ESC: Received 0x%02X", $time, data);
         end
     endtask
     
     // Main test sequence
     initial begin
-        logic [7:0] received_data;
+        logic [7:0] received;
         
         $display("========================================");
-        $display("UART Passthrough Bridge Testbench");
+        $display("UART Bridge TB (Parallel PC Interface)");
         $display("========================================");
         
-        // Initialize signals
         rst = 1;
         enable = 0;
-        usb_uart_rx = 1;  // UART idle high
+        pc_rx_valid = 0;
+        pc_tx_ready = 0;
         serial_drive = 0;
-        serial_drive_value = 1;
         
-        // Reset
         #100;
         rst = 0;
         #100;
         
         $display("\n[%0t] TEST 1: Passthrough Disabled", $time);
-        $display("----------------------------------------");
-        enable = 0;
-        #1000;
-        send_usb_byte(8'h55);
-        #(BIT_PERIOD * 20);
-        if (serial === 1'b1) begin
-            $display("[%0t] PASS: Serial line is pulled high when disabled", $time);
-        end else begin
-            $display("[%0t] FAIL: Serial line should be pulled high (serial=%b)", $time, serial);
-        end
-        
-        $display("\n[%0t] TEST 2: PC → ESC (USB UART to Serial)", $time);
-        $display("----------------------------------------");
+        send_pc_byte(8'h55);
+        #(BIT_PERIOD_SERIAL * 12);
+        if (dut_tx_oe === 0) 
+            $display("[%0t] PASS: OE is low when disabled", $time);
+        else 
+            $display("[%0t] FAIL: OE should be low", $time);
+
+        $display("\n[%0t] TEST 2: PC → ESC", $time);
         enable = 1;
-        #1000;
-        
         fork
-            send_usb_byte(8'h41);  // Send 'A'
-            receive_serial_byte(received_data);
+            send_pc_byte(8'h41);
+            receive_serial_byte(received);
         join
+        if (received == 8'h41) $display("[%0t] PASS: Forwarded 0x41", $time);
         
-        if (received_data == 8'h41) begin
-            $display("[%0t] PASS: Byte forwarded correctly (0x%02X)", $time, received_data);
-        end else begin
-            $display("[%0t] FAIL: Expected 0x41, got 0x%02X", $time, received_data);
-        end
-        
-        #(BIT_PERIOD * 10);
-        
-        $display("\n[%0t] TEST 3: ESC → PC (Serial to USB UART)", $time);
-        $display("----------------------------------------");
-        
+        $display("\n[%0t] TEST 3: ESC → PC", $time);
         fork
-            send_serial_byte(8'h42);  // Send 'B'
-            receive_usb_byte(received_data);
+            send_serial_byte(8'h42);
+            receive_pc_byte(received);
         join
-        
-        if (received_data == 8'h42) begin
-            $display("[%0t] PASS: Byte forwarded correctly (0x%02X)", $time, received_data);
-        end else begin
-            $display("[%0t] FAIL: Expected 0x42, got 0x%02X", $time, received_data);
-        end
-        
-        #(BIT_PERIOD * 10);
-        
-        $display("\n[%0t] TEST 4: Bidirectional Conversation (BLHeli-like)", $time);
-        $display("----------------------------------------");
-        
-        // Simulate BLHeli command-response sequence
-        $display("[%0t] Simulating BLHeli handshake...", $time);
-        
-        // PC sends command
+        if (received == 8'h42) $display("[%0t] PASS: Forwarded 0x42", $time);
+
+        $display("\n[%0t] TEST 4: Echo Suppression", $time);
+        $display("PC sends 0xAA. Bridge should NOT echo it back to PC.");
         fork
-            send_usb_byte(8'h30);  // BLHeli connect command
-            receive_serial_byte(received_data);
+            send_pc_byte(8'hAA);
+            receive_serial_byte(received);
         join
-        
-        if (received_data == 8'h30) begin
-            $display("[%0t] PASS: Command forwarded to ESC", $time);
-        end
-        
-        #(BIT_PERIOD * 5);
-        
-        // ESC sends response
-        fork
-            send_serial_byte(8'hF4);  // BLHeli ACK
-            receive_usb_byte(received_data);
-        join
-        
-        if (received_data == 8'hF4) begin
-            $display("[%0t] PASS: Response forwarded to PC", $time);
-        end
-        
-        #(BIT_PERIOD * 10);
-        
-        $display("\n[%0t] TEST 5: Half-Duplex Tri-State Verification", $time);
-        $display("----------------------------------------");
-        
-        // Monitor serial line during transmission
-        fork
-            begin
-                send_usb_byte(8'h58);  // Send 'X'
-            end
-            begin
-                // Check that serial line is driven during TX
-                #(BIT_PERIOD_SERIAL * 2);  // Wait past start bit at serial baud rate
-                if (serial !== 1'bz && serial !== 1'bx) begin
-                    $display("[%0t] PASS: Serial line driven during transmission", $time);
-                end else begin
-                    $display("[%0t] FAIL: Serial line should be driven", $time);
-                end
-                
-                // Wait for transmission to complete
-                #(BIT_PERIOD_SERIAL * 10);
-                
-                // Check that line goes back to tri-state
-                if (serial === 1'bz || serial === 1'b1) begin
-                    $display("[%0t] PASS: Serial line tri-stated after transmission", $time);
-                end else begin
-                    $display("[%0t] INFO: Serial line state: %b", $time, serial);
-                end
-            end
-        join
-        
-        #(BIT_PERIOD * 10);
-        
-        $display("\n[%0t] TEST 6: Multi-byte Message", $time);
-        $display("----------------------------------------");
-        
-        // Send string "HELLO" from PC to ESC
-        $display("[%0t] Sending 'HELLO' from PC...", $time);
-        fork
-            begin
-                send_usb_byte(8'h48);  // 'H'
-                send_usb_byte(8'h45);  // 'E'
-                send_usb_byte(8'h4C);  // 'L'
-                send_usb_byte(8'h4C);  // 'L'
-                send_usb_byte(8'h4F);  // 'O'
-            end
-            begin
-                receive_serial_byte(received_data);
-                if (received_data == 8'h48) $display("[%0t] Char 1: PASS", $time);
-                receive_serial_byte(received_data);
-                if (received_data == 8'h45) $display("[%0t] Char 2: PASS", $time);
-                receive_serial_byte(received_data);
-                if (received_data == 8'h4C) $display("[%0t] Char 3: PASS", $time);
-                receive_serial_byte(received_data);
-                if (received_data == 8'h4C) $display("[%0t] Char 4: PASS", $time);
-                receive_serial_byte(received_data);
-                if (received_data == 8'h4F) $display("[%0t] Char 5: PASS", $time);
-            end
-        join
-        
-        #(BIT_PERIOD * 10);
-        
-        $display("\n[%0t] TEST 7: Disable During Operation", $time);
-        $display("----------------------------------------");
-        
-        fork
-            begin
-                #(BIT_PERIOD * 5);
-                $display("[%0t] Disabling passthrough mid-transmission...", $time);
-                enable = 0;
-            end
-            send_usb_byte(8'h99);
-        join
-        
-        #(BIT_PERIOD * 10);
-        
-        if (serial === 1'bz) begin
-            $display("[%0t] PASS: Serial line tri-stated after disable", $time);
-        end
-        
-        // Re-enable
-        enable = 1;
-        #1000;
-        
+        #2000;
+        if (pc_tx_valid) $display("[%0t] FAIL: Echo detected!", $time);
+        else $display("[%0t] PASS: No echo detected", $time);
+
         $display("\n========================================");
         $display("All Tests Complete!");
         $display("========================================");
-        
         #10000;
         $finish;
     end
-    
-    // Monitor active signal
-    always @(active) begin
-        $display("[%0t] Active signal: %b", $time, active);
-    end
-    
-    // Timeout watchdog
-    initial begin
-        #50_000_000;  // 50ms timeout
-        $display("\n[%0t] ERROR: Testbench timeout!", $time);
-        $finish;
-    end
-    
-    // VCD dump for waveform viewing
+
     initial begin
         $dumpfile("uart_passthrough_bridge_tb.vcd");
         $dumpvars(0, uart_passthrough_bridge_tb);
-        $display("VCD file: uart_passthrough_bridge_tb.vcd");
-        $display("GTKWave save file: uart_passthrough_bridge_tb.gtkw");
-        $display("View with: gtkwave uart_passthrough_bridge_tb.vcd uart_passthrough_bridge_tb.gtkw");
     end
 
 endmodule

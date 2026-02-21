@@ -26,6 +26,7 @@ class App:
         self.last_pwm_read = 0
         self.pwm_inputs = [0]*6
         self.led_state = 0
+        self.msp_log = ["MSP Log Ready"]
         
         # Setup curses
         curses.curs_set(0) # Hide cursor
@@ -93,6 +94,7 @@ class App:
             'NEO':    self._handle_neo_input,
             'LED':    self._handle_led_input,
             'SERIAL': self._handle_serial_input,
+            'MSP':    self._handle_msp_input,
             'ERROR':  self._handle_error_input
         }
         
@@ -111,7 +113,69 @@ class App:
                 pass
         elif c == ord('4'): self.mode = 'LED'
         elif c == ord('5'): self.mode = 'SERIAL'
+        elif c == ord('6'): self.mode = 'MSP'
         elif c == ord('q'): exit(0)
+
+    def _handle_msp_input(self, c):
+        if c == ord('b') or c == ord('q'): self.mode = 'MENU'
+        elif c == ord('1'): self.send_msp_command(100)
+        elif c == ord('2'): self.send_msp_command(245, [0, 0])
+
+    def send_msp_command(self, cmd_id, payload=None):
+        if payload is None: payload = []
+        size = len(payload)
+        checksum = 0
+        # Header $M<
+        packet = bytearray([ord('$'), ord('M'), ord('<')])
+        packet.append(size); checksum ^= size
+        packet.append(cmd_id); checksum ^= cmd_id
+        for b in payload:
+            packet.append(b); checksum ^= b
+        packet.append(checksum)
+        
+        # Write
+        try:
+            # Check TX ready
+            for b in packet:
+                # Wait for TX ready (bit 5 of LSR 0x10C)
+                # Timeout safety in loop
+                for _ in range(100):
+                    lsr = self.driver.read(0x10C, 1)[0]
+                    if (lsr & 0x20): break
+                    time.sleep(0.001)
+                self.driver.write(0x100, bytes([b]))
+                
+            self.msp_log.append(f"TX: CMD {cmd_id} ({packet.hex()})")
+            if(len(self.msp_log) > 10): self.msp_log.pop(0)
+            
+            self.check_msp_response()
+        except Exception as e:
+            self.msp_log.append(f"Err: {str(e)}")
+
+    def check_msp_response(self):
+        # Poll for response
+        rx_bytes = bytearray()
+        start = time.time()
+        while (time.time() - start) < 0.2: # 200ms timeout
+            try:
+                lsr = self.driver.read(0x10C, 1)[0]
+                if (lsr & 0x01): # RX Ready
+                    val = self.driver.read(0x100, 1)[0]
+                    rx_bytes.append(val)
+                else:
+                    if len(rx_bytes) > 0:
+                        # If we have started receiving, and line is idle, assumes done?
+                        # MSP packets are contiguous. 
+                        # Continue polling briefly to ensure full packet.
+                        time.sleep(0.005) 
+                        continue
+                    time.sleep(0.01)
+            except:
+                break
+        
+        if rx_bytes:
+            self.msp_log.append(f"RX: {rx_bytes.hex()}")
+            if(len(self.msp_log) > 10): self.msp_log.pop(0)
 
     def _handle_pwm_input(self, c):
         if c == ord('b'): self.mode = 'MENU'
@@ -218,6 +282,7 @@ class App:
         elif self.mode == 'NEO': self.draw_neo(2)
         elif self.mode == 'LED': self.draw_led(2)
         elif self.mode == 'SERIAL': self.draw_serial(2)
+        elif self.mode == 'MSP': self.draw_msp(2)
 
         # ASCII horizontal line instead of curses.ACS_HLINE
         self.stdscr.addstr(main_h, 0, "-" * (w-1))
@@ -238,7 +303,7 @@ class App:
         
         self.stdscr.addstr(y, 2, status_safe, curses.A_REVERSE)
         
-        if self.mode == 'MENU': cmds = "Global: [q] Quit | Select Option [1-5]"
+        if self.mode == 'MENU': cmds = "Global: [q] Quit | Select Option [1-6]"
         else: cmds = "Global: [0/b/q] Back to Menu"
         self.stdscr.addstr(y+1, 2, cmds)
         
@@ -247,12 +312,20 @@ class App:
         elif self.mode == 'NEO': help_msg = "Arrows: Nav | PgUp/Dn: Val +/- | [c] Clear All | Space: Update"
         elif self.mode == 'LED': help_msg = "Press [1-5] to toggle LEDs"
         elif self.mode == 'SERIAL': help_msg = "[m] Mode Toggle | [1-4] Select Motor"
+        elif self.mode == 'MSP': help_msg = "[1] Ident [2] Passthrough"
             
         if help_msg: self.stdscr.addstr(y+2, 2, help_msg, curses.A_BOLD)
 
     def draw_menu(self, start_y):
-        opts = ["Select an option:", "", "[1] PWM Monitor", "[2] DSHOT Control", "[3] NeoPixel Control", "[4] LED Control", "[5] Serial Bypass", "[q] Quit"]
+        opts = ["Select an option:", "", "[1] PWM Monitor", "[2] DSHOT Control", "[3] NeoPixel Control", "[4] LED Control", "[5] Serial Bypass", "[6] MSP Test", "[q] Quit"]
         for i, opt in enumerate(opts): self.stdscr.addstr(start_y+1+i, 4, opt)
+
+    def draw_msp(self, start_y):
+        self.stdscr.addstr(start_y, 2, "MSP PROTOCOL TESTER", curses.A_UNDERLINE)
+        self.stdscr.addstr(start_y+2, 2, "Options: [1] Send Ident  [2] Trigger Passthrough")
+        self.stdscr.addstr(start_y+4, 2, "Log:")
+        for i, msg in enumerate(self.msp_log):
+             self.stdscr.addstr(start_y+5+i, 4, msg)
 
     def draw_led(self, start_y):
         self.stdscr.addstr(start_y, 2, "ON-BOARD LED CONTROL", curses.A_UNDERLINE)

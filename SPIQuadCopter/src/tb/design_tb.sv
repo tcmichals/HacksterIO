@@ -216,8 +216,9 @@ module design_tb();
         // --- Test 6: NeoPixel Controller ---
         if (!any_test_plusarg || $test$plusargs("TEST_NEOPIXEL")) begin
             if (tb_verbose) $display("\n[TEST 6] NeoPixel Controller (Address 0x0500)");
-            // Write 0x00AABBCC to Pixel 0
-            spi_wb_transaction(0, 32'h0500, 32'h00AABBCC, tmp32); 
+            // Write 0xAABBCC00 to Pixel 0
+            // Note: sendPx starts from bit 31 and sends 24 bits, so we must left-align.
+            spi_wb_transaction(0, 32'h0500, 32'hAABBCC00, tmp32); 
             
             // Trigger Update (Write to offset 0x20)
             // Use fork/join to start monitor BEFORE the pulse could possibly be missed
@@ -231,8 +232,7 @@ module design_tb();
             join
             
             // Expected: 0xAABBCC (24 bits)
-            // Note: sendPx now sends 24 bits (MSB first).
-            if (pixel_data == 32'h00AABBCC) 
+            if (pixel_data[23:0] == 24'hAABBCC) 
                 $display("TEST NEOPIXEL: PASS (0x%06x)", pixel_data[23:0]);
             else 
                 $display("TEST NEOPIXEL: FAIL (0x%06x)", pixel_data[23:0]);

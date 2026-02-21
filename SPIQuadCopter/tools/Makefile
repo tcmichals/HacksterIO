@@ -1,5 +1,5 @@
 # tools/Makefile - simulation / testbench targets (optionally included from top-level Makefile)
-# This file contains the `tb-design` and `tb-passthrough` targets.
+# This file contains the `tb-design` and `tb-version` targets.
 
 # Use SRCS from the including Makefile if present; fall back to empty list so standalone usage doesn't fail.
 ifeq ($(origin SRCS), undefined)
@@ -12,17 +12,16 @@ endif
 
 # Note: testbenches accept simulator plusargs via VVP_ARGS (see examples below)
 
-.PHONY: tb-design tb-passthrough tools-help
+.PHONY: tb-design tb-version tools-help
 
 tools-help:
 	@echo "Testbench targets (from tools/Makefile):"
 	@echo "  make tb-design       - Compile & run src/tb/design_tb.sv via iverilog (uses SRCS if set)"
-	@echo "  make tb-passthrough  - Compile & run src/tb/tang9k_top_tb.sv via iverilog (uses SRCS if set)"
+	@echo "  make tb-version      - Compile & run version/wb_version_tb.sv via iverilog"
 	@echo ""
 	@echo "Usage examples:"
 	@echo "  make tb-design VVP_ARGS=\"+TEST_VERSION\"  # run only the Version test"
 	@echo "  make tb-design VVP_ARGS=\"+TEST_VERSION +VERBOSE\"  # add TB verbose logging"
-	@echo "  make tb-passthrough VVP_ARGS=\"+HELP\"  # pass arbitrary plusargs to the simulation"
 
 	@echo ""
 	@echo "Pass plusargs to the simulator using VVP_ARGS. Example:"
@@ -41,12 +40,15 @@ tools-help:
 
 tb-design:
 	@echo "Running design testbench (src/tb/design_tb.sv)"
-	@rm -f /tmp/tb_design.vvp
-	$(IVERILOG) -g2009 -o /tmp/tb_design.vvp src/tb/design_tb.sv $(SRCS)
-	$(VVP) /tmp/tb_design.vvp $(VVP_ARGS)
+	@mkdir -p build
+	@rm -f build/tb_design.vvp
+	$(IVERILOG) -g2009 -o build/tb_design.vvp src/tb/design_tb.sv $(SRCS)
+	$(VVP) build/tb_design.vvp $(VVP_ARGS)
 
-tb-passthrough:
-	@echo "Running passthrough testbench (src/tb/tang9k_top_tb.sv)"
-	@rm -f /tmp/tb_passthrough.vvp
-	$(IVERILOG) -g2009 -o /tmp/tb_passthrough.vvp src/tb/tang9k_top_tb.sv $(SRCS)
-	$(VVP) /tmp/tb_passthrough.vvp $(VVP_ARGS)
+
+tb-version:
+	@echo "Running version testbench (version/wb_version_tb.sv)"
+	@mkdir -p build
+	@rm -f build/tb_version.vvp
+	$(IVERILOG) -g2009 -o build/tb_version.vvp version/wb_version_tb.sv version/wb_version.sv
+	$(VVP) build/tb_version.vvp $(VVP_ARGS)

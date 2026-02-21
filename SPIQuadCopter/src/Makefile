@@ -9,7 +9,7 @@ TB_FILES =
 VVP_FILE = pll.vvp
 VCD_FILE = pll.vcd
 
-IVERILOG_FLAGS = -g2009 -o $(VVP_FILE)
+IVERILOG_FLAGS = -g2012 -o $(VVP_FILE)
 
 .PHONY: all compile simulate wave view clean help
 

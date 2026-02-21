@@ -16,8 +16,8 @@
  *   0x0500-0x05FF: NeoPixel Controller
  *
  * BLHeli Passthrough Mode (mux_sel=0):
- *   PC/BLHeliSuite → USB UART (pins 19-20) → Hardware Bridge → Serial (pin 25) → ESC
- *   No software intervention needed - pure hardware passthrough at 115200 baud.
+ *   PC/BLHeliSuite → USB UART (USB_BAUD_RATE) → Hardware Bridge → Serial (SERIAL_BAUD_RATE) → ESC
+ *   No software intervention needed - pure hardware passthrough with baud rate conversion.
  *
  * DSHOT Mode (mux_sel=1):
  *   DSHOT controller drives motors, passthrough bridge disabled.
@@ -26,7 +26,9 @@
  */
 /* the clock is 72 Mhz */
 module coredesign #(
-    parameter CLK_FREQ_HZ = 72_000_000
+    parameter CLK_FREQ_HZ = 72_000_000,
+    parameter USB_BAUD_RATE = 115200,
+    parameter SERIAL_BAUD_RATE = 19200
 ) (
     // System Clock and Reset
     input  logic  i_sys_clk,
@@ -78,7 +80,8 @@ module coredesign #(
 
 
 assign o_debug_0 = o_usb_uart_tx;
-assign o_debug_1 = o_usb_uart_rx;
+assign o_debug_1 = i_usb_uart_rx;
+assign o_debug_2 = msp_active;
     // System reset driven from external PLL lock
     logic sys_rst;
 
@@ -171,7 +174,7 @@ assign o_debug_1 = o_usb_uart_rx;
     assign axis_master_rst = sys_rst | (spi_cs_n_synced); // & ~axis_master_busy);
 
     axis_wb_master #(
-        .IMPLICIT_FRAMING (1),              // Use implicit framing - detect command bytes
+        .IMPLICIT_FRAMING (0),              // Use explicit framing with tlast
         .COUNT_SIZE       (16),
         .AXIS_DATA_WIDTH  (8),
         .WB_DATA_WIDTH    (32),
@@ -224,10 +227,8 @@ assign o_debug_1 = o_usb_uart_rx;
     // Wishbone signals for each peripheral
     logic [31:0] wb_neopx_dat_s2m;
     logic        wb_neopx_ack;
-    logic        wb_neopx_stall;
     logic [31:0] wb_led_dat_s2m;
     logic        wb_led_ack;
-    logic        wb_led_stall;
 
     logic [31:0] wb_pwm_dat_s2m;
     logic        wb_pwm_ack;
@@ -246,24 +247,29 @@ assign o_debug_1 = o_usb_uart_rx;
     logic        wb_mux_ack;
     logic        wb_mux_stall;
     logic        mux_sel; // 0: Serial Passthrough Mode, 1: DSHOT Mode
+    logic        msp_mode_enable; // 0: Passthrough mode, 1: MSP FC protocol mode
     
-    // Use generated Wishbone multiplexer (6 slaves)
-    // slaves: 0=LED, 1=PWM, 2=DSHOT, 3=Serial/DSHOT Mux, 4=NeoPixel, 5=Version
+    // UART Wrapper signals (New)
+    logic [31:0] wb_uart_dat_s2m;
+    logic        wb_uart_ack;
+    
+    // Use generated Wishbone multiplexer (7 slaves)
+    // slaves: 0=LED, 1=UART, 2=PWM, 3=DSHOT, 4=Mux, 5=NeoPixel, 6=Version
 
-    // Mux-to-slave wires (outputs from mux to each slave)
-    logic [31:0] wbs0_adr_o, wbs1_adr_o, wbs2_adr_o, wbs3_adr_o, wbs4_adr_o, wbs5_adr_o;
-    logic [31:0] wbs0_dat_o, wbs1_dat_o, wbs2_dat_o, wbs3_dat_o, wbs4_dat_o, wbs5_dat_o;
-    logic        wbs0_we_o,  wbs1_we_o,  wbs2_we_o,  wbs3_we_o,  wbs4_we_o,  wbs5_we_o;
-    logic [3:0]  wbs0_sel_o, wbs1_sel_o, wbs2_sel_o, wbs3_sel_o, wbs4_sel_o, wbs5_sel_o;
-    logic        wbs0_stb_o, wbs1_stb_o, wbs2_stb_o, wbs3_stb_o, wbs4_stb_o, wbs5_stb_o;
-    logic        wbs0_cyc_o, wbs1_cyc_o, wbs2_cyc_o, wbs3_cyc_o, wbs4_cyc_o, wbs5_cyc_o;
+    // Mux-to-slave wires
+    logic [31:0] wbs0_adr_o, wbs1_adr_o, wbs2_adr_o, wbs3_adr_o, wbs4_adr_o, wbs5_adr_o, wbs6_adr_o;
+    logic [31:0] wbs0_dat_o, wbs1_dat_o, wbs2_dat_o, wbs3_dat_o, wbs4_dat_o, wbs5_dat_o, wbs6_dat_o;
+    logic        wbs0_we_o,  wbs1_we_o,  wbs2_we_o,  wbs3_we_o,  wbs4_we_o,  wbs5_we_o,  wbs6_we_o;
+    logic [3:0]  wbs0_sel_o, wbs1_sel_o, wbs2_sel_o, wbs3_sel_o, wbs4_sel_o, wbs5_sel_o, wbs6_sel_o;
+    logic        wbs0_stb_o, wbs1_stb_o, wbs2_stb_o, wbs3_stb_o, wbs4_stb_o, wbs5_stb_o, wbs6_stb_o;
+    logic        wbs0_cyc_o, wbs1_cyc_o, wbs2_cyc_o, wbs3_cyc_o, wbs4_cyc_o, wbs5_cyc_o, wbs6_cyc_o;
 
     // Master-side response from mux
     logic [31:0] wb_m_dat_s2m;
     logic        wb_m_ack;
 
     // Instantiate generated mux
-    wb_mux_6 u_wb_mux_6 (
+    wb_mux_7 u_wb_mux_7 (
         .clk           (i_sys_clk),
         .rst           (sys_rst),
         .wbm_adr_i     (wb_adr),
@@ -277,7 +283,7 @@ assign o_debug_1 = o_usb_uart_rx;
         .wbm_rty_o     (),
         .wbm_cyc_i     (wb_cyc),
 
-        // slave 0 (LED)
+        // slave 0 (LED) Address 0x000000XX
         .wbs0_adr_o    (wbs0_adr_o),
         .wbs0_dat_i    (wb_led_dat_s2m),
         .wbs0_dat_o    (wbs0_dat_o),
@@ -291,88 +297,102 @@ assign o_debug_1 = o_usb_uart_rx;
         .wbs0_addr     (32'h00000000),
         .wbs0_addr_msk (32'hffffff00),
 
-        // slave 1 (PWM)
+        // slave 1 (UART Wrapper) Address 0x000001XX
         .wbs1_adr_o    (wbs1_adr_o),
-        .wbs1_dat_i    (wb_pwm_dat_s2m),
+        .wbs1_dat_i    (wb_uart_dat_s2m),
         .wbs1_dat_o    (wbs1_dat_o),
         .wbs1_we_o     (wbs1_we_o),
         .wbs1_sel_o    (wbs1_sel_o),
         .wbs1_stb_o    (wbs1_stb_o),
-        .wbs1_ack_i    (wb_pwm_ack),
+        .wbs1_ack_i    (wb_uart_ack),
         .wbs1_err_i    (1'b0),
         .wbs1_rty_i    (1'b0),
         .wbs1_cyc_o    (wbs1_cyc_o),
-        .wbs1_addr     (32'h00000200),
+        .wbs1_addr     (32'h00000100),
         .wbs1_addr_msk (32'hffffff00),
         
-        // slave 2 (DSHOT)
+        // slave 2 (PWM) Address 0x000002XX
         .wbs2_adr_o    (wbs2_adr_o),
-        .wbs2_dat_i    (wb_dshot_dat_s2m),
+        .wbs2_dat_i    (wb_pwm_dat_s2m),
         .wbs2_dat_o    (wbs2_dat_o),
         .wbs2_we_o     (wbs2_we_o),
         .wbs2_sel_o    (wbs2_sel_o),
         .wbs2_stb_o    (wbs2_stb_o),
-        .wbs2_ack_i    (wb_dshot_ack),
+        .wbs2_ack_i    (wb_pwm_ack),
         .wbs2_err_i    (1'b0),
         .wbs2_rty_i    (1'b0),
         .wbs2_cyc_o    (wbs2_cyc_o),
-        .wbs2_addr     (32'h00000300),
+        .wbs2_addr     (32'h00000200),
         .wbs2_addr_msk (32'hffffff00),
 
-        // slave 3 (MUX REG)
+        // slave 3 (DSHOT) Address 0x000003XX
         .wbs3_adr_o    (wbs3_adr_o),
-        .wbs3_dat_i    (wb_mux_dat_s2m),
+        .wbs3_dat_i    (wb_dshot_dat_s2m),
         .wbs3_dat_o    (wbs3_dat_o),
         .wbs3_we_o     (wbs3_we_o),
         .wbs3_sel_o    (wbs3_sel_o),
         .wbs3_stb_o    (wbs3_stb_o),
-        .wbs3_ack_i    (wb_mux_ack),
+        .wbs3_ack_i    (wb_dshot_ack),
         .wbs3_err_i    (1'b0),
         .wbs3_rty_i    (1'b0),
         .wbs3_cyc_o    (wbs3_cyc_o),
-        .wbs3_addr     (32'h00000400),
+        .wbs3_addr     (32'h00000300),
         .wbs3_addr_msk (32'hffffff00),
 
-        // slave 4 (NeoPixel)
+        // slave 4 (MUX REG) Address 0x000004XX
         .wbs4_adr_o    (wbs4_adr_o),
-        .wbs4_dat_i    (wb_neopx_dat_s2m),
+        .wbs4_dat_i    (wb_mux_dat_s2m),
         .wbs4_dat_o    (wbs4_dat_o),
         .wbs4_we_o     (wbs4_we_o),
         .wbs4_sel_o    (wbs4_sel_o),
         .wbs4_stb_o    (wbs4_stb_o),
-        .wbs4_ack_i    (wb_neopx_ack),
+        .wbs4_ack_i    (wb_mux_ack),
         .wbs4_err_i    (1'b0),
         .wbs4_rty_i    (1'b0),
         .wbs4_cyc_o    (wbs4_cyc_o),
-        .wbs4_addr     (32'h00000500),
+        .wbs4_addr     (32'h00000400),
         .wbs4_addr_msk (32'hffffff00),
-        
-        // slave 5 (Version)
+
+        // slave 5 (NeoPixel) Address 0x000005XX
         .wbs5_adr_o    (wbs5_adr_o),
-        .wbs5_dat_i    (wb_ver_dat_s2m),
-        .wbs5_dat_o    (wbs5_dat_o), // open
+        .wbs5_dat_i    (wb_neopx_dat_s2m),
+        .wbs5_dat_o    (wbs5_dat_o),
         .wbs5_we_o     (wbs5_we_o),
         .wbs5_sel_o    (wbs5_sel_o),
         .wbs5_stb_o    (wbs5_stb_o),
-        .wbs5_ack_i    (wb_ver_ack),
+        .wbs5_ack_i    (wb_neopx_ack),
         .wbs5_err_i    (1'b0),
         .wbs5_rty_i    (1'b0),
         .wbs5_cyc_o    (wbs5_cyc_o),
-        .wbs5_addr     (32'h00000600),
-        .wbs5_addr_msk (32'hffffff00)
+        .wbs5_addr     (32'h00000500),
+        .wbs5_addr_msk (32'hffffff00),
+        
+        // slave 6 (Version) Address 0x000006XX
+        .wbs6_adr_o    (wbs6_adr_o),
+        .wbs6_dat_i    (wb_ver_dat_s2m),
+        .wbs6_dat_o    (wbs6_dat_o),
+        .wbs6_we_o     (wbs6_we_o),
+        .wbs6_sel_o    (wbs6_sel_o),
+        .wbs6_stb_o    (wbs6_stb_o),
+        .wbs6_ack_i    (wb_ver_ack),
+        .wbs6_err_i    (1'b0),
+        .wbs6_rty_i    (1'b0),
+        .wbs6_cyc_o    (wbs6_cyc_o),
+        .wbs6_addr     (32'h00000600),
+        .wbs6_addr_msk (32'hffffff00)
     );
 
     // Version Module Instance
     wb_version u_wb_version (
         .i_clk(i_sys_clk),
         .i_rst(sys_rst),
-        .wb_adr_i(wbs5_adr_o),
-        .wb_dat_i(wbs5_dat_o),
+        .wb_adr_i(wbs6_adr_o),
+        .wb_dat_i(wbs6_dat_o),
         .wb_dat_o(wb_ver_dat_s2m),
-        .wb_we_i(wbs5_we_o),
-        .wb_stb_i(wbs5_stb_o),
+        .wb_we_i(wbs6_we_o),
+        .wb_stb_i(wbs6_stb_o),
         .wb_ack_o(wb_ver_ack),
-        .wb_cyc_i(wbs5_cyc_o)
+        .wb_cyc_i(wbs6_cyc_o)
     );
 
 
@@ -383,14 +403,7 @@ assign o_debug_1 = o_usb_uart_rx;
     // Debug: trace wishbone master transactions and mux selection
     always_ff @(posedge i_sys_clk) begin
         if (wb_stb && wb_cyc) begin
-            $display("WB_MASTER: adr=%08x dat=%08x we=%b sel=%b stb=%b cyc=%b", wb_adr, wb_dat_m2s, wb_we, wb_sel, wb_stb, wb_cyc);
-            if (wbs0_stb_o) $display("  MUX->SLAVE0 (LED): adr=%08x dat=%08x we=%b sel=%b stb=%b cyc=%b ack=%b", wbs0_adr_o, wbs0_dat_o, wbs0_we_o, wbs0_sel_o, wbs0_stb_o, wbs0_cyc_o, wb_led_ack);
-            if (wbs1_stb_o) $display("  MUX->SLAVE1 (PWM): adr=%08x dat=%08x we=%b sel=%b stb=%b cyc=%b ack=%b", wbs1_adr_o, wbs1_dat_o, wbs1_we_o, wbs1_sel_o, wbs1_stb_o, wbs1_cyc_o, wb_pwm_ack);
-            if (wbs2_stb_o) $display("  MUX->SLAVE2 (DSHOT): adr=%08x dat=%08x we=%b sel=%b stb=%b cyc=%b ack=%b", wbs2_adr_o, wbs2_dat_o, wbs2_we_o, wbs2_sel_o, wbs2_stb_o, wbs2_cyc_o, wb_dshot_ack);
-            if (wbs3_stb_o) $display("  MUX->SLAVE3 (MUXREG): adr=%08x dat=%08x we=%b sel=%b stb=%b cyc=%b ack=%b", wbs3_adr_o, wbs3_dat_o, wbs3_we_o, wbs3_sel_o, wbs3_stb_o, wbs3_cyc_o, wb_mux_ack);
-            if (wbs4_stb_o) $display("  MUX->SLAVE4 (NEOPX): adr=%08x dat=%08x we=%b sel=%b stb=%b cyc=%b ack=%b", wbs4_adr_o, wbs4_dat_o, wbs4_we_o, wbs4_sel_o, wbs4_stb_o, wbs4_cyc_o, wb_neopx_ack);
-            if (wbs5_stb_o) $display("  MUX->SLAVE5 (VER):   adr=%08x dat=%08x we=%b sel=%b stb=%b cyc=%b ack=%b rdat=%08x", wbs5_adr_o, wbs5_dat_o, wbs5_we_o, wbs5_sel_o, wbs5_stb_o, wbs5_cyc_o, wb_ver_ack, wb_ver_dat_s2m);
-            if (wbs1_stb_o) $display("  MUX->SLAVE1 (PWM):   adr=%08x dat=%08x we=%b sel=%b stb=%b cyc=%b ack=%b rdat=%08x", wbs1_adr_o, wbs1_dat_o, wbs1_we_o, wbs1_sel_o, wbs1_stb_o, wbs1_cyc_o, wb_pwm_ack, wb_pwm_dat_s2m);
+           // $display("WB_MASTER: adr=%08x dat=%08x we=%b sel=%b stb=%b cyc=%b", wb_adr, wb_dat_m2s, wb_we, wb_sel, wb_stb, wb_cyc);
         end
     end
 
@@ -400,16 +413,16 @@ assign o_debug_1 = o_usb_uart_rx;
     ) u_wb_neopx (
         .i_clk      (i_sys_clk),
         .i_rst      (sys_rst),
-        .wb_adr_i   (wbs4_adr_o),
-        .wb_dat_i   (wbs4_dat_o),
+        .wb_adr_i   (wbs5_adr_o),
+        .wb_dat_i   (wbs5_dat_o),
         .wb_dat_o   (wb_neopx_dat_s2m),
-        .wb_we_i    (wbs4_we_o),
-        .wb_sel_i   (wbs4_sel_o),
-        .wb_stb_i   (wbs4_stb_o),
+        .wb_we_i    (wbs5_we_o),
+        .wb_sel_i   (wbs5_sel_o),
+        .wb_stb_i   (wbs5_stb_o),
         .wb_ack_o   (wb_neopx_ack),
         .wb_err_o   (),
         .wb_rty_o   (),
-        .wb_cyc_i   (wbs4_cyc_o),
+        .wb_cyc_i   (wbs5_cyc_o),
         .o_serial(o_neopixel)
 
     );
@@ -446,27 +459,78 @@ assign o_debug_1 = o_usb_uart_rx;
     logic serial_tx_oe;
     logic serial_rx_in;
     
+    // External Serial Interface Signals (from Wishbone UART Wrapper)
+    logic [7:0] ext_serial_tx_data;
+    logic       ext_serial_tx_valid;
+    logic       ext_serial_tx_ready;
+    logic [7:0] ext_serial_rx_data;
+    logic       ext_serial_rx_valid;
+
+    // Shared PC bus signals
+    logic [7:0] pc_rx_data;
+    logic       pc_rx_valid;
+    logic [7:0] pc_tx_data;
+    logic       pc_tx_valid;
+    logic       pc_tx_ready;
+
+    // Handler Activity Status
+    logic       msp_active;
+    logic       fw_active;
+    logic       br_active;
+
     // =============================
-    // Serial/DSHOT Mux Register (Wishbone) - slave 3 on mux
+    // UART Wrapper (Wishbone) - slave 1 on mux
+    // =============================
+    wb_uart_wrapper #(
+        .CLK_FREQ_HZ(CLK_FREQ_HZ),
+        .FIFO_DEPTH(64)
+    ) u_wb_uart (
+        .clk        (i_sys_clk),
+        .rst        (sys_rst),
+        .wb_adr_i   (wbs1_adr_o),
+        .wb_dat_i   (wbs1_dat_o),
+        .wb_dat_o   (wb_uart_dat_s2m),
+        .wb_we_i    (wbs1_we_o),
+        .wb_stb_i   (wbs1_stb_o),
+        .wb_cyc_i   (wbs1_cyc_o),
+        .wb_sel_i   (wbs1_sel_o),
+        .wb_ack_o   (wb_uart_ack),
+        
+        .ext_tx_data  (ext_serial_tx_data),
+        .ext_tx_valid (ext_serial_tx_valid),
+        .ext_tx_ready (ext_serial_tx_ready),
+        .ext_rx_data  (ext_serial_rx_data),
+        .ext_rx_valid (ext_serial_rx_valid)
+    );
+
+    // =============================
+    // Serial/DSHOT Mux Register (Wishbone) - slave 4 on mux
     // =============================
     // Controls whether motor pins are driven by DSHOT controller or Serial Bridge
     logic [1:0] mux_ch; // Selected channel for passthrough
     
-    wb_serial_dshot_mux u_wb_mux (
+    wb_serial_dshot_mux #(
+        .CLK_FREQ_HZ(CLK_FREQ_HZ)
+    ) u_wb_mux (
         .wb_clk_i   (i_sys_clk),
         .wb_rst_i   (sys_rst),
-        .wb_dat_i   (wbs3_dat_o),
-        .wb_adr_i   (wbs3_adr_o),
-        .wb_we_i    (wbs3_we_o),
-        .wb_sel_i   (wbs3_sel_o),
-        .wb_stb_i   (wbs3_stb_o),
-        .wb_cyc_i   (wbs3_cyc_o),
+        .wb_dat_i   (wbs4_dat_o),
+        .wb_adr_i   (wbs4_adr_o),
+        .wb_we_i    (wbs4_we_o),
+        .wb_sel_i   (wbs4_sel_o),
+        .wb_stb_i   (wbs4_stb_o),
+        .wb_cyc_i   (wbs4_cyc_o),
         .wb_dat_o   (wb_mux_dat_s2m),
         .wb_ack_o   (wb_mux_ack),
         .wb_stall_o (wb_mux_stall),
         .mux_sel    (mux_sel),
         .mux_ch     (mux_ch),
+        .msp_mode    (msp_mode_enable),
         
+        // PC Sniffer Interface (Direct High-Speed Connection)
+        .pc_rx_data  (pc_rx_data),
+        .pc_rx_valid (pc_rx_valid),
+
         // Physical Pads
         .pad_motor  ({o_motor4, o_motor3, o_motor2, o_motor1}),
         
@@ -477,47 +541,164 @@ assign o_debug_1 = o_usb_uart_rx;
         .serial_rx_o(serial_rx_in)
     );
 
-    // =============================
-    // USB UART Passthrough Bridge
-    // =============================
-    logic passthrough_enable;
-    logic passthrough_active;
+    // =========================================================================
+    // USB UART Physical Layer (115200) - Shared by all Passthrough Handlers
+    // =========================================================================
+
+    uart_rx_wrapper #(
+        .CLK_FREQ_HZ(CLK_FREQ_HZ),
+        .BAUD_RATE(USB_BAUD_RATE)
+    ) u_usb_rx_phys (
+        .clk(i_sys_clk),
+        .rst(sys_rst),
+        .rx(i_usb_uart_rx),
+        .data_out(pc_rx_data),
+        .valid(pc_rx_valid),
+        .error()
+    );
+
+    uart_tx_wrapper #(
+        .CLK_FREQ_HZ(CLK_FREQ_HZ),
+        .BAUD_RATE(USB_BAUD_RATE)
+    ) u_usb_tx_phys (
+        .clk(i_sys_clk),
+        .rst(sys_rst),
+        .tx(o_usb_uart_tx),
+        .data_in(pc_tx_data),
+        .valid(pc_tx_valid),
+        .ready(pc_tx_ready),
+        .active()
+    );
+
+    // =========================================================================
+    // Smart Protocol Handlers (115200 Layer)
+    // =========================================================================
     
-    // Enable passthrough when mux_sel==0 (Serial Mode)
-    assign passthrough_enable = (mux_sel == 1'b0);
-    
+    // MSP Handler PC-side signals
+    logic [7:0] msp_pc_tx_data;
+    logic       msp_pc_tx_valid;
+    logic       msp_pc_tx_ready;
+
+    msp_handler #(
+        .CLK_FREQ_HZ(CLK_FREQ_HZ)
+    ) u_msp_handler (
+        .clk(i_sys_clk),
+        .rst(sys_rst),
+        .pc_rx_data(pc_rx_data),
+        .pc_rx_valid(pc_rx_valid),
+        .pc_tx_data(msp_pc_tx_data),
+        .pc_tx_valid(msp_pc_tx_valid),
+        .pc_tx_ready(msp_pc_tx_ready),
+        .active(msp_active),
+        .fc_version_major(8'h01),
+        .fc_version_minor(8'h00),
+        .fc_version_patch(8'h00),
+        .api_version(32'h00010000),
+        .fc_variant(32'h544E394B)
+    );
+
+    // 4-Way Handler PC-side signals
+    logic [7:0] fw_pc_tx_data;
+    logic       fw_pc_tx_valid;
+    logic       fw_pc_tx_ready;
+    logic       fw_esc_active; // Signal to bridge
+
+    logic [7:0] fw_esc_tx_data;
+    logic       fw_esc_tx_valid;
+    logic       fw_esc_tx_ready;
+    logic [7:0] fw_esc_rx_data;
+    logic       fw_esc_rx_valid;
+
+    four_way_handler #(
+        .CLK_FREQ_HZ(CLK_FREQ_HZ)
+    ) u_four_way (
+        .clk(i_sys_clk),
+        .rst(sys_rst),
+        .uart_rx_data(pc_rx_data),
+        .uart_rx_valid(pc_rx_valid),
+        .uart_tx_data(fw_pc_tx_data),
+        .uart_tx_valid(fw_pc_tx_valid),
+        .uart_tx_ready(fw_pc_tx_ready),
+        .esc_tx_data(fw_esc_tx_data),
+        .esc_tx_valid(fw_esc_tx_valid),
+        .esc_tx_ready(fw_esc_tx_ready),
+        .esc_rx_data(fw_esc_rx_data),
+        .esc_rx_valid(fw_esc_rx_valid),
+        .active(fw_active)
+    );
+
+    // Bridge Handler PC-side signals
+    logic [7:0] br_pc_tx_data;
+    logic       br_pc_tx_valid;
+    logic       br_pc_tx_ready;
+
+    // Split Serial Interface connecting to Mux
+    logic serial_tx_out, serial_tx_oe, serial_rx_in;
+
     uart_passthrough_bridge #(
         .CLK_FREQ_HZ(CLK_FREQ_HZ),
-        .USB_BAUD_RATE(115200),
-        .SERIAL_BAUD_RATE(19200)
+        .SERIAL_BAUD_RATE(SERIAL_BAUD_RATE)
     ) u_uart_passthrough (
         .clk(i_sys_clk),
         .rst(sys_rst),
-        .usb_uart_rx(i_usb_uart_rx),
-        .usb_uart_tx(o_usb_uart_tx),
-        
-        // Split Serial Interface connecting to Mux
+        .pc_rx_data(pc_rx_data),
+        .pc_rx_valid(pc_rx_valid),
+        .pc_tx_data(br_pc_tx_data),
+        .pc_tx_valid(br_pc_tx_valid),
+        .pc_tx_ready(br_pc_tx_ready),
         .serial_tx_out(serial_tx_out),
         .serial_tx_oe(serial_tx_oe),
         .serial_rx_in(serial_rx_in),
-        
-        .enable(passthrough_enable),
-        .active(passthrough_active)
+        .ext_serial_tx_data(fw_esc_tx_data),
+        .ext_serial_tx_valid(fw_esc_tx_valid),
+        .ext_serial_tx_ready(fw_esc_tx_ready),
+        .ext_serial_rx_data(fw_esc_rx_data),
+        .ext_serial_rx_valid(fw_esc_rx_valid),
+        .enable(~mux_sel && !msp_active && !fw_active && !msp_mode_enable), // Enabled in Passthrough mode when no smart handlers or modes are busy
+        .active(br_active)
     );
+
+    // =========================================================================
+    // PC Transmit Mux (Who talks to the PC?)
+    // =========================================================================
+    always_comb begin
+        if (fw_active) begin
+            // 4-Way protocol has highest priority
+            pc_tx_data      = fw_pc_tx_data;
+            pc_tx_valid     = fw_pc_tx_valid;
+            fw_pc_tx_ready  = pc_tx_ready;
+            msp_pc_tx_ready = 1'b0;
+            br_pc_tx_ready  = 1'b0;
+        end else if (msp_active) begin
+            // Then MSP (Discovery/Config)
+            pc_tx_data      = msp_pc_tx_data;
+            pc_tx_valid     = msp_pc_tx_valid;
+            msp_pc_tx_ready = pc_tx_ready;
+            fw_pc_tx_ready  = 1'b0;
+            br_pc_tx_ready  = 1'b0;
+        end else begin
+            // Default: Raw ESC echo (Passthrough)
+            pc_tx_data      = br_pc_tx_data;
+            pc_tx_valid     = br_pc_tx_valid;
+            br_pc_tx_ready  = pc_tx_ready;
+            fw_pc_tx_ready  = 1'b0;
+            msp_pc_tx_ready = 1'b0;
+        end
+    end
     
     // =============================
-    // PWM Decoder (Wishbone) - slave 1 on mux
+    // PWM Decoder (Wishbone) - slave 2 on mux
     // =============================
     pwmdecoder_wb #(
         .clockFreq(CLK_FREQ_HZ)
     ) u_wb_pwm (
         .i_clk      (i_sys_clk),
         .i_rst      (sys_rst),
-        .wb_adr_i   (wbs1_adr_o[7:0]),
-        .wb_dat_i   (wbs1_dat_o),
-        .wb_we_i    (wbs1_we_o),
-        .wb_stb_i   (wbs1_stb_o),
-        .wb_cyc_i   (wbs1_cyc_o),
+        .wb_adr_i   (wbs2_adr_o),
+        .wb_dat_i   (wbs2_dat_o),
+        .wb_we_i    (wbs2_we_o),
+        .wb_stb_i   (wbs2_stb_o),
+        .wb_cyc_i   (wbs2_cyc_o),
         .wb_dat_o   (wb_pwm_dat_s2m),
         .wb_ack_o   (wb_pwm_ack),
         .i_pwm_5(i_pwm_ch5),
@@ -533,19 +714,19 @@ assign o_debug_1 = o_usb_uart_rx;
     assign wb_pwm_stall = 1'b0;
     
     // =============================
-    // DSHOT Controller (Wishbone) - slave 2 on mux
+    // DSHOT Controller (Wishbone) - slave 3 on mux
     // =============================
     wb_dshot_controller #(
         .CLK_FREQ_HZ (CLK_FREQ_HZ)
     ) u_wb_dshot (
         .wb_clk_i   (i_sys_clk),
         .wb_rst_i   (sys_rst),
-        .wb_dat_i   (wbs2_dat_o),
-        .wb_adr_i   (wbs2_adr_o),
-        .wb_we_i    (wbs2_we_o),
-        .wb_sel_i   (wbs2_sel_o),
-        .wb_stb_i   (wbs2_stb_o),
-        .wb_cyc_i   (wbs2_cyc_o),
+        .wb_dat_i   (wbs3_dat_o),
+        .wb_adr_i   (wbs3_adr_o),
+        .wb_we_i    (wbs3_we_o),
+        .wb_sel_i   (wbs3_sel_o),
+        .wb_stb_i   (wbs3_stb_o),
+        .wb_cyc_i   (wbs3_cyc_o),
         .wb_dat_o   (wb_dshot_dat_s2m),
         .wb_ack_o   (wb_dshot_ack),
         .wb_stall_o (wb_dshot_stall),

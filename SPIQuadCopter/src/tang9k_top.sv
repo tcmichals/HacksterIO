@@ -16,8 +16,8 @@
  *   0x0500-0x05FF: NeoPixel Controller
  *
  * BLHeli Passthrough Mode (mux_sel=0):
- *   PC/BLHeliSuite -> USB UART (pins 19-20) -> Hardware Bridge -> Serial (routes to Motor Pins) -> ESC
- *   No software intervention needed - pure hardware passthrough at 115200 baud.
+ *   PC/BLHeliSuite → USB UART (USB_BAUD_RATE) → Hardware Bridge → Serial (SERIAL_BAUD_RATE) → ESC
+ *   No software intervention needed - pure hardware passthrough with baud rate conversion.
  *
  * DSHOT Mode (mux_sel=1):
  *   DSHOT controller drives motors, passthrough bridge disabled.
@@ -25,7 +25,10 @@
  * See SYSTEM_OVERVIEW.md for full documentation.
  */
 
-module tang9k_top (
+module tang9k_top #(
+    parameter USB_BAUD_RATE = 115200,
+    parameter SERIAL_BAUD_RATE = 19200
+) (
     // System Clock and Reset
     input  logic i_clk,
     
@@ -98,7 +101,9 @@ module tang9k_top (
     assign sys_reset = !pll_locked; // System reset is active low when PLL is not locked
 
     coredesign #(
-        .CLK_FREQ_HZ(72_000_000)
+        .CLK_FREQ_HZ(72_000_000),
+        .USB_BAUD_RATE(USB_BAUD_RATE),
+        .SERIAL_BAUD_RATE(SERIAL_BAUD_RATE)
     ) u_design (
     .i_sys_clk    (clk_72m),
     .i_rst        (sys_reset),
