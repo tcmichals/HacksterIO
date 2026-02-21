@@ -1,2 +1,0 @@
-textual>=0.44.0
-spidev>=3.6
