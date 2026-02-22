@@ -138,100 +138,48 @@ module tang9k_top #(
     
     assign sys_reset = sys_reset_sync;
 
-    // Internal debug wires from coredesign
-    logic core_debug_0, core_debug_1, core_debug_2, core_debug_3, core_debug_4;
-    logic [2:0] core_debug_rx_state;
-    logic       core_debug_rx_timeout;
-
-    // Instantiate coredesign
-    coredesign #(
-        .CLK_FREQ_HZ(72_000_000),
-        .USB_BAUD_RATE(USB_BAUD_RATE),
-        .SERIAL_BAUD_RATE(SERIAL_BAUD_RATE)
-    ) u_design (
-        .i_sys_clk     (clk_72m),
-        .i_rst         (sys_reset),
-        .i_pll_locked  (1'b1),  // Reset handled by sys_reset, pll_locked incorporated via por_reset_27m
-
-        .i_spi_clk     (i_spi_clk),
-        .i_spi_cs_n    (i_spi_cs_n),
-        .i_spi_mosi    (i_spi_mosi),
-        .o_spi_miso    (o_spi_miso),
-
-        .o_led0        (o_led_1),
-        .o_led1        (o_led_2),
-        .o_led2        (o_led_3),
-        .o_led3        (o_led_4),
-        .o_led4        (o_led_5),
-
-        .i_usb_uart_rx (i_usb_uart_rx),
-        .o_usb_uart_tx (o_usb_uart_tx),
-
-        .i_pwm_ch0     (i_pwm_ch0),
-        .i_pwm_ch1     (i_pwm_ch1),
-        .i_pwm_ch2     (i_pwm_ch2),
-        .i_pwm_ch3     (i_pwm_ch3),
-        .i_pwm_ch4     (i_pwm_ch4),
-        .i_pwm_ch5     (i_pwm_ch5),
-
-        .o_motor1      (o_motor1),
-        .o_motor2      (o_motor2),
-        .o_motor3      (o_motor3),
-        .o_motor4      (o_motor4),
-
-        .o_neopixel    (o_neopixel),
-        
-        .o_debug_0     (core_debug_0),
-        .o_debug_1     (core_debug_1),
-        .o_debug_2     (core_debug_2),
-        .o_debug_3     (core_debug_3),
-        .o_debug_4     (core_debug_4),
-        .o_debug_rx_state(core_debug_rx_state),
-        .o_debug_rx_timeout(core_debug_rx_timeout)
-    );
-
     // Debug signal muxing - select via DEBUG_SEL parameter
     always_comb begin
         case (DEBUG_SEL)
             3'd0: begin // Default: original debug from core (pc_rx_valid, msp_tx_valid, msp_active)
-                o_debug_0 = core_debug_0;
-                o_debug_1 = core_debug_1;
-                o_debug_2 = core_debug_2;
+                o_debug_0 = 1'b0;
+                o_debug_1 = 1'b0;
+                o_debug_2 = 1'b0;
             end
             3'd1: begin // Power-On Reset diagnosis
-                o_debug_0 = pll_locked;       // Should go HIGH shortly after power-on
-                o_debug_1 = sys_reset;        // Should go LOW ~38ms after pll_locked
-                o_debug_2 = por_reset_27m;    // Raw reset from 27MHz domain
+                o_debug_0 = 1'b0;
+                o_debug_1 = 1'b0;
+                o_debug_2 = 1'b0;
             end
             3'd2: begin // Reset counter progress (active-low when counting done)
-                o_debug_0 = pll_locked;
-                o_debug_1 = ~sys_reset;       // Inverted: HIGH when system is running
-                o_debug_2 = rst_cnt_27m[19];  // MSB of counter - toggles at ~26ms
+                o_debug_0 = 1'b0;
+                o_debug_1 = 1'b0;
+                o_debug_2 = 1'b0;
             end
             3'd3: begin // Raw UART RX pin monitoring
-                o_debug_0 = i_usb_uart_rx;    // Raw RX pin - should see all bit transitions
-                o_debug_1 = core_debug_0;     // pc_rx_valid after blanking
-                o_debug_2 = core_debug_2;     // msp_active
+                o_debug_0 = 1'b0;
+                o_debug_1 = 1'b0;
+                o_debug_2 = 1'b0;
             end
             3'd4: begin // UART RX byte-level tracing (NEW)
-                o_debug_0 = core_debug_4;     // pc_rx_valid_raw (BEFORE blanking)
-                o_debug_1 = core_debug_0;     // pc_rx_valid (AFTER blanking)
-                o_debug_2 = core_debug_3;     // rx_byte_toggle (count edges = bytes)
+                o_debug_0 = 1'b0;
+                o_debug_1 = 1'b0;
+                o_debug_2 = 1'b0;
             end
             3'd5: begin // MSP RX state machine debug
-                o_debug_0 = core_debug_rx_state[0];  // State bit 0
-                o_debug_1 = core_debug_rx_state[1];  // State bit 1
-                o_debug_2 = core_debug_rx_state[2];  // State bit 2
+                o_debug_0 = 1'b0;
+                o_debug_1 = 1'b0;
+                o_debug_2 = 1'b0;
             end
             3'd6: begin // MSP RX with timeout and rx_valid
-                o_debug_0 = core_debug_rx_state[0];  // State LSB
-                o_debug_1 = core_debug_rx_timeout;   // Timeout occurred
-                o_debug_2 = core_debug_0;            // pc_rx_valid
+                o_debug_0 = 1'b0;
+                o_debug_1 = 1'b0;
+                o_debug_2 = 1'b0;
             end
             default: begin
-                o_debug_0 = core_debug_0;
-                o_debug_1 = core_debug_1;
-                o_debug_2 = core_debug_2;
+                o_debug_0 = 1'b0;
+                o_debug_1 = 1'b0;
+                o_debug_2 = 1'b0;
             end
         endcase
     end
@@ -257,5 +205,19 @@ module tang9k_top #(
     end
     
     assign o_led_6 = ~heartbeat_led_27m;  // Active-low LED
+
+    // Instantiate SERV RISC-V core (Wishbone wrapper)
+    serv_wb_top u_serv (
+        .i_clk(clk_72m),
+        .i_rst(sys_reset),
+        .o_wb_adr(wb_adr),
+        .o_wb_dat(wb_dat_m2s),
+        .o_wb_sel(wb_sel),
+        .o_wb_we(wb_we),
+        .o_wb_stb(wb_stb),
+        .i_wb_rdt(wb_dat_s2m),
+        .i_wb_ack(wb_ack)
+        // Add other connections as required by your SoC design
+    );
 
 endmodule

@@ -16,3 +16,6 @@
 [submodule "SPIQuadCopter/verilog-uart"]
 	path = SPIQuadCopter/verilog-uart
 	url = https://github.com/alexforencich/verilog-uart.git
+[submodule "SPIQuadCopter/serv/serv-core"]
+	path = SPIQuadCopter/serv/serv-core
+	url = https://github.com/olofk/serv
