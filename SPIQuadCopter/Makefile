@@ -78,7 +78,9 @@ export IVERILOG VVP
 
 # Sources used for synthesis (exclude testbenches)
 
-SRCS := spiSlave/spi_slave.sv src/pll.sv src/coredesign.sv src/uart_passthrough_bridge.sv src/msp_handler.sv src/four_way_handler.sv src/shared_buffer_ram.sv src/wb_dshot_controller.sv src/wb_serial_dshot_mux.sv src/wb_led_controller.sv src/tang9k_top.sv \
+SRCS := spiSlave/spi_slave.sv src/pll.sv src/coredesign.sv src/uart_passthrough_bridge.sv \
+	src/msp_v2/msp_rx.sv src/msp_v2/msp_responder.sv src/msp_v2/msp_tx.sv src/msp_v2/msp_handler_v2.sv \
+	src/four_way_handler.sv src/shared_buffer_ram.sv src/wb_dshot_controller.sv src/wb_serial_dshot_mux.sv src/wb_led_controller.sv src/tang9k_top.sv \
 	pwmDecoder/pwmdecoder.v pwmDecoder/pwmdecoder_wb.v \
 	neoPXStrip/sendPx_axis_flexible.sv neoPXStrip/wb_neoPx.v \
 	version/wb_version.sv \
@@ -94,10 +96,13 @@ CST := tang9k.cst
 
 # Tools: YOSYS/NEXTPNR/GOWIN_PACK are set above using LOCAL_BIN_DIR discovery (fall back to system PATH)
 
+# P&R seed - override with: make build SEED=123
+SEED ?= 42
+
 YOSYS_FLAGS := -m slang -Q -p "synth_gowin -top $(TOP) -json $(BUILD_DIR)/hardware.json"
 NEXTPNR_FLAGS := --device GW1NR-LV9QN88PC6/I5 --json $(BUILD_DIR)/hardware.json \
 				 --write $(BUILD_DIR)/hardware.pnr.json --report $(BUILD_DIR)/hardware.pnr \
-				 --vopt family=GW1N-9C --vopt cst=$(CST) --sdc tang9k_timing.sdc --seed 42
+				 --vopt family=GW1N-9C --vopt cst=$(CST) --sdc tang9k_timing.sdc --seed $(SEED)
 GOWIN_PACK_FLAGS := -d GW1N-9C -o $(BUILD_DIR)/hardware.fs $(BUILD_DIR)/hardware.pnr.json
 
 .PHONY: install-tools
@@ -143,6 +148,8 @@ help:
 	@echo ""
 	@echo "Testbench / simulation targets (testbenches live under src/tb):"
 	@echo "  make tb-design       - Compile & run src/tb/design_tb.sv."
+	@echo "  make tb-msp-proto    - Compile & run src/tb/msp_protocol_tb.sv (MSP protocol handler testbench)."
+	@echo "  make tb-msp-v2       - Compile & run MSP Handler V2 testbench (pipelined packet processor)."
 	@echo "  make tb-version      - Compile & run version/wb_version_tb.sv."
 	@echo "  make tb-bridge       - Compile & run UART bridge testbench."
 	@echo "  make tb-msp-mux      - Compile & run MSP / Motor Mux testbench."
@@ -237,6 +244,36 @@ view:
 
 # Testbench targets (run testbenches located under src/tb)
 .PHONY: tb-design tb-version test-tb
+.PHONY: tb-msp-proto msp-proto-compile
+.PHONY: tb-msp-v2
+
+# MSP Handler V2 Testbench (pipelined packet processor)
+MSP_V2_TB_SRC := src/msp_v2/msp_handler_v2_tb.sv
+MSP_V2_SRCS := src/msp_v2/msp_rx.sv src/msp_v2/msp_responder.sv src/msp_v2/msp_tx.sv src/msp_v2/msp_handler_v2.sv
+MSP_V2_VVP := src/build/msp_handler_v2_tb.vvp
+MSP_V2_VCD := src/msp_v2/msp_handler_v2_tb.vcd
+
+tb-msp-v2: | src/build
+	@echo "Compiling MSP Handler V2 testbench..."
+	$(IVERILOG) -g2012 -Wall -o $(MSP_V2_VVP) $(MSP_V2_TB_SRC) $(MSP_V2_SRCS)
+	@echo "Running MSP Handler V2 simulation..."
+	$(VVP) $(MSP_V2_VVP) || { echo 'Simulation failed!'; exit 1; }
+	@echo "Simulation complete. VCD file: $(MSP_V2_VCD)"
+
+# MSP Protocol Testbench (legacy)
+MSP_PROTO_TB_SRC := src/tb/msp_protocol_tb.sv
+MSP_PROTO_VVP := src/build/msp_protocol_tb.vvp
+MSP_PROTO_VCD := src/tb/msp_protocol_tb.vcd
+
+tb-msp-proto: msp-proto-compile
+	@echo "Running MSP protocol handler simulation..."
+	$(VVP) $(MSP_PROTO_VVP) || { echo 'Simulation failed!'; exit 1; }
+	@echo "Simulation complete. VCD file: $(MSP_PROTO_VCD)"
+
+msp-proto-compile: | src/build
+	@echo "Compiling MSP protocol handler testbench..."
+	$(IVERILOG) -g2012 -Wall -Wno-timescale -o $(MSP_PROTO_VVP) \
+		$(MSP_PROTO_TB_SRC) src/msp_handler.sv src/shared_buffer_ram.sv
 
 # Streamlined core testbenches
 test-tb: tb-design tb-msp-mux tb-bridge tb-version
@@ -245,11 +282,11 @@ test-tb: tb-design tb-msp-mux tb-bridge tb-version
 # MSP Serial / Motor Mux testbench (formerly tb-wb-mux)
 # -----------------------------------------------------------------------------
 TB_BUILD_DIR := src/build
-MSP_MUX_TB_SRC  := src/wb_serial_dshot_mux_tb.sv
+MSP_MUX_TB_SRC  := src/tb/wb_serial_dshot_mux_tb.sv
 MSP_MUX_DUT_SRC  := src/wb_serial_dshot_mux.sv
 MSP_MUX_VVP      := $(TB_BUILD_DIR)/wb_serial_dshot_mux_tb.vvp
-MSP_MUX_VCD      := src/wb_serial_dshot_mux_tb.vcd
-MSP_MUX_GTKW     := src/wb_serial_dshot_mux_tb.gtkw
+MSP_MUX_VCD      := src/tb/wb_serial_dshot_mux_tb.vcd
+MSP_MUX_GTKW     := src/tb/wb_serial_dshot_mux_tb.gtkw
 MSP_MUX_DIR      := src
 
 MSP_MUX_UART_WRAPPERS := src/uart_rx.sv src/uart_tx.sv
@@ -298,15 +335,15 @@ msp-mux-clean:
 PASSTHROUGH_DIR := src
 PASSTHROUGH_BUILD := $(PASSTHROUGH_DIR)/build
 
-PASSTHROUGH_TB_SRC := src/uart_passthrough_bridge_tb.sv
+PASSTHROUGH_TB_SRC := src/tb/uart_passthrough_bridge_tb.sv
 PASSTHROUGH_DUT_SRC := src/uart_passthrough_bridge.sv
 PASSTHROUGH_UART_WRAPPERS := src/uart_rx.sv src/uart_tx.sv
 PASSTHROUGH_VERILOG_UART_DIR := verilog-uart/rtl
 PASSTHROUGH_UART_CORE := $(PASSTHROUGH_VERILOG_UART_DIR)/uart_rx.v $(PASSTHROUGH_VERILOG_UART_DIR)/uart_tx.v
 
 PASSTHROUGH_VVP := $(TB_BUILD_DIR)/uart_passthrough_bridge_tb.vvp
-PASSTHROUGH_VCD := src/uart_passthrough_bridge_tb.vcd
-PASSTHROUGH_GTKW := src/uart_passthrough_bridge_tb.gtkw
+PASSTHROUGH_VCD := src/tb/uart_passthrough_bridge_tb.vcd
+PASSTHROUGH_GTKW := src/tb/uart_passthrough_bridge_tb.gtkw
 
 PASSTHROUGH_IVERILOG_FLAGS := -g2012 -Wall -Wno-timescale
 

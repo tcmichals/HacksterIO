@@ -29,6 +29,20 @@ module uart_rx_wrapper #(
     output logic        error
 );
 
+    // 2-stage synchronizer for RX input (prevents metastability)
+    // Initialize to '1' (UART idle state) for clean POR
+    logic rx_meta = 1'b1;
+    logic rx_sync = 1'b1;
+    always_ff @(posedge clk) begin
+        if (rst) begin
+            rx_meta <= 1'b1;  // UART idle = HIGH
+            rx_sync <= 1'b1;
+        end else begin
+            rx_meta <= rx;
+            rx_sync <= rx_meta;
+        end
+    end
+
     // Calculate prescale value for Alex's uart_rx
     // prescale is the number of clock cycles per bit / 8
     localparam PRESCALE = (CLK_FREQ_HZ / BAUD_RATE) / 8;
@@ -55,8 +69,8 @@ module uart_rx_wrapper #(
         .m_axis_tdata(m_axis_tdata),
         .m_axis_tvalid(m_axis_tvalid),
         .m_axis_tready(m_axis_tready),
-        // UART interface
-        .rxd(rx),
+        // UART interface (using synchronized RX)
+        .rxd(rx_sync),
         // Status
         .busy(),  // Not used
         .overrun_error(overrun_error),

@@ -71,21 +71,23 @@ module coredesign #(
 
     // NeoPixel Output
     output logic o_neopixel,
-    // Debug probe: mirrors SPI byte-ready (exposed to top-level as `o_debug`)
-    output logic o_debug_0,
-    output logic o_debug_1,
-    output logic o_debug_2
+    // Debug probe signals for MSP command/response diagnosis
+    output logic o_debug_0,  // pc_rx_valid: pulses when byte received from PC
+    output logic o_debug_1,  // msp_pc_tx_valid: pulses when MSP handler sends response byte
+    output logic o_debug_2,  // msp_active: high when MSP handler is processing
+    output logic o_debug_3,  // rx_byte_toggle: toggles on each received byte
+    output logic o_debug_4,   // pc_rx_valid_raw: before startup blanking
+    output logic [2:0] o_debug_rx_state,   // MSP RX state machine
+    output logic       o_debug_rx_timeout  // MSP RX timeout
     
 );
 
-
-assign o_debug_0 = o_usb_uart_tx;
-assign o_debug_1 = i_usb_uart_rx;
-assign o_debug_2 = msp_active;
-    // System reset driven from external PLL lock
+// Debug signals are assigned after msp_handler instantiation (see below)
+    // System reset driven from external reset signal
+    // NOTE: pll_locked is already incorporated into i_rst at top level
     logic sys_rst;
 
-    assign sys_rst = i_rst | ~i_pll_locked;
+    assign sys_rst = i_rst;
 
     
     // =============================
@@ -545,6 +547,28 @@ assign o_debug_2 = msp_active;
     // USB UART Physical Layer (115200) - Shared by all Passthrough Handlers
     // =========================================================================
 
+    // Startup blanking: ignore UART RX for ~100ms after reset to let USB-serial stabilize
+    localparam STARTUP_BLANK_CYCLES = CLK_FREQ_HZ / 10; // 100ms at 72MHz = 7.2M cycles
+    logic [23:0] startup_blank_cnt;
+    logic startup_blanking;
+    
+    always_ff @(posedge i_sys_clk) begin
+        if (sys_rst) begin
+            startup_blank_cnt <= 24'd0;
+            startup_blanking <= 1'b1;
+        end else if (startup_blanking) begin
+            if (startup_blank_cnt < STARTUP_BLANK_CYCLES[23:0]) begin
+                startup_blank_cnt <= startup_blank_cnt + 24'd1;
+            end else begin
+                startup_blanking <= 1'b0;
+            end
+        end
+    end
+
+    // Raw UART RX signals (before blanking)
+    logic [7:0] pc_rx_data_raw;
+    logic       pc_rx_valid_raw;
+
     uart_rx_wrapper #(
         .CLK_FREQ_HZ(CLK_FREQ_HZ),
         .BAUD_RATE(USB_BAUD_RATE)
@@ -552,10 +576,14 @@ assign o_debug_2 = msp_active;
         .clk(i_sys_clk),
         .rst(sys_rst),
         .rx(i_usb_uart_rx),
-        .data_out(pc_rx_data),
-        .valid(pc_rx_valid),
+        .data_out(pc_rx_data_raw),
+        .valid(pc_rx_valid_raw),
         .error()
     );
+
+    // Gate RX valid with startup blanking
+    assign pc_rx_data = pc_rx_data_raw;
+    assign pc_rx_valid = pc_rx_valid_raw & ~startup_blanking;
 
     uart_tx_wrapper #(
         .CLK_FREQ_HZ(CLK_FREQ_HZ),
@@ -579,7 +607,7 @@ assign o_debug_2 = msp_active;
     logic       msp_pc_tx_valid;
     logic       msp_pc_tx_ready;
 
-    msp_handler #(
+    msp_handler_v2 #(
         .CLK_FREQ_HZ(CLK_FREQ_HZ)
     ) u_msp_handler (
         .clk(i_sys_clk),
@@ -590,12 +618,30 @@ assign o_debug_2 = msp_active;
         .pc_tx_valid(msp_pc_tx_valid),
         .pc_tx_ready(msp_pc_tx_ready),
         .active(msp_active),
+        .dbg_rx_state(o_debug_rx_state),
+        .dbg_rx_timeout(o_debug_rx_timeout),
         .fc_version_major(8'h01),
         .fc_version_minor(8'h00),
         .fc_version_patch(8'h00),
         .api_version(32'h00010000),
         .fc_variant(32'h544E394B)
     );
+
+    // Debug signal assignments for MSP command/response diagnosis
+    // Byte counter toggle - toggles on each received byte (for counting on scope)
+    logic rx_byte_toggle;
+    always_ff @(posedge i_sys_clk) begin
+        if (sys_rst)
+            rx_byte_toggle <= 1'b0;
+        else if (pc_rx_valid_raw)
+            rx_byte_toggle <= ~rx_byte_toggle;
+    end
+    
+    assign o_debug_0 = pc_rx_valid;       // Pulses when byte received from PC (after blanking)
+    assign o_debug_1 = msp_pc_tx_valid;   // Pulses when MSP handler sends response byte
+    assign o_debug_2 = msp_active;        // High when MSP handler is processing
+    assign o_debug_3 = rx_byte_toggle;    // Toggles on each byte (count edges = bytes)
+    assign o_debug_4 = pc_rx_valid_raw;   // Raw RX valid BEFORE startup blanking
 
     // 4-Way Handler PC-side signals
     logic [7:0] fw_pc_tx_data;

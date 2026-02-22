@@ -414,5 +414,10 @@ The Python bridge logs all TX/RX data. Check the TUI serial console for debug in
 - BLHeli Configurator: https://github.com/blheli-configurator/blheli-configurator
 - BLHeli Protocol Documentation: https://github.com/bitdump/BLHeli
 
----
-For more information, see `SYSTEM_OVERVIEW.md` and `python/test/README.md`.
+## Protocol Testbench
+
+A full protocol testbench is available to verify MSP and BLHeli passthrough/ESC handling. See [TESTBENCH_README.md](TESTBENCH_README.md) for usage and coverage.
+
+- Simulates all MSP commands, including edge cases
+- Simulates BLHeli passthrough and ESC replies
+- Ensures automatic mode switching and watchdog behavior

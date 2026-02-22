@@ -27,7 +27,8 @@ def main():
     else:
         print(f"Found ports: {ports}")
         # Default to the second one if available (often getting mapped to 1), or just first
-        port_name = ports[0] 
+        port_name = ports[1]
+        port_name = "/dev/ttyUSB1"
         print(f"Selecting default: {port_name}")
 
     baud_rate = 115200
@@ -46,10 +47,10 @@ def main():
     print("  [q] Quit")
 
     while True:
-        # Non-blocking check for received data
-        while ser.in_waiting > 0:
-            data = ser.read(ser.in_waiting)
-            print(f"RX: {data.hex()} (ASCII: {data})")
+        # Clear any stale data before prompting
+        if ser.in_waiting > 0:
+            stale = ser.read(ser.in_waiting)
+            print(f"[Cleared stale RX: {stale.hex()}]")
 
         # Non-blocking input is hard in pure python without curses/external libs
         # So we will use blocking input() but this pauses RX display.
@@ -63,6 +64,7 @@ def main():
         if cmd == 'q':
             break
         elif cmd == '1':
+            ser.reset_input_buffer()  # Clear any stale RX data
             send_msp(ser, MSP_IDENT)
             # Wait briefly for response
             time.sleep(0.1)
@@ -71,9 +73,19 @@ def main():
                 print(f"RX (Immediate): {data.hex()}")
                 
         elif cmd == '2':
+            ser.reset_input_buffer()  # Clear any stale RX data
             send_msp(ser, MSP_SET_PASSTHROUGH, [0])
+            time.sleep(0.1)
+            if ser.in_waiting:
+                data = ser.read(ser.in_waiting)
+                print(f"RX: {data.hex()} (ASCII: {data})")
         elif cmd == '3':
+            ser.reset_input_buffer()  # Clear any stale RX data
             send_msp(ser, MSP_FC_VARIANT)
+            time.sleep(0.1)
+            if ser.in_waiting:
+                data = ser.read(ser.in_waiting)
+                print(f"RX: {data.hex()} (ASCII: {data})")
         else:
             print("Unknown command")
 

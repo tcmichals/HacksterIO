@@ -13,6 +13,11 @@
 
 module uart_passthrough_bridge_tb;
 
+    // Timeout variables for MSP IDENT test
+    integer timeout_cycles;
+    integer cycles;
+    reg got_resp;
+
     // Clock and reset
     logic clk;
     logic rst;
@@ -144,6 +149,7 @@ module uart_passthrough_bridge_tb;
     // Main test sequence
     initial begin
         logic [7:0] received;
+        logic [7:0] msp_resp;
         
         $display("========================================");
         $display("UART Bridge TB (Parallel PC Interface)");
@@ -191,6 +197,45 @@ module uart_passthrough_bridge_tb;
         #2000;
         if (pc_tx_valid) $display("[%0t] FAIL: Echo detected!", $time);
         else $display("[%0t] PASS: No echo detected", $time);
+
+
+        // MSP IDENT Test with timeout (Icarus-compatible)
+        $display("\n[%0t] TEST 5: MSP IDENT Command", $time);
+        // Compose MSP_IDENT request: $M< 0x00 0x64 0x64
+        send_pc_byte(8'h24); // '$'
+        send_pc_byte(8'h4D); // 'M'
+        send_pc_byte(8'h3C); // '<'
+        send_pc_byte(8'h00); // len = 0
+        send_pc_byte(8'h64); // cmd = 0x64 (MSP_IDENT)
+        send_pc_byte(8'h64); // checksum = 0x00 ^ 0x64 = 0x64
+
+        // Wait for response header with timeout (counter-based)
+        timeout_cycles = 1000000; // adjust as needed for your clock
+        cycles = 0;
+        got_resp = 0;
+
+        while (cycles < timeout_cycles && !got_resp) begin
+            @(posedge clk);
+            if (pc_tx_valid)
+                got_resp = 1;
+            cycles = cycles + 1;
+        end
+        if (!got_resp) begin
+            $display("[%0t] FAIL: MSP response timed out (no response)", $time);
+        end else begin
+            // Now receive and check the response bytes
+            receive_pc_byte(msp_resp); // '$'
+            if (msp_resp != 8'h24) $display("[%0t] FAIL: MSP response missing '$'", $time);
+            receive_pc_byte(msp_resp); // 'M'
+            if (msp_resp != 8'h4D) $display("[%0t] FAIL: MSP response missing 'M'", $time);
+            receive_pc_byte(msp_resp); // '>'
+            if (msp_resp != 8'h3E) $display("[%0t] FAIL: MSP response missing '>'", $time);
+            receive_pc_byte(msp_resp); // len
+            $display("[%0t] MSP response len: %0d", $time, msp_resp);
+            receive_pc_byte(msp_resp); // cmd
+            if (msp_resp != 8'h64) $display("[%0t] FAIL: MSP response wrong cmd", $time);
+            // Optionally receive payload and checksum (skipped here for brevity)
+        end
 
         $display("\n========================================");
         $display("All Tests Complete!");

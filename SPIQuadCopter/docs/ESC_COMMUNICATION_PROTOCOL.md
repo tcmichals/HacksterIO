@@ -357,3 +357,13 @@ ESC Power → Separate power source
 - [ESC Configurator](https://github.com/stylesuxx/esc-configurator)
 - BLHeli_S Manual (SiLabs Rev16.x.pdf)
 - FourWay Protocol Specification (internal BLHeli documentation)
+
+## Protocol Testbench Coverage
+
+The protocol testbench (`make tb-msp-proto`) exercises:
+- All MSP handshake and passthrough commands
+- FourWay protocol transition
+- BLHeli passthrough and simulated ESC responses
+- Error and edge cases (bad checksum, unknown command)
+
+See [TESTBENCH_README.md](TESTBENCH_README.md) for details and usage.

@@ -83,12 +83,12 @@ module wb_serial_dshot_mux #(
     // ==========================================
     // Sniff the PC parallel stream (115200) for MSP headers
     
-    typedef enum {
-        S_IDLE,
-        S_DOLLAR,
-        S_M,
-        S_ARROW,
-        S_SIZE
+    typedef enum logic [2:0] {
+        S_IDLE   = 3'd0,
+        S_DOLLAR = 3'd1,
+        S_M      = 3'd2,
+        S_ARROW  = 3'd3,
+        S_SIZE   = 3'd4
     } sniff_state_t;
     
     sniff_state_t sniff_state;
@@ -164,7 +164,7 @@ module wb_serial_dshot_mux #(
 
     always_ff @(posedge wb_clk_i or posedge wb_rst_i) begin
         if (wb_rst_i) begin
-            prev_mux_sel    <= 1'b0;
+            prev_mux_sel    <= 1'b1;  // Match reg_mux_sel reset value (DSHOT mode)
             prev_mux_ch     <= 2'b0;
             global_tristate <= 1'b0;
         end else begin

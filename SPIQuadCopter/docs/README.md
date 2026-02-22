@@ -335,3 +335,12 @@ All tests completed!
 - [ ] Add CRC/checksum functionality
 - [ ] UART debug interface
 
+## Protocol Testbench Suite
+
+A comprehensive protocol testbench is provided to verify all MSP commands and BLHeli passthrough/ESC simulation. See [TESTBENCH_README.md](docs/TESTBENCH_README.md) for details.
+
+- Run with `make tb-msp-proto`
+- Covers all MSP commands, edge cases, and BLHeli passthrough
+- Simulates ESC round-trip communication
+- Prints all protocol exchanges and errors
+

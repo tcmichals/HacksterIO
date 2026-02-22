@@ -32,28 +32,28 @@ module four_way_handler #(
     output logic       exit_session
 );
 
-    typedef enum logic [3:0] {
-        STATE_IDLE,
-        STATE_COMMAND,
-        STATE_ADDR1,
-        STATE_ADDR2,
-        STATE_LENGTH,
-        STATE_PAYLOAD,
-        STATE_CRC_IN1,
-        STATE_CRC_IN2,
-        STATE_PROCESS,
-        STATE_FORWARD_TO_ESC,
-        STATE_WAIT_ESC_RESP,
-        STATE_CALC_OUT_CRC,
-        STATE_SEND_HEADER,
-        STATE_SEND_CMD,
-        STATE_SEND_ADDR1,
-        STATE_SEND_ADDR2,
-        STATE_SEND_LEN,
-        STATE_SEND_PAYLOAD,
-        STATE_SEND_ACK,
-        STATE_SEND_CRC1,
-        STATE_SEND_CRC2
+    typedef enum logic [4:0] {
+        STATE_IDLE           = 5'd0,
+        STATE_COMMAND        = 5'd1,
+        STATE_ADDR1          = 5'd2,
+        STATE_ADDR2          = 5'd3,
+        STATE_LENGTH         = 5'd4,
+        STATE_PAYLOAD        = 5'd5,
+        STATE_CRC_IN1        = 5'd6,
+        STATE_CRC_IN2        = 5'd7,
+        STATE_PROCESS        = 5'd8,
+        STATE_FORWARD_TO_ESC = 5'd9,
+        STATE_WAIT_ESC_RESP  = 5'd10,
+        STATE_CALC_OUT_CRC   = 5'd11,
+        STATE_SEND_HEADER    = 5'd12,
+        STATE_SEND_CMD       = 5'd13,
+        STATE_SEND_ADDR1     = 5'd14,
+        STATE_SEND_ADDR2     = 5'd15,
+        STATE_SEND_LEN       = 5'd16,
+        STATE_SEND_PAYLOAD   = 5'd17,
+        STATE_SEND_ACK       = 5'd18,
+        STATE_SEND_CRC1      = 5'd19,
+        STATE_SEND_CRC2      = 5'd20
     } state_t;
 
     state_t state;
