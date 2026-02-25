@@ -1,93 +1,144 @@
 # Tang Nano 9K Quadcopter FPGA - Project Summary
 
 ## Overview
-The Tang Nano 9K Quadcopter FPGA project implements a high-performance Flight Controller (FC) bridge on a Gowin GW1N-9C FPGA. It serves as an intermediary between a host (via SPI) and quadcopter peripherals (Motors, RC Receivers, LEDs).
 
-The design is optimized for high system throughput (72MHz) and low resource utilization through the strategic use of Block RAM (BRAM) and sequential processing.
+The Tang Nano 9K Quadcopter FPGA project implements a Flight Controller (FC) bridge on a Gowin GW1N-9C FPGA. The design features a **dual Wishbone bus architecture** with:
+
+- **SERV RISC-V CPU**: Handles protocol processing (MSP, 4-Way Interface, ESC configuration)
+- **SPI-to-Wishbone Bridge**: Provides external flight controller access to peripherals
+
+The system operates at 72 MHz and uses an arbiter to share DSHOT access between both buses.
 
 ## Project Structure
 
 ```
 SPIQuadCopter/
-├── Makefile                    # Top-level build and simulation management
+├── Makefile                    # Top-level build management
 ├── tang9k.cst                  # Pin constraints (LQFP144)
-├── tang9k_timing.sdc           # Timing constraints (72MHz targeting)
+├── tang9k_timing.sdc           # Timing constraints (72 MHz)
 │
 ├── src/                        # Core RTL Source
-│   ├── tang9k_top.sv           # Top-level I/O and PLL instantiation
-│   ├── coredesign.sv           # System integration and Wishbone bus muxing
-│   ├── msp_handler.sv          # MSP (MultiWii Serial Protocol) implementation
-│   ├── four_way_handler.sv     # Betaflight 4-Way Interface Protocol handler
-│   ├── shared_buffer_ram.sv    # Generic BRAM inference module (Optimized)
-│   ├── wb_dshot_controller.sv  # DSHOT 600 motor output control
-│   ├── wb_serial_dshot_mux.sv  # Runtime mux between DSHOT and Passthrough
-│   └── uart_passthrough_bridge.sv # Baud rate conversion (115200 <-> 19200)
+│   ├── tang9k_top.sv           # Top-level I/O, buses, arbiter
+│   ├── pll.sv                  # 27→72 MHz clock generation
+│   ├── spi_slave.sv            # SPI slave interface
+│   ├── spi_wb_master.sv        # SPI-to-Wishbone protocol
+│   ├── wb_mux_5.v              # SERV bus mux (5 peripherals)
+│   ├── wb_mux_6.v              # SPI bus mux (6 peripherals)
+│   ├── wb_arbiter_2.sv         # 2-master DSHOT arbiter
+│   ├── wb_debug_gpio.sv        # 3-bit debug output
+│   ├── wb_dshot_controller.sv  # 4-channel DSHOT150 output
+│   ├── wb_led_controller.sv    # 6-LED PWM controller
+│   ├── wb_usb_uart.sv          # USB UART (115200 baud)
+│   ├── wb_esc_uart.sv          # ESC UART (19200 baud, half-duplex)
+│   └── wb_neoPx.v              # NeoPixel controller
+│
+├── serv/                       # SERV RISC-V CPU
+│   ├── serv-core/              # Bit-serial RV32I core
+│   └── firmware/               # C++ firmware (MSP, 4-Way bridge)
 │
 ├── dshot/                      # DSHOT protocol implementation
 ├── pwmDecoder/                 # RC PWM signal decoding
-├── neoPXStrip/                 # NeoPixel (WS2812B) control logic
-├── spiSlave/                   # SPI to Wishbone bridge
-├── verilog-wishbone/           # Standard Wishbone interconnect IP
-└── python/                     # Host-side TUI and configuration tools
+├── neoPXStrip/                 # NeoPixel (WS2812B) driver
+├── spiSlave/                   # SPI slave module
+└── python/                     # Host-side tools and tests
 ```
+
+## Architecture
+
+### Dual Wishbone Bus Design
+
+```
+                    ┌─────────────────────────────────────────────┐
+                    │              Tang Nano 9K FPGA              │
+                    ├─────────────────────────────────────────────┤
+                    │                                             │
+  SPI (from FC) ──► │  SPI Slave ─► wb_mux_6 ──┬─► LED (0x100)   │
+                    │                          ├─► PWM (0x200)   │
+                    │                          ├─► DSHOT ◄──┐    │
+                    │                          ├─► NeoPixel │    │
+                    │                          └─► Mux Mirror│    │
+                    │                                       │    │
+                    │                          wb_arbiter_2 ┤    │
+                    │                                       │    │
+  USB UART ◄──────► │  SERV CPU ──► wb_mux_5 ──┬─► Debug GPIO   │
+                    │                          ├─► DSHOT ◄──┘    │
+                    │                          ├─► Mux Reg       │
+                    │                          ├─► USB UART      │
+                    │                          └─► ESC UART ───► │ ──► Motor Pin
+                    └─────────────────────────────────────────────┘
+```
+
+### SERV Bus Address Map (wb_mux_5)
+
+| Address | Peripheral | Description |
+|---------|------------|-------------|
+| 0x40000100 | Debug GPIO | 3-bit output for debugging |
+| 0x40000400 | DSHOT | Motor control (via arbiter) |
+| 0x40000700 | Mux Reg | ESC channel selection |
+| 0x40000800 | USB UART | PC communication (115200) |
+| 0x40000900 | ESC UART | ESC config (19200, half-duplex) |
+
+### SPI Bus Address Map (wb_mux_6)
+
+| Address | Peripheral | Description |
+|---------|------------|-------------|
+| 0x0000 | Version | Hardware version (read-only) |
+| 0x0100 | LED | 6-channel LED controller |
+| 0x0200 | PWM | 6-channel PWM decoder (read-only) |
+| 0x0300 | DSHOT | Motor control (via arbiter) |
+| 0x0400 | NeoPixel | WS2812 LED strip |
+| 0x0500 | Mux Mirror | ESC channel (read-only) |
 
 ## Key Features
 
-### 1. "Hands-Free" BLHeli Passthrough
-- **Hardware Translation**: Automatically detects Betaflight 4-Way protocol frames (`0x2F` header).
-- **Protocol Stripping**: Validates CRC, strips 4-way headers, and forwards raw commands to ESCs.
-- **Baud Rate Conversion**: Bridging 115200 (USB) to 19200 (BLHeli_S Bootloader) via 512-byte FIFOs.
-- **Micro-Timing Logic**: Nanosecond-level half-duplex direction switching for reliable ESC flashing.
+### 1. SERV RISC-V CPU
+- **Bit-serial RV32I**: Minimal area (~300 LUTs)
+- **Performance**: ~2.25 MIPS at 72 MHz
+- **Memory**: 8 KB BRAM for firmware
+- **Role**: Protocol handling, ESC configuration bridging
 
-### 2. Optimized Resource Utilization
-- **BRAM Inference**: Large message buffers (128 bytes for 4-Way, 64 bytes for MSP) utilize dedicated Block RAM instead of Flip-Flops.
-- **Sequential Processing**: CRC calculations are performed one byte per clock, reducing combinational path depth and ensuring 72MHz timing closure.
-- **Shared Memory Architecture**: Streamlined memory access patterns reduce LUT usage by over 40% compared to register-array implementations.
+### 2. BLHeli ESC Configuration
+- **SERV-based**: Firmware handles MSP and 4-Way protocol
+- **Baud Translation**: USB UART (115200) ↔ ESC UART (19200)
+- **Channel Selection**: Mux register selects motor pin 0-3
 
-### 3. Peripheral Suite
-- **DSHOT 600**: 4-channel digital ESC protocol.
-- **PWM Decoding**: 4-channel RC input capture with 1µs resolution.
-- **NeoPixel Drive**: Wishbone-controlled LED strips with runtime color updates.
-- **Version Tracking**: Hardware-baked version registers for host-side compatibility checks.
+### 3. Shared DSHOT Access
+- **wb_arbiter_2**: Round-robin arbitration
+- **Both buses**: SERV and SPI can write motor commands
+- **Flight mode**: SPI master controls motors
+- **Config mode**: SERV can stop motors during ESC flash
 
-## Architecture Highlights
-
-### Clocking
-- **Input**: 27 MHz OSC
-- **Internal**: 72 MHz (Generated via PLL)
-- **SPI**: Synchronized to local 72MHz domain via 2-FF synchronizers.
-
-### Wishbone Interconnect
-The system uses a 6-master, 11-slave Wishbone crossbar (muxed) to manage peripheral access:
-- **Address 0x0100**: UART/Passthrough Bridge
-- **Address 0x0200**: DSHOT Motor Controller
-- **Address 0x0300**: PWM Decoder
-- **Address 0x0400**: Serial/DSHOT Mux Control
-- **Address 0x0500**: LED Controller
-- **Address 0x0600**: NeoPixel Controller
-- **Address 0xFFFF**: Version Register
+### 4. Peripheral Suite
+- **DSHOT150**: 4-channel digital ESC protocol
+- **PWM Decoder**: 6-channel RC input capture
+- **NeoPixel**: Wishbone-controlled LED strips
+- **Debug GPIO**: Fast 3-bit output for debugging
 
 ## Getting Started
 
-### Synthesis & Build
+### Build & Program
 ```bash
-make build    # Synthesize, Place, and Route (targets GW1N-9C)
-make pack     # Generate bitstream (_build/default/hardware.fs)
-make upload   # Program the Tang Nano 9K
+make build    # Synthesize for GW1N-9C
+make pack     # Generate bitstream
+make upload   # Program Tang Nano 9K
+```
+
+### Build SERV Firmware
+```bash
+cd serv/firmware
+make          # Build main.elf
 ```
 
 ### Simulation
-Comprehensive test suites are available for all core modules:
 ```bash
-make tb-all      # Run all testbenches
-make tb-dshot    # Test DSHOT waveforms
-make tb-spi      # Test SPI-to-Wishbone bridge
+make tb-spi   # Test SPI-to-Wishbone
+make tb-dshot # Test DSHOT waveforms
 ```
 
-## Safety & Compliance
-- **Propellers Off**: Always remove propellers when using Passthrough/Configurator.
-- **Baud Rates**: Host communication must be set to 115200, 8-N-1.
+## Safety
+
+- **Propellers Off**: Always remove propellers during ESC configuration
+- **Motor Commands**: DSHOT outputs are active - verify safe state
 
 ---
-**Last Updated**: February 8, 2026
-**Status**: Stable - All core testbenches passing.
+**Status**: Active development

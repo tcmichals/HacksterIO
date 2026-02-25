@@ -28,6 +28,7 @@ python tui_app.py
 
 ## 🎯 Features
 
+- ✅ **SERV RISC-V CPU** - Bit-serial 32-bit core (~2.25 MIPS at 72 MHz)
 - ✅ **SPI Slave Interface** - Control via SPI from external host
 - ✅ **Wishbone Bus** - Standard peripheral integration
 - ✅ **6-Channel PWM Decoder** - RC receiver input
@@ -74,18 +75,27 @@ SPIQuadCopter/
 |-------|----------|
 | Getting Started | [Quick Start](docs/QUICK_START.md) |
 | System Design | [System Overview](docs/SYSTEM_OVERVIEW.md) |
+| SPI Protocol | [SPI-WB Master Design](docs/SPI_WB_MASTER_DESIGN.md) |
 | Hardware Setup | [Detailed Pinout](docs/PINOUT.md) |
 | ESC Config | [BLHeli Passthrough](docs/BLHELI_PASSTHROUGH.md) |
 | UART Details | [Half-Duplex UART Technical](docs/HALF_DUPLEX_UART_TECHNICAL.md) |
+| SERV Firmware | [SERV MSP Bridge](serv/firmware/README.md) |
 | Python TUI | [TUI Module](python/tuiExample/README.md) |
 | Testing | [Testbench README](src/TESTBENCH_README.md) |
 
 ## 🧪 Testing
 
 ```bash
-make test_version  # Test version register
-make test_pwm      # Test PWM decoder
-make test_led      # Test LED controller
+# SPI Wishbone testbenches
+make tb-spi-wb           # SPI-WB Master protocol (read/write/burst)
+make tb-spi-pwm          # SPI→PWM integration test
+make tb-spi-all          # Run all SPI testbenches
+
+# Other testbenches
+make tb-serv             # SERV CPU simulation
+make tb-neopx            # NeoPixel Wishbone test
+make -C neoPXStrip test  # NeoPixel timing test
+make -C pwmDecoder test  # PWM decoder test
 ```
 
 ## 📝 License

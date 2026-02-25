@@ -45,6 +45,11 @@ reg [4:0] state;
 reg [23:0] data;
 reg [31:0] timeout;
 reg sendState;
+// Pipeline registers declared outside initial block
+reg [4:0] state_pipe;
+reg sendState_pipe;
+reg tvalid_pipe;
+reg [23:0] data_pipe;
 assign o_debug[3] = isReady;
 assign o_debug[2] = state[1];
 assign o_debug[1] = state[0];
@@ -80,27 +85,33 @@ initial begin
 
 always @(posedge axi_clk) begin
 
-    if ( state != 0) begin 
-        if ( sendState == 0) begin
-            if(isReady) begin
-               data <=  ledData[count];
-               tvalid <= 1'b1;
-               sendState <= 1;
-            end 
-            else
+    // Pipeline stage 1: capture state and handshake
+    state_pipe <= state;
+    sendState_pipe <= sendState;
+    tvalid_pipe <= tvalid;
+    data_pipe <= data;
+
+    // Pipeline stage 2: main logic
+    if (state_pipe != 0) begin
+        if (sendState_pipe == 0) begin
+            if (isReady) begin
+                data <= ledData[count];
+                tvalid <= 1'b1;
+                sendState <= 1;
+            end else begin
                 tvalid <= 0;
-         end else begin
+            end
+        end else begin
             tvalid <= 0;
             sendState <= 0;
-            count <= count +1'b1;
-         end
-     end
-     else begin
+            count <= count + 1'b1;
+        end
+    end else begin
         tvalid <= 0;
         sendState <= 0;
-        data <=  ledData[count];
+        data <= ledData[count];
         count <= 0;
-     end
+    end
 end
 
 always @(posedge axi_clk) begin

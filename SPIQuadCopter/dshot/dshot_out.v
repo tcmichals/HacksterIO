@@ -63,7 +63,6 @@
 `timescale 1 ns / 1 ns
 
 module dshot_output #(
-		parameter update_guardtime = 1000000, //1 second 
 		parameter clockFrequency = 72000000  // 72 MHz PLL clock
 	) (
 		input  wire        i_clk,          //       clock.clk
@@ -100,7 +99,7 @@ DSHOT1200 Bit time is 0.83us    0.625us     0.313us
 */
 
 // Timing constants for each mode (in clock cycles @ 72MHz)
-localparam [15:0] GAURD_BAND_SIGNAL = 16'd7;  // Timing adjustment
+localparam [15:0] GUARD_BAND_SIGNAL = 16'd7;  // Timing adjustment for signal edges
 
 // DSHOT150 timing @ 72MHz
 localparam [15:0] T0H_150 = 180;   // 2.50µs
@@ -126,12 +125,13 @@ localparam [15:0] GUARD_600 = 4500;  // 62.5µs
 /* number of bits to shift */
 localparam [3:0] NUM_BIT_TO_SHIFT = 15;
 
-// Runtime-selectable timing values
+// Runtime-selectable timing values (REGISTERED for timing closure)
 reg [15:0] t0h_clocks;
 reg [15:0] t0l_clocks;
 reg [15:0] t1h_clocks;
 reg [15:0] t1l_clocks;
 reg [15:0] guard_time_val;
+reg [15:0] dshot_mode_latched;  // Latched mode for stable timing
 
 reg [3:0] state;
 reg [4:0] bits_to_shift;
@@ -143,33 +143,47 @@ reg [15:0] guard_count;
 
 
 reg pwm;
+reg ready_reg;  // Registered ready signal for timing closure
 
-// Separate always block for mode selection (combinatorial)
-// This updates timing parameters based on mode input
-always @(*) begin
-	case (i_dshot_mode)
-		16'd300: begin
-			t0h_clocks = T0H_300;
-			t0l_clocks = T0L_300;
-			t1h_clocks = T1H_300;
-			t1l_clocks = T1L_300;
-			guard_time_val = GUARD_300;
+// Register the timing parameters on clock edge (only when idle)
+// This breaks the critical combinational path
+always @(posedge i_clk or posedge i_reset) begin
+	if (i_reset) begin
+		t0h_clocks <= T0H_150;
+		t0l_clocks <= T0L_150;
+		t1h_clocks <= T1H_150;
+		t1l_clocks <= T1L_150;
+		guard_time_val <= GUARD_150;
+		dshot_mode_latched <= 16'd150;
+	end else if (state == IDLE_ && guard_count == 0) begin
+		// Only update timing when idle - safe to change mode
+		if (i_dshot_mode != dshot_mode_latched) begin
+			dshot_mode_latched <= i_dshot_mode;
+			case (i_dshot_mode)
+				16'd300: begin
+					t0h_clocks <= T0H_300;
+					t0l_clocks <= T0L_300;
+					t1h_clocks <= T1H_300;
+					t1l_clocks <= T1L_300;
+					guard_time_val <= GUARD_300;
+				end
+				16'd600: begin
+					t0h_clocks <= T0H_600;
+					t0l_clocks <= T0L_600;
+					t1h_clocks <= T1H_600;
+					t1l_clocks <= T1L_600;
+					guard_time_val <= GUARD_600;
+				end
+				default: begin  // DSHOT150
+					t0h_clocks <= T0H_150;
+					t0l_clocks <= T0L_150;
+					t1h_clocks <= T1H_150;
+					t1l_clocks <= T1L_150;
+					guard_time_val <= GUARD_150;
+				end
+			endcase
 		end
-		16'd600: begin
-			t0h_clocks = T0H_600;
-			t0l_clocks = T0L_600;
-			t1h_clocks = T1H_600;
-			t1l_clocks = T1L_600;
-			guard_time_val = GUARD_600;
-		end
-		default: begin  // DSHOT150
-			t0h_clocks = T0H_150;
-			t0l_clocks = T0L_150;
-			t1h_clocks = T1H_150;
-			t1l_clocks = T1L_150;
-			guard_time_val = GUARD_150;
-		end
-	endcase
+	end
 end
 
 
@@ -181,6 +195,7 @@ always @(posedge i_clk or posedge i_reset) begin
 		dshot_command <= 0;
 		pwm <= 0;
 		guard_count <= 0;  // Start with 0 so first write is accepted
+		ready_reg <= 1'b1; // Ready after reset
 	end
 	else begin
 		/* update pwm value - accept write when IDLE and guard time expired */
@@ -188,6 +203,7 @@ always @(posedge i_clk or posedge i_reset) begin
 			dshot_command <= i_dshot_value;
 			bits_to_shift <= NUM_BIT_TO_SHIFT;
 			state <= INIT_TIME;
+			ready_reg <= 1'b0;  // Not ready while transmitting
 			`ifdef SIMULATION
 			$display ("[%0t] Accepted write: 0x%04X (mode=%0d)", $time, i_dshot_value, i_dshot_mode);
 			`endif
@@ -209,12 +225,12 @@ always @(posedge i_clk or posedge i_reset) begin
 						$time, (NUM_BIT_TO_SHIFT - bits_to_shift), dshot_command, dshot_command[15]);
 					`endif
 					if (dshot_command[15]) begin
-						counter_high <= t1h_clocks - GAURD_BAND_SIGNAL;
-						counter_low <= t1l_clocks + GAURD_BAND_SIGNAL;
+						counter_high <= t1h_clocks - GUARD_BAND_SIGNAL;
+						counter_low <= t1l_clocks + GUARD_BAND_SIGNAL;
 					end
 					else begin
-						counter_high <= t0h_clocks - GAURD_BAND_SIGNAL;
-						counter_low <= t0l_clocks + GAURD_BAND_SIGNAL;
+						counter_high <= t0h_clocks - GUARD_BAND_SIGNAL;
+						counter_low <= t0l_clocks + GUARD_BAND_SIGNAL;
 					end
 					state <= HIGH_TIME;
 				end
@@ -254,8 +270,12 @@ always @(posedge i_clk or posedge i_reset) begin
 					if (guard_count != 0 && guard_count % 1000 == 0)
 						$display("[%0t] IDLE_ case executing: guard_count=%0d", $time, guard_count);
 					`endif
-					if (guard_count != 0) 
+					if (guard_count != 0) begin
 				 		guard_count <= guard_count -1'b1;
+				 		ready_reg <= 1'b0;
+				 	end else begin
+				 		ready_reg <= 1'b1;  // Ready when guard time elapsed
+				 	end
 				end
 		
 				default: begin
@@ -269,8 +289,9 @@ always @(posedge i_clk or posedge i_reset) begin
 	
 end
 assign o_pwm = pwm;
-assign o_ready = (state == IDLE_) && (guard_count == 0);  // Ready when idle and guard time elapsed
+assign o_ready = ready_reg;  // Registered ready signal for timing closure
 
 endmodule
-//END of modules
+
+`default_nettype wire
 

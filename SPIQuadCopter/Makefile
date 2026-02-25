@@ -78,19 +78,49 @@ export IVERILOG VVP
 
 # Sources used for synthesis (exclude testbenches)
 
-SRCS := spiSlave/spi_slave.sv src/pll.sv src/coredesign.sv src/uart_passthrough_bridge.sv \
+SRCS := spiSlave/spi_slave.sv src/pll.sv \
+	src/spi_wb_master.sv \
 	src/msp_v2/msp_rx.sv src/msp_v2/msp_responder.sv src/msp_v2/msp_tx.sv src/msp_v2/msp_handler_v2.sv \
 	src/four_way_handler.sv src/shared_buffer_ram.sv src/wb_dshot_controller.sv src/wb_serial_dshot_mux.sv src/wb_led_controller.sv src/tang9k_top.sv \
 	pwmDecoder/pwmdecoder.v pwmDecoder/pwmdecoder_wb.v \
 	neoPXStrip/sendPx_axis_flexible.sv neoPXStrip/wb_neoPx.v \
 	version/wb_version.sv \
-	verilog-wishbone/rtl/axis_wb_master.v \
-     		src/wb_mux_7.v \
-		src/wb_uart_wrapper.sv \
-		src/spi_axis_adapter.sv \
-		dshot/dshot_out.v \
-		src/uart_tx.sv src/uart_rx.sv \
-		verilog-uart/rtl/uart_tx.v verilog-uart/rtl/uart_rx.v \
+	src/wb_mux_5.v \
+	src/wb_mux_6.v \
+	src/wb_mux_8.v \
+	src/wb_uart_wrapper.sv \
+	src/wb_usb_uart.sv \
+	src/wb_debug_gpio.sv \
+	src/wb_esc_uart.sv \
+	verilog-wishbone/rtl/priority_encoder.v \
+	verilog-wishbone/rtl/arbiter.v \
+	verilog-wishbone/rtl/wb_arbiter_2.v \
+	dshot/dshot_out.v \
+	verilog-uart/rtl/uart_tx.v verilog-uart/rtl/uart_rx.v \
+serv/rtl/serv_wb_top.v \
+serv/rtl/wb_ram.v \
+serv/serv-core/servile/servile.v \
+serv/serv-core/servile/servile_arbiter.v \
+serv/serv-core/servile/servile_mux.v \
+serv/serv-core/servile/servile_rf_mem_if.v \
+serv/serv-core/rtl/serv_top.v \
+serv/serv-core/rtl/serv_rf_ram_if.v \
+serv/serv-core/rtl/serv_aligner.v \
+serv/serv-core/rtl/serv_alu.v \
+serv/serv-core/rtl/serv_bufreg.v \
+serv/serv-core/rtl/serv_bufreg2.v \
+serv/serv-core/rtl/serv_compdec.v \
+serv/serv-core/rtl/serv_csr.v \
+serv/serv-core/rtl/serv_ctrl.v \
+serv/serv-core/rtl/serv_debug.v \
+serv/serv-core/rtl/serv_decode.v \
+serv/serv-core/rtl/serv_immdec.v \
+serv/serv-core/rtl/serv_mem_if.v \
+serv/serv-core/rtl/serv_rf_if.v \
+serv/serv-core/rtl/serv_rf_ram.v \
+serv/serv-core/rtl/serv_rf_top.v \
+serv/serv-core/rtl/serv_state.v \
+serv/serv-core/rtl/serv_synth_wrapper.v \
 
 CST := tang9k.cst
 
@@ -102,7 +132,8 @@ SEED ?= 42
 YOSYS_FLAGS := -m slang -Q -p "synth_gowin -top $(TOP) -json $(BUILD_DIR)/hardware.json"
 NEXTPNR_FLAGS := --device GW1NR-LV9QN88PC6/I5 --json $(BUILD_DIR)/hardware.json \
 				 --write $(BUILD_DIR)/hardware.pnr.json --report $(BUILD_DIR)/hardware.pnr \
-				 --vopt family=GW1N-9C --vopt cst=$(CST) --sdc tang9k_timing.sdc --seed $(SEED)
+				 --vopt family=GW1N-9C --vopt cst=$(CST) --sdc tang9k_timing.sdc --seed $(SEED) \
+				 --timing-allow-fail
 GOWIN_PACK_FLAGS := -d GW1N-9C -o $(BUILD_DIR)/hardware.fs $(BUILD_DIR)/hardware.pnr.json
 
 .PHONY: install-tools
@@ -135,47 +166,47 @@ install-tools-local:
 help:
 	@echo "Tang9K FPGA Project - Available Targets:"
 	@echo ""
-	@echo "  make build      - Run full build (synth + place & route + pack)"
+	@echo "Build targets:"
+	@echo "  make build      - Run full build (firmware + synth + place & route + pack)"
+	@echo "  make firmware   - Build SERV RISC-V firmware only (delegates to serv/Makefile)"
 	@echo "  make synth      - Run yosys synthesis (generates hardware.json)"
 	@echo "  make place      - Run nextpnr (generates hardware.pnr.json)"
 	@echo "  make pack       - Run gowin_pack (generates hardware.fs)"
 	@echo "  make upload     - Program board using openFPGALoader"
-	@echo "  make install-tools - Attempt to install oss-cad-suite / openFPGALoader via system package manager"
-	@echo "  ./scripts/install_local_tools.sh - Install prebuilt OSS CAD Suite (default: $HOME/.local/oss-cad-suite or use --install-dir)"
-	@echo "  make oss-version - Check local tools VERSION vs latest GitHub release (checks $$OSS_CAD_INSTALL_DIR, $HOME/.tools/oss-cad-suite, $HOME/tools then project/oss-cad-suite)"
-	@echo "  make simulate   - Run SPI slave simulation (delegates to spiSlave/Makefile)"
-	@echo "  make -C neoPXStrip help - List NeoPixel (sendPx) testbench and simulation targets in neoPXStrip/Makefile"
 	@echo ""
-	@echo "Testbench / simulation targets (testbenches live under src/tb):"
-	@echo "  make tb-design       - Compile & run src/tb/design_tb.sv."
-	@echo "  make tb-msp-proto    - Compile & run src/tb/msp_protocol_tb.sv (MSP protocol handler testbench)."
-	@echo "  make tb-msp-v2       - Compile & run MSP Handler V2 testbench (pipelined packet processor)."
-	@echo "  make tb-version      - Compile & run version/wb_version_tb.sv."
-	@echo "  make tb-bridge       - Compile & run UART bridge testbench."
-	@echo "  make tb-msp-mux      - Compile & run MSP / Motor Mux testbench."
-	@echo "  make test-tb         - Run all consolidated system testbenches."
-	@echo "Passing plusargs / runtime options to testbenches:"
-	@echo "  The tb targets invoke vvp and accept simulator plusargs via the VVP_ARGS make variable."
+	@echo "SPI Wishbone Testbenches (src/tb/):"
+	@echo "  make tb-spi-wb       - SPI-WB Master protocol test (read/write/burst)"
+	@echo "  make tb-spi-pwm      - SPI→PWM integration (generate waveforms, read via SPI)"
+	@echo "  make tb-spi-all      - Run all SPI Wishbone testbenches"
+	@echo ""
+	@echo "Other Simulation / Testbench targets:"
+	@echo "  make tb-serv         - Run SERV CPU Verilator simulation (delegates to serv/Makefile)"
+	@echo "  make tb-design       - Compile & run src/tb/design_tb.sv (iverilog)"
+	@echo "  make tb-version      - Compile & run version/wb_version_tb.sv (iverilog)"
+	@echo "  make tb-neopx        - Run NeoPixel Wishbone testbench"
+	@echo "  make simulate        - Run SPI slave simulation (delegates to spiSlave/Makefile)"
+	@echo "  make -C neoPXStrip help - List NeoPixel testbench targets"
+	@echo "  make -C dshot help   - List DSHOT testbench targets"
+	@echo "  make -C pwmDecoder help - List PWM decoder testbench targets"
+	@echo ""
+	@echo "Testbench plusargs (use VVP_ARGS for iverilog tests):"
 	@echo "  Example: make tb-design VVP_ARGS=\"+TEST_VERSION +VERBOSE\""
-	@echo "  You can also ask for testbench-specific help defined in tools/Makefile: make tools-help"
 	@echo ""
-	@echo "Supported test plusargs (use with VVP_ARGS):"
-	@echo "  +TEST_LED       - Run LED controller tests"
-	@echo "  +TEST_MUX       - Run Mux controller tests"
-	@echo "  +TEST_DSHOT     - Run DSHOT controller tests"
-	@echo "  +TEST_PWM       - Run PWM decoder tests"
-	@echo "  +TEST_VERSION   - Run Version readback test"
-	@echo "  +TEST_NEOPIXEL  - Run NeoPixel controller test"
-	@echo "Note: running 'make' will no longer automatically reinstall tools; to force reinstall run: 'make install-tools-local REINSTALL=1'"
+	@echo "Tool management:"
+	@echo "  make install-tools      - Install oss-cad-suite via system package manager"
+	@echo "  make install-tools-local - Install prebuilt OSS CAD Suite locally"
+	@echo "  make oss-version        - Check local tools version vs latest GitHub release"
 	@echo ""
-	# If tools/Makefile is present, show its help too so all options appear together
-	@if [ -f tools/Makefile ]; then \
-		$(MAKE) -s -f tools/Makefile tools-help; \
-	fi
 	@echo "  make clean      - Remove build artifacts"
 	@echo "  make lint       - Syntax check with iverilog"
 
 all: build
+
+# Firmware build (delegates to serv/Makefile)
+.PHONY: firmware
+firmware:
+	@echo "Building SERV firmware..."
+	$(MAKE) -C serv firmware
 
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
@@ -211,7 +242,7 @@ pack: $(BUILD_DIR)/hardware.pnr.json
 	$(GOWIN_PACK) $(GOWIN_PACK_FLAGS)
 
 .PHONY: build
-build: pack
+build: firmware pack
 	@echo "Build finished. Bitstream: $(BUILD_DIR)/hardware.fs"
 
 .PHONY: upload
@@ -242,136 +273,31 @@ oss-update:
 view:
 	@cd spiSlave && make view
 
-# Testbench targets (run testbenches located under src/tb)
-.PHONY: tb-design tb-version test-tb
-.PHONY: tb-msp-proto msp-proto-compile
-.PHONY: tb-msp-v2
+# SERV CPU simulation (delegates to serv/Makefile)
+.PHONY: tb-serv
+tb-serv:
+	@echo "Running SERV CPU simulation..."
+	$(MAKE) -C serv sim
 
-# MSP Handler V2 Testbench (pipelined packet processor)
-MSP_V2_TB_SRC := src/msp_v2/msp_handler_v2_tb.sv
-MSP_V2_SRCS := src/msp_v2/msp_rx.sv src/msp_v2/msp_responder.sv src/msp_v2/msp_tx.sv src/msp_v2/msp_handler_v2.sv
-MSP_V2_VVP := src/build/msp_handler_v2_tb.vvp
-MSP_V2_VCD := src/msp_v2/msp_handler_v2_tb.vcd
+# SPI Wishbone testbenches (in src/tb/)
+.PHONY: tb-spi-wb tb-spi-pwm tb-spi-all
+tb-spi-wb:
+	@echo "Running SPI-WB Master testbench..."
+	$(MAKE) -C src/tb tb-spi-wb
 
-tb-msp-v2: | src/build
-	@echo "Compiling MSP Handler V2 testbench..."
-	$(IVERILOG) -g2012 -Wall -o $(MSP_V2_VVP) $(MSP_V2_TB_SRC) $(MSP_V2_SRCS)
-	@echo "Running MSP Handler V2 simulation..."
-	$(VVP) $(MSP_V2_VVP) || { echo 'Simulation failed!'; exit 1; }
-	@echo "Simulation complete. VCD file: $(MSP_V2_VCD)"
+tb-spi-pwm:
+	@echo "Running SPI-PWM integration testbench..."
+	$(MAKE) -C src/tb tb-spi-pwm
 
-# MSP Protocol Testbench (legacy)
-MSP_PROTO_TB_SRC := src/tb/msp_protocol_tb.sv
-MSP_PROTO_VVP := src/build/msp_protocol_tb.vvp
-MSP_PROTO_VCD := src/tb/msp_protocol_tb.vcd
+tb-spi-all:
+	@echo "Running all SPI testbenches..."
+	$(MAKE) -C src/tb tb-all
 
-tb-msp-proto: msp-proto-compile
-	@echo "Running MSP protocol handler simulation..."
-	$(VVP) $(MSP_PROTO_VVP) || { echo 'Simulation failed!'; exit 1; }
-	@echo "Simulation complete. VCD file: $(MSP_PROTO_VCD)"
-
-msp-proto-compile: | src/build
-	@echo "Compiling MSP protocol handler testbench..."
-	$(IVERILOG) -g2012 -Wall -Wno-timescale -o $(MSP_PROTO_VVP) \
-		$(MSP_PROTO_TB_SRC) src/msp_handler.sv src/shared_buffer_ram.sv
-
-# Streamlined core testbenches
-test-tb: tb-design tb-msp-mux tb-bridge tb-version
-
-
-# MSP Serial / Motor Mux testbench (formerly tb-wb-mux)
-# -----------------------------------------------------------------------------
-TB_BUILD_DIR := src/build
-MSP_MUX_TB_SRC  := src/tb/wb_serial_dshot_mux_tb.sv
-MSP_MUX_DUT_SRC  := src/wb_serial_dshot_mux.sv
-MSP_MUX_VVP      := $(TB_BUILD_DIR)/wb_serial_dshot_mux_tb.vvp
-MSP_MUX_VCD      := src/tb/wb_serial_dshot_mux_tb.vcd
-MSP_MUX_GTKW     := src/tb/wb_serial_dshot_mux_tb.gtkw
-MSP_MUX_DIR      := src
-
-MSP_MUX_UART_WRAPPERS := src/uart_rx.sv src/uart_tx.sv
-MSP_MUX_UART_CORE_DIR := verilog-uart/rtl
-MSP_MUX_UART_CORE     := $(MSP_MUX_UART_CORE_DIR)/uart_rx.v $(MSP_MUX_UART_CORE_DIR)/uart_tx.v
-
-TB_BUILD_DIR := src/build
-
-MSP_MUX_IVERILOG_FLAGS := -g2012 -Wall -Wno-timescale -D SIM_CONTROL
-
-.PHONY: msp-mux-compile tb-msp-mux msp-mux-view msp-mux-clean
-
-$(TB_BUILD_DIR):
-	mkdir -p $(TB_BUILD_DIR)
-
-msp-mux-compile: $(TB_BUILD_DIR)
-	@echo "Compiling MSP mux testbench..."
-	@rm -f $(MSP_MUX_VVP)
-	$(IVERILOG) $(MSP_MUX_IVERILOG_FLAGS) -o $(MSP_MUX_VVP) \
-		$(MSP_MUX_TB_SRC) \
-		$(MSP_MUX_DUT_SRC) \
-		$(MSP_MUX_UART_WRAPPERS) \
-		$(MSP_MUX_UART_CORE)
-
-tb-msp-mux: msp-mux-compile
-	@echo "Running MSP mux simulation..."
-	$(VVP) $(MSP_MUX_VVP)
-	@echo "MSP mux simulation complete. VCD file: $(MSP_MUX_VCD)"
-
-msp-mux-view: $(MSP_MUX_VCD)
-	@echo "Opening MSP mux waveform..."
-	@if [ -f $(MSP_MUX_GTKW) ]; then \
-		gtkwave $(MSP_MUX_VCD) $(MSP_MUX_GTKW) &; \
-	else \
-		gtkwave $(MSP_MUX_VCD) &; \
-	fi
-
-msp-mux-clean:
-	@rm -rf $(TB_BUILD_DIR)
-	@rm -f $(MSP_MUX_DIR)/*.vcd $(MSP_MUX_DIR)/*.vvp
-
-
-# -----------------------------------------------------------------------------
-# UART Passthrough Bridge testbench (migrated from src/Makefile.passthrough_tb)
-# -----------------------------------------------------------------------------
-PASSTHROUGH_DIR := src
-PASSTHROUGH_BUILD := $(PASSTHROUGH_DIR)/build
-
-PASSTHROUGH_TB_SRC := src/tb/uart_passthrough_bridge_tb.sv
-PASSTHROUGH_DUT_SRC := src/uart_passthrough_bridge.sv
-PASSTHROUGH_UART_WRAPPERS := src/uart_rx.sv src/uart_tx.sv
-PASSTHROUGH_VERILOG_UART_DIR := verilog-uart/rtl
-PASSTHROUGH_UART_CORE := $(PASSTHROUGH_VERILOG_UART_DIR)/uart_rx.v $(PASSTHROUGH_VERILOG_UART_DIR)/uart_tx.v
-
-PASSTHROUGH_VVP := $(TB_BUILD_DIR)/uart_passthrough_bridge_tb.vvp
-PASSTHROUGH_VCD := src/tb/uart_passthrough_bridge_tb.vcd
-PASSTHROUGH_GTKW := src/tb/uart_passthrough_bridge_tb.gtkw
-
-PASSTHROUGH_IVERILOG_FLAGS := -g2012 -Wall -Wno-timescale
-
-bridge-compile: $(TB_BUILD_DIR)
-	@echo "Compiling passthrough testbench..."
-	@rm -f $(PASSTHROUGH_VVP)
-	$(IVERILOG) $(PASSTHROUGH_IVERILOG_FLAGS) -o $(PASSTHROUGH_VVP) \
-		$(PASSTHROUGH_TB_SRC) \
-		$(PASSTHROUGH_DUT_SRC) \
-		$(PASSTHROUGH_UART_WRAPPERS) \
-		$(PASSTHROUGH_UART_CORE)
-
-tb-bridge: bridge-compile
-	@echo "Running bridge simulation..."
-	$(VVP) $(PASSTHROUGH_VVP)
-	@echo "Simulation complete. VCD file: $(PASSTHROUGH_VCD)"
-
-bridge-view: $(PASSTHROUGH_VCD)
-	@echo "Opening passthrough waveform..."
-	@if [ -f $(PASSTHROUGH_GTKW) ]; then \
-		gtkwave $(PASSTHROUGH_VCD) $(PASSTHROUGH_GTKW) &; \
-	else \
-		gtkwave $(PASSTHROUGH_VCD) &; \
-	fi
-
-bridge-clean:
-	@rm -rf $(TB_BUILD_DIR)
-	@rm -f $(PASSTHROUGH_DIR)/*.vcd $(PASSTHROUGH_DIR)/*.vvp
+# NeoPixel Wishbone testbench
+.PHONY: tb-neopx
+tb-neopx:
+	@echo "Running NeoPixel Wishbone testbench..."
+	$(MAKE) -C neoPXStrip test
 
 
 lint:

@@ -38,80 +38,47 @@ module wb_led_controller #(
     localparam ADDR_LED_TOGGLE  = 2'h1;
     localparam ADDR_LED_CLEAR   = 2'h2;
     localparam ADDR_LED_SET     = 2'h3;
-
-    // Decode address
-    wire [1:0] addr_bits = wbs_adr_i[3:2];
     
     // Wishbone protocol
     assign wbs_err_o = 1'b0;
     assign wbs_rty_o = 1'b0;
     
-    reg prev_stb_cyc;
     reg [LED_WIDTH-1:0] led_out_reg;
 
     always @(posedge clk or posedge rst) begin
         if (rst) begin
-            prev_stb_cyc <= 1'b0;
             wbs_ack_o <= 1'b0;
             wbs_dat_o <= 32'h0;
             led_out_reg <= {LED_WIDTH{1'b0}};
-
         end else begin
-            // Create a one-cycle ack when stb & cyc are asserted (rising detection)
+            // Simple ACK: pulse for one cycle (matches wb_version pattern)
+            wbs_ack_o <= wbs_stb_i && wbs_cyc_i && !wbs_ack_o;
 
-            if (wbs_stb_i && wbs_cyc_i) begin
+            if (wbs_stb_i && wbs_cyc_i && !wbs_ack_o) begin
                 if (wbs_we_i) begin
-                    // Write operation: address selects the operation
-                    if (~wbs_ack_o) begin
-                        wbs_ack_o <= 1;
-                        case (addr_bits)
-                            ADDR_LED_OUT: begin
-                                if (wbs_sel_i[0]) begin
-                                    led_out_reg <= wbs_dat_i[LED_WIDTH-1:0];
-                                    $display("%0t wb_led_controller: WRITE LED_OUT addr=%h data=%h sel=%b", $time, wbs_adr_i, wbs_dat_i, wbs_sel_i);
-                                end
-                            end
-                            ADDR_LED_TOGGLE: begin
-                                if (wbs_sel_i[0]) begin
-                                    led_out_reg <= led_out_reg ^ wbs_dat_i[LED_WIDTH-1:0];
-                                    $display("%0t wb_led_controller: TOGGLE LED_OUT addr=%h data=%h sel=%b -> %h", $time, wbs_adr_i, wbs_dat_i, wbs_sel_i, led_out_reg ^ wbs_dat_i[LED_WIDTH-1:0]);
-                                end
-                            end
-                            ADDR_LED_CLEAR: begin
-                                if (wbs_sel_i[0]) begin
-                                    led_out_reg <= led_out_reg & ~wbs_dat_i[LED_WIDTH-1:0];
-                                    $display("%0t wb_led_controller: CLEAR LED_OUT addr=%h data=%h sel=%b -> %h", $time, wbs_adr_i, wbs_dat_i, wbs_sel_i, led_out_reg & ~wbs_dat_i[LED_WIDTH-1:0]);
-                                end
-                            end
-                            ADDR_LED_SET: begin
-                                if (wbs_sel_i[0]) begin
-                                    led_out_reg <= led_out_reg | wbs_dat_i[LED_WIDTH-1:0];
-                                    $display("%0t wb_led_controller: SET LED_OUT addr=%h data=%h sel=%b -> %h", $time, wbs_adr_i, wbs_dat_i, wbs_sel_i, led_out_reg | wbs_dat_i[LED_WIDTH-1:0]);
-                                end
-                            end
-                        endcase
-                    end
+                    // Write operation
+                    case (wbs_adr_i[3:2])
+                        ADDR_LED_OUT: begin
+                            led_out_reg <= wbs_dat_i[LED_WIDTH-1:0];
+                        end
+                        ADDR_LED_TOGGLE: begin
+                            led_out_reg <= led_out_reg ^ wbs_dat_i[LED_WIDTH-1:0];
+                        end
+                        ADDR_LED_CLEAR: begin
+                            led_out_reg <= led_out_reg & ~wbs_dat_i[LED_WIDTH-1:0];
+                        end
+                        ADDR_LED_SET: begin
+                            led_out_reg <= led_out_reg | wbs_dat_i[LED_WIDTH-1:0];
+                        end
+                        default: ;
+                    endcase
                 end else begin
                     // Read operation
-                    if (~wbs_ack_o) begin
-                        wbs_ack_o <= 1;
-                        case (addr_bits)
-                            ADDR_LED_OUT,
-                            ADDR_LED_TOGGLE,
-                            ADDR_LED_CLEAR,
-                            ADDR_LED_SET: begin
-                                wbs_dat_o <= {{(32-LED_WIDTH){1'b0}}, led_out_reg};
-                            end
-                            default: begin
-                                wbs_dat_o <= 32'h12345678;  // Test value
-                            end
-                        endcase
-                    end
+                    wbs_dat_o <= {{(32-LED_WIDTH){1'b0}}, led_out_reg};
                 end
             end
-            else
-                wbs_ack_o <= 0;
         end
     end
-assign led_out = ~led_out_reg;
+
+assign led_out = led_out_reg;  // No inversion here - done in top module
 endmodule

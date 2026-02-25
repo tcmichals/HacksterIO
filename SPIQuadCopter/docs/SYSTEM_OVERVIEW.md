@@ -1,172 +1,225 @@
 # Tang9K FPGA Quadcopter System Overview
 
 ## Architecture
-- All peripherals are accessible via SPI slave interface, bridged to a Wishbone bus using axis_wb_master.
-- Top-level module (`tang9k_top.sv`) integrates:
-  - SPI slave
-  - SPI-to-AXI Stream adapter
-  - axis_wb_master (AXI Stream to Wishbone bridge)
-  - Wishbone peripherals: LED, Serial, PWM, DSHOT, NeoPixel
-  - Serial/DSHOT mux for shared output line
 
-## Wishbone Address Map
-| Address Range   | Peripheral         | Description                           |
-|----------------|--------------------|------------------------------------|
-| 0x0000-0x00FF  | LED Controller     | 4 output LEDs, counter display     |
-| 0x0200-0x02FF  | PWM Decoder        | 6-channel PWM input decoder        |
-| 0x0300-0x03FF  | DSHOT Controller   | 4-channel DSHOT150 motor outputs   |
-| 0x0400         | Serial/DSHOT Mux   | Motor pin mode + channel select    |
-|                |                    | Bit 0: mux_sel (0=Passthrough, 1=DSHOT) |
-|                |                    | Bit 2:1: mux_ch (Motor channel 0-3) |
-|                |                    | Routes serial to motor pin 32-35   |
-| 0x0500-0x05FF  | NeoPixel Controller| WS2812 LED string controller       |
+The system has two independent Wishbone bus masters:
 
-## Peripherals
-### LED Controller
-- 4 output LEDs, Wishbone-mapped.
+1. **SERV RISC-V CPU** - Handles MSP protocol, ESC configuration, motor control
+2. **SPI-WB Master** - External host (Raspberry Pi) reads/writes flight control peripherals
 
-### PWM Decoder
-- 6 input channels, Wishbone-mapped.
-
-### DSHOT Controller
-- 4 motor outputs, Wishbone-mapped.
-- DSHOT150 protocol, 16-bit frame.
-
-### Serial/DSHOT Mux (0x0400)
-- Register at 0x0400 selects operating mode:
-  - **Bit 0 (mux_sel)**: Default Mode (0=Passthrough, 1=DSHOT)  
-  - **Bit 2:1 (mux_ch)**: Motor channel (0-3) for manual passthrough
-  - **Bit 3 (msp_mode)**: 1=Force MSP Discovery Mode
-  
-**Automatic Override (Recommended):**
-Modern configurators use the **4-Way Interface Protocol**. The FPGA automatically hijacks the USB UART TX line and selects the correct motor pin whenever protocol activity is detected, making manual register writes optional for discovery.
-
-### USB UART Passthrough Bridge
-- **Hardware-only bridge** that bypasses Wishbone entirely
-- Connects USB UART (pins 19-20) to **selected motor pin** (pins 32-35)
-- Enabled when mux_sel=0, disabled when mux_sel=1
-- **Module**: `uart_passthrough_bridge.sv`
-- **Baud Rate**: 115200 (fixed)
-- **Features**:
-  - Automatic tri-state control for half-duplex communication
-  - Direct byte-level forwarding with minimal latency
-  - No software data bridging required
-  - No Wishbone bus contention
-
-### NeoPixel Controller
-- Wishbone-mapped, outputs pixel data to NeoPixel driver.
-- Uses AXI-like handshake to feed pixel data to `sendPx` driver.
-- System clock: 72 MHz, fast enough for WS2812 timing.
-- `sendPx.v` generates correct WS2812 bitstream (0.4/0.8 μs high, 0.85/0.45 μs low).
-
-## BLHeli ESC Configuration Support
-The system supports configuring BLHeli ESCs using BLHeliSuite or BLHeliConfigurator through a **hardware passthrough bridge**:
-
-### Hardware Architecture
 ```
-PC (BLHeli Tool)
-    ↓ USB
-USB-to-TTL Adapter (CP2102/FT232/CH340)
-    ↓ UART (115200 baud)
-Tang9K Pins 19-20 (USB UART Interface)
-    ↓ Hardware Bridge (uart_passthrough_bridge.sv)
-Tang9K Pin 25 (Half-Duplex Serial)
-    ↓ Serial (115200 baud)
-ESC (BLHeli Firmware)
-```
-
-### Passthrough Mode
-1. **Zero-Config**: The FPGA continuously monitors the USB UART for MSP discovery packets.
-2. **Automatic Hijack**: When a configurator tool (like the ESC Configurator web app) connects, the FPGA automatically switches to the MSP handler (`msp_handler.sv`).
-3. **Smart Briding**: The 4-Way Protocol handler (`four_way_handler.sv`) automatically manages command stripping, CRC validation, and 19200 baud communication with the ESC.
-4. **Hardware Performance**: Protocol handling and direction switching happen in RTL, ensuring sub-microsecond timing accuracy.
-
-### Pin Configuration
-| Function | Pin(s) | Direction | Description |
-|----------|--------|-----------|-------------|
-| USB UART RX | 19 | Input | Receives data from PC (adapter TX) |
-| USB UART TX | 20 | Output | Sends data to PC (adapter RX) |
-| **ESC Serial** | **32-35** | **Bidir** | **Half-duplex to ESC (motor pins)** |
-|              |        |           | **Select via mux_ch bits 2:1** |
-
-### Usage
-```bash
-cd python/test
-python tang9k_tui.py
-# Press 'p' to toggle passthrough mode
-# Connect BLHeliSuite to your USB adapter (/dev/ttyUSB0 at 115200 baud)
-# Configure ESCs
-# Press 'p' again to disable passthrough when done
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              Tang9K FPGA (72 MHz)                           │
+│                                                                             │
+│  ┌─────────────┐                                                            │
+│  │ Raspberry Pi│                                                            │
+│  │  SPI Master │                                                            │
+│  └──────┬──────┘                                                            │
+│         │ SPI                                                               │
+│         ▼                                                                   │
+│  ┌─────────────┐                                                            │
+│  │  spi_slave  │                                                            │
+│  └──────┬──────┘                                                            │
+│         │                                                                   │
+│         ▼                                                                   │
+│  ┌──────────────┐                                                           │
+│  │spi_wb_master │                                                           │
+│  │ (Protocol:   │                                                           │
+│  │  A1=Read     │                                                           │
+│  │  A2=Write)   │                                                           │
+│  └──────┬───────┘                                                           │
+│         │                                                                   │
+│         │ Wishbone                                                          │
+│         ▼                                                                   │
+│  ┌─────────────┐         ┌────────────────────────────────┐                 │
+│  │  wb_mux_6   │         │      SERV RISC-V CPU           │                 │
+│  │ (SPI Bus)   │         │   (bit-serial, ~2.25 MIPS)     │                 │
+│  │             │         │                                │                 │
+│  │ Peripherals:│         │   ┌──────────┐  ┌──────────┐   │                 │
+│  │ - Version R │         │   │ 8KB RAM  │  │ Firmware │   │                 │
+│  │ - LED    RW │         │   │ (I+D)    │  │ (.mem)   │   │                 │
+│  │ - PWM    R  │         │   └──────────┘  └──────────┘   │                 │
+│  │ - DSHOT  RW │◄──┐     └───────────┬────────────────────┘                 │
+│  │ - NeoPixel  │   │                 │                                      │
+│  │ - MuxMirror │   │                 │ Wishbone (External Bus)              │
+│  └─────────────┘   │                 ▼                                      │
+│                    │          ┌─────────────┐                               │
+│   wb_arbiter_2 ────┤          │  wb_mux_5   │                               │
+│   (DSHOT shared)   │          │ (SERV Bus)  │                               │
+│                    │          └──────┬──────┘                               │
+│                    │                 │                                      │
+│                    │     ┌───────────┼───────────┬───────────┬──────────┐   │
+│                    │     ▼           ▼           ▼           ▼          ▼   │
+│                    │ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ │
+│                    │ │ Debug  │ │ DSHOT  │ │  Mux   │ │  USB   │ │  ESC   │ │
+│                    │ │ GPIO   │ │(arbiter│ │  Reg   │ │  UART  │ │  UART  │ │
+│                    │ │0x100   │ │0x400   │ │0x700   │ │0x800   │ │0x900   │ │
+│                    │ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘ │
+│                    │     │          │          │          │          │      │
+│                    └─────┼──────────┘          │          │          │      │
+│                          │                     │          │          │      │
+│                          ▼                     │          │          │      │
+│                    o_debug[2:0]                │          │          │      │
+│                                                │          │          │      │
+│                                    mux_sel ◄───┘          │          │      │
+│                                    mux_ch                 │          │      │
+│                                       │                   │          │      │
+│                                       ▼                   ▼          │      │
+│                              ┌─────────────────────────────────┐     │      │
+│                              │   Motor Pin Mux (4ch)           │     │      │
+│                              │  mux_sel=0: ESC UART ◄──────────┼─────┘      │
+│                              │  mux_sel=1: DSHOT output        │            │
+│                              └─────────────┬───────────────────┘            │
+│                                            │                                │
+└────────────────────────────────────────────┼────────────────────────────────┘
+                                             │
+              ┌──────────────────────────────┼──────────────────────────────┐
+              │                              │                              │
+              ▼                              ▼                              │
+       USB UART Pin                   Motor Pins [3:0]                      │
+       (PC @ 115200)                  (Half-duplex to ESCs)                 │
 ```
 
-### Key Advantages
-- **No software bridging**: Data flows entirely in hardware
-- **No virtual devices**: BLHeli connects to real USB serial port
-- **No Wishbone contention**: Bridge bypasses bus, only mux control uses Wishbone
-- **Low latency**: Direct hardware forwarding with minimal delay
-- **Simple and reliable**: Fewer moving parts, easier to debug
+## SERV RISC-V CPU
 
-## SPI-to-Wishbone Bridge
-- SPI slave receives bytes, passes to AXI Stream adapter.
-- axis_wb_master parses commands and bridges to Wishbone bus.
-- All peripherals are accessible via SPI commands.
-- Protocol: IMPLICIT_FRAMING mode for simplified command structure
+- **Core**: SERV bit-serial RISC-V (RV32I)
+- **Clock**: 72 MHz
+- **Performance**: ~2.25 MIPS (32 cycles/instruction)
+- **Memory**: 8KB shared I/D RAM
+- **Firmware**: Loaded from `serv/firmware/firmware.mem`
 
-## Python TUI Application
-Located in `python/test/`, provides a full-featured terminal UI for system control:
+## Dual-Bus Architecture
 
-### Features
-- **Serial Console**: Send/receive serial data via SPI/Wishbone
-- **LED Counter**: Increment/reset LED display
-- **NeoPixel Control**: Animated waterfall effects
-- **PWM Monitoring**: Real-time display of all 6 PWM channels
-- **BLHeli Passthrough**: Configure ESCs using BLHeliSuite/Configurator
+### SERV Wishbone Bus (wb_mux_5)
+SERV handles protocol bridging and ESC configuration:
 
-### Installation
-```bash
-cd python/test
-pip install -r requirements.txt
-python tang9k_tui.py
+| Address        | Peripheral     | Access | Description                           |
+|----------------|----------------|--------|---------------------------------------|
+| 0x4000_0100    | Debug GPIO     | RW     | 3-bit digital output for debugging    |
+| 0x4000_0400    | DSHOT (arbiter)| RW     | Motor control (shared with SPI)       |
+| 0x4000_0700    | Mux Register   | RW     | DSHOT vs UART mode select             |
+| 0x4000_0800    | USB UART       | RW     | MSP from PC (115200 baud)             |
+| 0x4000_0900    | ESC UART       | RW     | Half-duplex to ESC (19200 baud)       |
+
+### SPI Wishbone Bus (wb_mux_6)
+External flight controller accesses sensors and actuators:
+
+| Address  | Peripheral     | Access | Description                    |
+|----------|----------------|--------|--------------------------------|
+| 0x0000   | Version        | R      | Hardware version register      |
+| 0x0100   | LED Controller | RW     | 4 output LEDs                  |
+| 0x0200   | PWM Decoder    | R      | 6-channel pulse widths (μs)    |
+| 0x0300   | DSHOT (arbiter)| RW     | Motor control (shared with SERV)|
+| 0x0400   | NeoPixel       | RW     | 8x WS2812 LEDs                 |
+| 0x0500   | Mux Mirror     | R      | Read-only shadow of mux reg    |
+
+### DSHOT Arbiter
+Both SERV and SPI buses can access DSHOT controller via `wb_arbiter_2`:
+- SERV has priority (for MSP_SET_MOTOR testing)
+- SPI access for normal flight control
+
+## Motor Pin Mux
+
+Each motor pin can operate in two modes controlled by `WB_MUX_REG`:
+
+| Mode | mux_sel | Motor Pin Function |
+|------|---------|-------------------|
+| UART | 0       | Half-duplex ESC UART (selected by mux_ch) |
+| DSHOT| 1       | DSHOT motor output |
+
+**mux_ch** (bits 2:1) selects which motor channel (0-3) to use for ESC UART when in UART mode.
+
+## ESC Configuration Flow
+
+SERV bridges BLHeli configuration from PC to ESC:
+
+```
+PC (BLHeliSuite)
+    ↓ USB (115200)
+USB UART → SERV CPU → ESC UART
+                         ↓ (19200, half-duplex)
+                    Motor Pin [mux_ch]
+                         ↓
+                       ESC
 ```
 
-### Keyboard Shortcuts
-- `q`: Quit
-- `c`: Clear serial log
-- `w`: Toggle NeoPixel waterfall
-- `p`: Toggle BLHeli passthrough mode
+1. PC sends BLHeli packets via USB UART
+2. SERV receives via `WB_USB_RX_DATA`
+3. SERV sets mux to UART mode: `WB_MUX_REG = (channel << 1) | 0`
+4. SERV forwards bytes to ESC via `WB_ESC_TX_DATA`
+5. ESC responses read via `WB_ESC_RX_DATA`
+6. SERV sends responses back via `WB_USB_TX_DATA`
 
-## Module Documentation
-- All major modules have updated comments describing their interface, timing, and integration.
-- See each module's header for details.
+## Debug GPIO
+
+Fast 3-bit output for debugging with logic analyzer:
+
+| Register Offset | Function |
+|-----------------|----------|
+| 0x00            | OUT - Direct write |
+| 0x04            | SET - Set bits (OR) |
+| 0x08            | CLR - Clear bits (AND NOT) |
+| 0x0C            | TGL - Toggle bits (XOR) |
+
+Debug values in firmware:
+- 0 = Reset/idle
+- 1 = Processor running
+- 2 = Main loop
+- 3 = USB RX received
+- 4 = MSP frame start
+- 5 = MSP frame complete
+- 6 = TX done
+- 7 = Error
+
+---
+
+## Module Summary
+
+| Module | Purpose |
+|--------|---------|
+| tang9k_top.sv | Top-level: instantiates all buses, arbiters, peripherals |
+| serv-core/ | SERV bit-serial RISC-V CPU |
+| wb_mux_5.v | 5-port Wishbone mux for SERV bus |
+| wb_mux_6.v | 6-port Wishbone mux for SPI bus |
+| wb_arbiter_2.sv | 2-master arbiter for shared DSHOT |
+| spi_slave.sv | SPI slave interface |
+| spi_wb_master.sv | SPI-to-Wishbone protocol bridge |
+| wb_debug_gpio.sv | 3-bit debug GPIO for SERV |
+| wb_dshot_controller.sv | 4-channel DSHOT150 output |
+| wb_led_controller.sv | 6-LED PWM controller |
+| wb_usb_uart.sv | USB UART (115200 baud) |
+| wb_esc_uart.sv | ESC half-duplex UART (19200 baud) |
+| wb_neoPx.v | NeoPixel WS2812 controller |
+| pwmdecoder_wb.v | 6-channel PWM input decoder |
 
 ## Timing Notes
-- Serial: 115200 baud, 8-N-1, correct bit timing at 72 MHz (625 clock cycles per bit).
-- NeoPixel: WS2812 timing verified, 72 MHz clock is sufficient.
-- DSHOT: DSHOT150 protocol, correct timing for 72 MHz clock.
+
+- **System Clock**: 72 MHz from PLL (27 MHz crystal input)
+- **SERV**: Bit-serial, ~2.25 MIPS at 72 MHz
+- **USB UART**: 115200 baud, 8-N-1 (625 clocks/bit)
+- **ESC UART**: 19200 baud, 8-N-1 (3750 clocks/bit)
+- **DSHOT150**: 150 kbps, 480 clocks/bit
+- **NeoPixel**: WS2812 timing (0.4/0.8 μs high, 0.85/0.45 μs low)
 
 ## Use Cases
 
-### Normal Flight Operation
-1. Set mux to DSHOT mode (write 1 to 0x0400)
-2. Send motor commands via DSHOT registers (0x0300-0x03FF)
-3. Monitor PWM inputs from receiver (0x0200-0x02FF)
-4. Update NeoPixel status LEDs (0x0500-0x05FF)
+### Normal Flight Operation (SPI Master)
+1. Read PWM inputs from receiver (0x0200)
+2. Write motor commands via DSHOT (0x0300)
+3. Update NeoPixel status LEDs (0x0400)
+4. Monitor LED indicators (0x0100)
 
-### ESC Configuration (BLHeli)
-1. Open the **ESC Configurator PWA** (or desktop tool) and click "Connect".
-2. The FPGA **automatically** detects the MSP discovery handshake and identifies as "TN9K".
-3. The tool communicates via the **4-Way Interface Protocol**, and the FPGA automatically bridges to the ESC signal line (converting 115200 to 19200 baud).
-4. Configure ESC parameters, flash firmware, etc.
-5. Once complete, the system is ready to return to DSHOT mode for flight.
+### ESC Configuration (BLHeli via SERV)
+1. PC sends MSP commands over USB UART
+2. SERV detects 4-Way Interface protocol
+3. SERV reads mux register to select ESC channel
+4. SERV bridges USB ↔ ESC UART at 19200 baud
+5. Configure ESC parameters via BLHeli tool
 
-### Debugging/Development
-1. Use serial console for debug output
-2. Monitor PWM inputs in real-time
-3. Test motor outputs safely via DSHOT
-4. Display status on NeoPixel LEDs
-
-## Extensibility
-- Add new Wishbone peripherals by assigning new address ranges and connecting to the bus mux in `tang9k_top.sv`.
+### Debugging
+1. Set Debug GPIO pins from SERV firmware
+2. Observe o_debug[2:0] on oscilloscope
+3. Values 0-7 indicate program state
 
 ---
-For more details, see individual module files and comments.
+For more details, see individual module files and header comments.

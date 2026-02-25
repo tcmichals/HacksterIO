@@ -1,0 +1,53 @@
+# Makefile for SPI to Wishbone Master Testbench
+
+IVERILOG = iverilog
+VVP = vvp
+GTK = gtkwave
+
+# Source files
+TB_FILE = spi_wb_master_tb.sv
+DUT_FILE = ../spi_wb_master.sv
+SPI_SLAVE = ../../spiSlave/spi_slave.sv
+
+# Output files
+VVP_FILE = spi_wb_master_tb.vvp
+VCD_FILE = spi_wb_master_tb.vcd
+
+# Iverilog flags
+IVERILOG_FLAGS = -g2012 -Wall -DSIM_DEBUG
+
+.PHONY: all compile sim wave clean help
+
+all: sim
+
+compile:
+	@echo "=== Compiling SPI WB Master Testbench ==="
+	$(IVERILOG) $(IVERILOG_FLAGS) -o $(VVP_FILE) \
+		$(TB_FILE) \
+		$(DUT_FILE) \
+		$(SPI_SLAVE)
+	@echo "Compilation complete!"
+
+sim: compile
+	@echo "=== Running Simulation ==="
+	$(VVP) $(VVP_FILE)
+	@echo "Simulation complete!"
+
+wave: sim
+	@echo "=== Opening Waveform Viewer ==="
+	$(GTK) $(VCD_FILE) &
+
+clean:
+	@echo "=== Cleaning ==="
+	rm -f $(VVP_FILE) $(VCD_FILE)
+	@echo "Clean complete!"
+
+help:
+	@echo "SPI WB Master Testbench Makefile"
+	@echo ""
+	@echo "Targets:"
+	@echo "  make          - Compile and simulate"
+	@echo "  make compile  - Compile only"
+	@echo "  make sim      - Compile and run simulation"
+	@echo "  make wave     - Simulate and view waveforms"
+	@echo "  make clean    - Remove generated files"

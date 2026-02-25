@@ -59,9 +59,9 @@ endmodule
 
 
 /**
- * 72 MHz PLL specialized module
+ * 54 MHz PLL specialized module
  * 
- * Generates 72 MHz clock from 27 MHz input
+ * Generates 54 MHz clock from 27 MHz input
  * Useful for TTL serial and other high-speed interfaces
  */
 module pll_27m_to_72m (
@@ -71,17 +71,17 @@ module pll_27m_to_72m (
 );
 
 `ifdef SYNTHESIS
-    // Synthesis: instantiate the Gowin-generated 27->72 MHz PLL here.
+    // Synthesis: instantiate the Gowin-generated 27->54 MHz PLL here.
     // Use the IP generator to create a module named `gowin_pll_27m_to_72m` (or
     // adjust the instantiation below to match the generated module name).
 rPLL #( // For GW1NR-9C C6/I5 (Tang Nano 9K proto dev board)
   .FCLKIN("27"),
   .IDIV_SEL(2), // -> PFD = 9 MHz (range: 3-400 MHz)
-  .FBDIV_SEL(7), // -> CLKOUT = 72 MHz (range: 3.125-600 MHz)
-  .ODIV_SEL(8) // -> VCO = 576 MHz (range: 400-1200 MHz)
+  .FBDIV_SEL(5), // -> VCO = 27 * 6 * 8 / 3 = 432 MHz (range: 400-1200 MHz)
+  .ODIV_SEL(8) // -> CLKOUT = 432 / 8 = 54 MHz
 ) pll (.CLKOUTP(), .CLKOUTD(), .CLKOUTD3(), .RESET(1'b0), .RESET_P(1'b0), .CLKFB(1'b0), .FBDSEL(6'b0), .IDSEL(6'b0), .ODSEL(6'b0), .PSDA(4'b0), .DUTYDA(4'b0), .FDLY(4'b0),
     .CLKIN(clkin), // 27 MHz input should be connected to module port 'clkin'
-    .CLKOUT(clk72), // 72 MHz output mapped to module port 'clk72'
+    .CLKOUT(clk72), // 54 MHz output mapped to module port 'clk72'
     .LOCK(locked)
 );
 

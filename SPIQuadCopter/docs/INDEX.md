@@ -9,6 +9,9 @@ This project includes comprehensive documentation for building, testing, and pro
 **Start Here:**
 - **[QUICK_START.md](QUICK_START.md)** - 2-minute quick reference guide
 
+**Architecture:**
+- **[SYSTEM_OVERVIEW.md](SYSTEM_OVERVIEW.md)** - Dual-bus architecture and peripheral details
+
 **For Detailed Information:**
 - **[BUILD_AND_PROGRAM.md](BUILD_AND_PROGRAM.md)** - Complete build & programming guide
 - **[README.md](README.md)** - Project overview and features

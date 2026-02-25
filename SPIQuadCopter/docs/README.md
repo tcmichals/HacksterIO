@@ -3,6 +3,7 @@
 FPGA-based quadcopter flight controller using the Tang9K development board.
 
 ## Features
+- **SERV RISC-V CPU**: Bit-serial 32-bit RISC-V core for protocol handling and peripheral control
 - **SPI-to-Wishbone Bridge**: All peripherals accessible via SPI interface
 - **16650 UART**: Half-duplex serial with FIFO and interrupts (115200 baud)
 - **DSHOT Motor Control**: 4-channel DSHOT150 ESC interface
@@ -51,9 +52,10 @@ mmdc -i docs/system_block_diagram.md -o docs/system_block_diagram.png
 - **[tang9k.cst](tang9k.cst)** - Physical constraint file
 
 ### System Architecture
-- **[SYSTEM_OVERVIEW.md](docs/SYSTEM_OVERVIEW.md)** - Complete architecture and Wishbone address map
-- **[WISHBONE_BUS.md](docs/WISHBONE_BUS.md)** - Wishbone integration details
-- **[72MHZ_PLL.md](docs/72MHZ_PLL.md)** - PLL configuration
+- **[SYSTEM_OVERVIEW.md](SYSTEM_OVERVIEW.md)** - Complete architecture and Wishbone address map
+- **[SPI_WB_MASTER_DESIGN.md](SPI_WB_MASTER_DESIGN.md)** - SPI-to-Wishbone protocol specification
+- **[72MHZ_PLL.md](72MHZ_PLL.md)** - PLL configuration
+- **[serv/firmware/README.md](../serv/firmware/README.md)** - SERV RISC-V firmware (MSP bridge)
 
 ### BLHeli & ESC Configuration
 - **[BLHELI_PASSTHROUGH.md](docs/BLHELI_PASSTHROUGH.md)** - ESC configuration guide (motor pin routing)

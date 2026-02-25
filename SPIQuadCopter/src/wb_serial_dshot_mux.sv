@@ -52,6 +52,23 @@ module wb_serial_dshot_mux #(
     // Only respond to address 0x0400
     wire sel = wb_cyc_i & wb_stb_i & (wb_adr_i[11:2] == 10'h100);
 
+    // Register input signals for timing closure
+    reg [3:0] dshot_in_reg;
+    reg       serial_tx_reg;
+    reg       serial_oe_reg;
+    
+    always_ff @(posedge wb_clk_i) begin
+        if (wb_rst_i) begin
+            dshot_in_reg  <= 4'b0;
+            serial_tx_reg <= 1'b1;
+            serial_oe_reg <= 1'b0;
+        end else begin
+            dshot_in_reg  <= dshot_in;
+            serial_tx_reg <= serial_tx_i;
+            serial_oe_reg <= serial_oe_i;
+        end
+    end
+
     reg reg_mux_sel; // Internal register
 
     always_ff @(posedge wb_clk_i) begin
@@ -185,22 +202,28 @@ module wb_serial_dshot_mux #(
     generate
         for (i = 0; i < 4; i++) begin : gen_pads
             wire is_target = (effective_mux_ch == i[1:0]);
-            wire dshot_val = dshot_in[i];
+            wire dshot_val = dshot_in_reg[i];  // Use registered input
             
+            // REGISTERED output signals for timing closure
             logic pad_out_data;
             logic pad_oe_active_high; 
 
-            always_comb begin
-                if (effective_mux_sel == 1'b1) begin
-                    pad_out_data       = dshot_val;
-                    pad_oe_active_high = 1'b1; 
+            always_ff @(posedge wb_clk_i or posedge wb_rst_i) begin
+                if (wb_rst_i) begin
+                    pad_out_data       <= 1'b0;
+                    pad_oe_active_high <= 1'b0;
                 end else begin
-                    if (is_target) begin
-                        pad_out_data       = serial_tx_i;
-                        pad_oe_active_high = serial_oe_i; 
+                    if (effective_mux_sel == 1'b1) begin
+                        pad_out_data       <= dshot_val;
+                        pad_oe_active_high <= 1'b1; 
                     end else begin
-                        pad_out_data       = 1'b0;
-                        pad_oe_active_high = 1'b0; 
+                        if (is_target) begin
+                            pad_out_data       <= serial_tx_reg;   // Use registered input
+                            pad_oe_active_high <= serial_oe_reg;   // Use registered input
+                        end else begin
+                            pad_out_data       <= 1'b0;
+                            pad_oe_active_high <= 1'b0; 
+                        end
                     end
                 end
             end

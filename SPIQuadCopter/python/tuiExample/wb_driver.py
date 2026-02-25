@@ -18,6 +18,10 @@ class MockSpi:
 
 class WishboneDriver:
     def __init__(self, bus=0, device=0, speed_hz=1000000):
+        """
+        Initialize SPI Wishbone driver.
+        Default speed: 1MHz.
+        """
         self.spi = spidev.SpiDev()
         try:
             self.spi.open(bus, device)
@@ -44,54 +48,57 @@ class WishboneDriver:
     def write(self, addr, data: bytes):
         """
         Write data to a Wishbone address.
-        Protocol: 0xA2 + [ADDR 4B BE] + [LEN 2B BE] + [DATA N LE] + [PAD 1B]
+        Protocol: 0xA2 + [LEN 2B LE] + [ADDR 4B LE] + [DATA N] + [0xDA]
+        Response: [DA] [0x22] [len echo] [addr echo] [0xEE ack per word]
         
-        NOTE: 
-        - Header (Addr, Len) is BIG ENDIAN.
-        - Data payload is LITTLE ENDIAN.
+        NOTE: All multi-byte values are Little Endian.
         """
         cmd = 0xA2
+        sync = 0xDA
         length = len(data)
         
-        # Structure: Cmd (1B), Addr (4B, BE), Len (2B, BE)
-        header = struct.pack('>BIH', cmd, addr, length)
+        # Structure: Cmd (1B), Len (2B, LE), Addr (4B, LE)
+        header = struct.pack('<BHI', cmd, length, addr)
         
-        # Full payload: Header + Data + Padding (1B)
-        payload = header + data + b'\x00'
+        # Full payload: Header + Data + Sync (0xDA)
+        payload = header + data + bytes([sync])
         
         self._transfer(payload)
 
     def read(self, addr, length):
         """
         Read data from a Wishbone address.
-        Protocol: 0xA1 + [ADDR 4B BE] + [LEN 2B BE] + [PAD 1B] -> [DATA N LE]
+        Protocol: 0xA1 + [LEN 2B LE] + [ADDR 4B LE] + [0x55 pads N] + [0xDA]
+        Response: [DA] [0x21] [len echo 2B] [addr echo 4B] [data N] [DA echo?]
+        
+        Response is shifted by 1 byte (SPI full-duplex).
         """
         cmd = 0xA1
+        pad = 0x55
+        sync = 0xDA
         
-        # Structure: Cmd (1B), Addr (4B, BE), Len (2B, BE)
-        header = struct.pack('>BIH', cmd, addr, length)
+        # Structure: Cmd (1B), Len (2B, LE), Addr (4B, LE)
+        header = struct.pack('<BHI', cmd, length, addr)
         
-        # Send header + PAD + dummy bytes for receiving data
-        # We need to send (1+4+2+1) bytes of command/header, then receive 'length' bytes.
-        # But SPI is full duplex. We send Header+PAD, then we send 'length' dummy bytes to clock out the data.
-        # Total transfer: Header(7) + Padding(1) + Dummy(length)
+        # Pad bytes for data clocking (0x55)
+        pad_bytes = bytes([pad] * length)
         
-        # According to user: "spi has to have one extra byte to complete"
-        # And "Read: 0xA1 + [ADDR 4B] + [LEN 2B] + [PAD 1B] -> Receive Data"
-        
-        tx_data = header + b'\x00' + (b'\x00' * length)
+        # Full TX: Header(7) + Pads(length) + Sync(1)
+        # RX offset: [DA][0x21][len0][len1][addr0][addr1][addr2][addr3][data...]
+        # Data starts at byte index 8
+        tx_data = header + pad_bytes + bytes([sync])
         rx_data = self._transfer(tx_data)
         
-        # The first 8 bytes (Cmd1+Addr4+Len2+Pad1) return garbage/status.
-        # The data comes after that.
-        return bytes(rx_data[8:])
+        # The first 8 bytes are: [DA][resp][len0][len1][addr0][addr1][addr2][addr3]
+        # Data comes after that (bytes 8 to 8+length-1)
+        return bytes(rx_data[8:8+length])
 
     # --- Convenience Methods ---
 
     def get_version(self):
-        # Version is at 0x600 (from coredesign.sv: slave 5)
-        # Assuming it returns 4 bytes (32-bit register)
-        return self.read(0x600, 4)
+        # Version is at 0x0000 (SPI bus slave 0 in wb_mux_6)
+        # Returns 4 bytes (32-bit register) - should be 0xDEADBEEF
+        return self.read(0x0000, 4)
 
     # --- Peripheral Methods ---
 
@@ -215,27 +222,27 @@ class WishboneDriver:
     # --- LED Methods ---
     def set_leds(self, val):
         """
-        Set on-board LEDs (5 bits for LED 1-5).
-        Base: 0x000 (Slave 0). Offset 0x00.
+        Set on-board LEDs (4 bits for LED 1-4).
+        Base: 0x100 (Slave 1 - LED Controller). Offset 0x00.
         """
         # Pack 32-bit (byte 0 is LSB, which is what we want)
-        data = struct.pack('<I', val & 0x1F)  # 5 bits for 5 LEDs
-        self.write(0x000, data)
+        data = struct.pack('<I', val & 0x0F)  # 4 bits for 4 LEDs
+        self.write(0x100, data)
 
     def get_leds(self):
         """
-        Read on-board LEDs state (5 bits for LED 1-5).
-        Base: 0x000 (Slave 0). Offset 0x00.
+        Read on-board LEDs state (4 bits for LED 1-4).
+        Base: 0x100 (Slave 1 - LED Controller). Offset 0x00.
         """
-        data = self.read(0x000, 4)
+        data = self.read(0x100, 4)
         # Assume byte 0 is LSB
-        return data[0] & 0x1F  # 5 bits for 5 LEDs
+        return data[0] & 0x0F  # 4 bits for 4 LEDs
 
     def toggle_leds(self, mask):
         """
-        Toggle LEDs based on mask (5 bits for LED 1-5).
-        Base: 0x000 (Slave 0). Offset 0x04.
+        Toggle LEDs based on mask (4 bits for LED 1-4).
+        Base: 0x100 (Slave 1 - LED Controller). Offset 0x04 = Toggle register.
         """
-        offset = 0x04
-        data = struct.pack('<I', mask & 0x1F)  # 5 bits for 5 LEDs
+        offset = 0x104
+        data = struct.pack('<I', mask & 0x0F)  # 4 bits for 4 LEDs
         self.write(offset, data)
