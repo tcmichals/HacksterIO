@@ -186,7 +186,7 @@ Debug values in firmware:
 | spi_wb_master.sv | SPI-to-Wishbone protocol bridge |
 | wb_debug_gpio.sv | 3-bit debug GPIO for SERV |
 | wb_dshot_controller.sv | 4-channel DSHOT150 output |
-| wb_led_controller.sv | 6-LED PWM controller |
+| wb_led_controller.sv | 4-LED controller |
 | wb_usb_uart.sv | USB UART (115200 baud) |
 | wb_esc_uart.sv | ESC half-duplex UART (19200 baud) |
 | wb_neoPx.v | NeoPixel WS2812 controller |

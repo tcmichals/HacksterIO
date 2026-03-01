@@ -33,7 +33,8 @@ python tui_app.py
 - ✅ **Wishbone Bus** - Standard peripheral integration
 - ✅ **6-Channel PWM Decoder** - RC receiver input
 - ✅ **4-Channel DSHOT Output** - ESC motor control
-- ✅ **UART Passthrough Bridge** - BLHeli ESC configuration
+- ✅ **USB UART** - 115200 baud for MSP protocol via SERV CPU
+- ✅ **ESC UART** - Half-duplex 19200 baud for BLHeli ESC configuration
 - ✅ **NeoPixel Controller** - WS2812 LED support
 - ✅ **72 MHz System Clock** - PLL-based clock generation
 
@@ -44,8 +45,8 @@ SPIQuadCopter/
 ├── docs/                    # 📚 Complete documentation
 ├── src/                     # RTL source files
 │   ├── tang9k_top.sv       # Top-level module
-│   ├── coredesign.sv       # Core system design
 │   └── tb/                 # Testbenches
+├── serv/                    # SERV RISC-V CPU core + firmware
 ├── python/                  # Python control software
 │   └── tuiExample/          # Main terminal UI application
 ├── dshot/                   # DSHOT motor controller
@@ -78,10 +79,8 @@ SPIQuadCopter/
 | SPI Protocol | [SPI-WB Master Design](docs/SPI_WB_MASTER_DESIGN.md) |
 | Hardware Setup | [Detailed Pinout](docs/PINOUT.md) |
 | ESC Config | [BLHeli Passthrough](docs/BLHELI_PASSTHROUGH.md) |
-| UART Details | [Half-Duplex UART Technical](docs/HALF_DUPLEX_UART_TECHNICAL.md) |
 | SERV Firmware | [SERV MSP Bridge](serv/firmware/README.md) |
 | Python TUI | [TUI Module](python/tuiExample/README.md) |
-| Testing | [Testbench README](src/TESTBENCH_README.md) |
 
 ## 🧪 Testing
 
@@ -90,12 +89,6 @@ SPIQuadCopter/
 make tb-spi-wb           # SPI-WB Master protocol (read/write/burst)
 make tb-spi-pwm          # SPI→PWM integration test
 make tb-spi-all          # Run all SPI testbenches
-
-# Other testbenches
-make tb-serv             # SERV CPU simulation
-make tb-neopx            # NeoPixel Wishbone test
-make -C neoPXStrip test  # NeoPixel timing test
-make -C pwmDecoder test  # PWM decoder test
 ```
 
 ## 📝 License
