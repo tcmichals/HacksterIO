@@ -80,15 +80,13 @@ export IVERILOG VVP
 
 SRCS := spiSlave/spi_slave.sv src/pll.sv \
 	src/spi_wb_master.sv \
-	src/msp_v2/msp_rx.sv src/msp_v2/msp_responder.sv src/msp_v2/msp_tx.sv src/msp_v2/msp_handler_v2.sv \
-	src/four_way_handler.sv src/shared_buffer_ram.sv src/wb_dshot_controller.sv src/wb_serial_dshot_mux.sv src/wb_led_controller.sv src/tang9k_top.sv \
+	src/wb_dshot_controller.sv src/wb_serial_dshot_mux.sv src/wb_led_controller.sv src/tang9k_top.sv \
 	pwmDecoder/pwmdecoder.v pwmDecoder/pwmdecoder_wb.v \
 	neoPXStrip/sendPx_axis_flexible.sv neoPXStrip/wb_neoPx.v \
 	version/wb_version.sv \
 	src/wb_mux_5.v \
 	src/wb_mux_6.v \
 	src/wb_mux_8.v \
-	src/wb_uart_wrapper.sv \
 	src/wb_usb_uart.sv \
 	src/wb_debug_gpio.sv \
 	src/wb_esc_uart.sv \
