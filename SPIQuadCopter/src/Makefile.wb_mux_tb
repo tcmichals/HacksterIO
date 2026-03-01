@@ -1,4 +1,0 @@
-
-# DEPRECATION: This per-directory Makefile has been migrated to the top-level Makefile.
-# See top-level targets: `tb-wb-mux`, `wb-mux-compile`, `wb-mux-view`, `wb-mux-clean`.
-

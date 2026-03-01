@@ -1,4 +1,0 @@
-
-# DEPRECATION: This per-directory Makefile has been migrated to the top-level Makefile.
-# See top-level targets: `tb-passthrough`, `passthrough-compile`, `passthrough-view`, `passthrough-clean`.
-
