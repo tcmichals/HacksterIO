@@ -1,3 +1,5 @@
+`default_nettype wire
+
 module spi_slave #(
     parameter DATA_WIDTH = 8
 )(

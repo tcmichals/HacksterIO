@@ -3,8 +3,59 @@
 <Project>
     <Template>FPGA</Template>
     <Version>5</Version>
-    <Device name="GW5A-25B" pn="GW5A-LV25MG121NC1/I0">gw5a25b-003</Device>
+    <Device name="GW5A-25A" pn="GW5A-LV25MG121NC1/I0">gw5a25a-002</Device>
     <FileList>
+        <File path="src/gowin_pll/gowin_pll.v" type="file.verilog" enable="1"/>
+        <File path="src/gowin_pll/gowin_pll_mod.v" type="file.verilog" enable="1"/>
+        <File path="src/pll_27m_to_72m.v" type="file.verilog" enable="1"/>
+        <File path="src/pll_init.v" type="file.verilog" enable="1"/>
+        <File path="src/uart_rx.v" type="file.verilog" enable="1"/>
+        <File path="src/uart_tx.v" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/dshot/dshot_out.v" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/neoPXStrip/sendPx_axis_flexible.sv" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/neoPXStrip/wb_neoPx.v" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/pwmDecoder/pwmdecoder.v" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/pwmDecoder/pwmdecoder_wb.v" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/serv/rtl/serv_wb_top.v" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/serv/rtl/wb_ram.v" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/serv/serv-core/rtl/serv_aligner.v" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/serv/serv-core/rtl/serv_alu.v" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/serv/serv-core/rtl/serv_bufreg.v" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/serv/serv-core/rtl/serv_bufreg2.v" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/serv/serv-core/rtl/serv_compdec.v" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/serv/serv-core/rtl/serv_csr.v" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/serv/serv-core/rtl/serv_ctrl.v" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/serv/serv-core/rtl/serv_debug.v" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/serv/serv-core/rtl/serv_decode.v" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/serv/serv-core/rtl/serv_immdec.v" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/serv/serv-core/rtl/serv_mem_if.v" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/serv/serv-core/rtl/serv_rf_if.v" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/serv/serv-core/rtl/serv_rf_ram.v" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/serv/serv-core/rtl/serv_rf_ram_if.v" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/serv/serv-core/rtl/serv_rf_top.v" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/serv/serv-core/rtl/serv_state.v" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/serv/serv-core/rtl/serv_synth_wrapper.v" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/serv/serv-core/rtl/serv_top.v" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/serv/serv-core/servile/servile.v" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/serv/serv-core/servile/servile_arbiter.v" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/serv/serv-core/servile/servile_mux.v" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/serv/serv-core/servile/servile_rf_mem_if.v" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/spiSlave/spi_slave.sv" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/src/spi_wb_master.sv" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/src/tang9k_top.sv" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/src/wb_debug_gpio.sv" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/src/wb_dshot_controller.sv" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/src/wb_esc_uart.sv" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/src/wb_led_controller.sv" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/src/wb_mux_5.v" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/src/wb_mux_6.v" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/src/wb_mux_8.v" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/src/wb_serial_dshot_mux.sv" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/src/wb_usb_uart.sv" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/verilog-wishbone/rtl/arbiter.v" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/verilog-wishbone/rtl/priority_encoder.v" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/verilog-wishbone/rtl/wb_arbiter_2.v" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/version/wb_version.sv" type="file.verilog" enable="1"/>
         <File path="src/quadcopter.cst" type="file.cst" enable="1"/>
         <File path="src/quadcopter.sdc" type="file.sdc" enable="1"/>
     </FileList>

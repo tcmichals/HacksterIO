@@ -68,22 +68,21 @@ module wb_esc_uart #(
     logic               tx_ready;
     logic [7:0]         tx_data_reg;
     logic               tx_data_valid;
+    logic               tx_data_consumed;  // Handshake: TX FSM signals it took the data
     
     // TX state machine
     always_ff @(posedge clk) begin
         if (rst) begin
-            tx_state      <= TX_IDLE;
-            tx_out        <= 1'b1;      // UART idle = HIGH
-            tx_shift      <= 8'h00;
-            tx_bit_idx    <= 3'd0;
-            tx_counter    <= 13'd0;
-            tx_ready      <= 1'b1;
-            tx_data_valid <= 1'b0;
-            tx_active     <= 1'b0;
+            tx_state         <= TX_IDLE;
+            tx_out           <= 1'b1;      // UART idle = HIGH
+            tx_shift         <= 8'h00;
+            tx_bit_idx       <= 3'd0;
+            tx_counter       <= 13'd0;
+            tx_ready         <= 1'b1;
+            tx_active        <= 1'b0;
+            tx_data_consumed <= 1'b0;
         end else begin
-            // Clear data valid after loading
-            if (tx_state == TX_START && tx_counter == 0)
-                tx_data_valid <= 1'b0;
+            tx_data_consumed <= 1'b0;  // Default: single-cycle pulse
             
             case (tx_state)
                 TX_IDLE: begin
@@ -91,12 +90,13 @@ module wb_esc_uart #(
                     tx_active  <= 1'b0;
                     tx_ready   <= 1'b1;
                     if (tx_data_valid) begin
-                        tx_shift   <= tx_data_reg;
-                        tx_state   <= TX_START;
-                        tx_counter <= CLKS_PER_BIT - 1;
-                        tx_out     <= 1'b0;     // Start bit
-                        tx_ready   <= 1'b0;
-                        tx_active  <= 1'b1;
+                        tx_shift         <= tx_data_reg;
+                        tx_state         <= TX_START;
+                        tx_counter       <= CLKS_PER_BIT - 1;
+                        tx_out           <= 1'b0;     // Start bit
+                        tx_ready         <= 1'b0;
+                        tx_active        <= 1'b1;
+                        tx_data_consumed <= 1'b1;  // Signal we took the data
                     end
                 end
                 
@@ -168,6 +168,7 @@ module wb_esc_uart #(
     logic [12:0]        rx_counter;
     logic [7:0]         rx_data_reg;
     logic               rx_valid;
+    logic               rx_read_ack;  // Handshake: WB signals it read the data
     
     // 2-stage synchronizer for RX input
     logic rx_meta, rx_sync;
@@ -191,7 +192,9 @@ module wb_esc_uart #(
             rx_data_reg <= 8'h00;
             rx_valid   <= 1'b0;
         end else begin
-            // Clear valid on read (handled in Wishbone section)
+            // Clear valid when Wishbone reads RX_DATA
+            if (rx_read_ack)
+                rx_valid <= 1'b0;
             
             // RX disabled during TX active
             if (tx_active) begin
@@ -271,18 +274,24 @@ module wb_esc_uart #(
     always_ff @(posedge clk) begin
         if (rst) begin
             tx_data_reg   <= 8'h00;
-            // tx_data_valid cleared in TX FSM
-        end else if (wb_access && wb_we_i && !wb_ack_o) begin
-            case (wb_adr_i[3:2])
-                2'b00: begin  // TX_DATA (0x00)
-                    if (tx_ready) begin
-                        tx_data_reg   <= wb_dat_i[7:0];
-                        tx_data_valid <= 1'b1;
+            tx_data_valid <= 1'b0;
+        end else begin
+            // Clear valid when TX FSM consumes the data
+            if (tx_data_consumed)
+                tx_data_valid <= 1'b0;
+            
+            if (wb_access && wb_we_i && !wb_ack_o) begin
+                case (wb_adr_i[3:2])
+                    2'b00: begin  // TX_DATA (0x00)
+                        if (tx_ready) begin
+                            tx_data_reg   <= wb_dat_i[7:0];
+                            tx_data_valid <= 1'b1;
+                        end
                     end
-                end
-                // Other registers are read-only
-                default: ;
-            endcase
+                    // Other registers are read-only
+                    default: ;
+                endcase
+            end
         end
     end
     
@@ -297,12 +306,12 @@ module wb_esc_uart #(
         endcase
     end
     
-    // Clear RX valid on read
+    // RX read acknowledge (single block drives rx_read_ack)
     always_ff @(posedge clk) begin
         if (rst) begin
-            // rx_valid handled in RX FSM
-        end else if (wb_access && !wb_we_i && wb_ack_o && wb_adr_i[3:2] == 2'b10) begin
-            rx_valid <= 1'b0;  // Clear on RX_DATA read
+            rx_read_ack <= 1'b0;
+        end else begin
+            rx_read_ack <= wb_access && !wb_we_i && wb_ack_o && wb_adr_i[3:2] == 2'b10;
         end
     end
 
