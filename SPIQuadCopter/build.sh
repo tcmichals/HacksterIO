@@ -1,8 +1,14 @@
 #!/bin/bash
-# Tang9K Build and Program Script
-# This script automates the complete build and programming workflow
+# Tang Nano 9K Build and Program Script
 # 
-# Prerequisites: OSS CAD Suite toolchain (yosys, nextpnr-himbaechel, gowin_pack)
+# Target Platform: Tang Nano 9K (Gowin GW1NR-9C FPGA)
+# Toolchain: OSS CAD Suite (yosys, nextpnr-himbaechel, gowin_pack)
+#
+# This script automates the complete build and programming workflow
+# for the Tang Nano 9K platform ONLY. Other platforms:
+#   - Arty-S7-50 requires Xilinx Vivado (not OSS CAD Suite)
+# 
+# Prerequisites: OSS CAD Suite toolchain
 # Install toolchain with: make install-tools (or make install-tools-local)
 
 set -e  # Exit on any error

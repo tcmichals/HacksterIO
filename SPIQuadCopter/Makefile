@@ -1,6 +1,14 @@
-## Main Makefile - direct toolchain (yosys → nextpnr → gowin_pack)
-## This replaces the apio-managed build with explicit commands so the project
-## only includes the RTL files we want to synthesize.
+## Tang Nano 9K Makefile - OSS CAD Suite Toolchain
+## Direct toolchain: yosys → nextpnr-himbaechel → gowin_pack
+##
+## Target Platform: Tang Nano 9K (Gowin GW1NR-9C FPGA)
+## This is the ONLY platform supported by OSS CAD Suite build.
+##
+## For other platforms:
+##   - TangPrimer25k: Requires Gowin IDE (GW5A NOT supported by OSS CAD Suite)
+##   - Arty-S7-50: Requires Xilinx Vivado (proprietary, not OSS tools)
+##
+## See docs/PLATFORM_MODULARIZATION.md for architecture details.
 
 .PHONY: help all build synth place pack upload clean simulate wave view lint
 
@@ -79,14 +87,14 @@ export IVERILOG VVP
 # Sources used for synthesis (exclude testbenches)
 
 SRCS := spiSlave/spi_slave.sv src/pll.sv \
-	src/spi_wb_master.sv \
+	src/spi_slave_wb_bridge.sv \
+	src/wb_spisystem.sv src/common_serv_spi_top.sv \
 	src/wb_dshot_controller.sv src/wb_serial_dshot_mux.sv src/wb_led_controller.sv src/tang9k_top.sv \
 	pwmDecoder/pwmdecoder.v pwmDecoder/pwmdecoder_wb.v \
 	neoPXStrip/sendPx_axis_flexible.sv neoPXStrip/wb_neoPx.v \
 	version/wb_version.sv \
 	src/wb_mux_5.v \
 	src/wb_mux_6.v \
-	src/wb_mux_8.v \
 	src/wb_usb_uart.sv \
 	src/wb_debug_gpio.sv \
 	src/wb_esc_uart.sv \
@@ -162,7 +170,17 @@ install-tools-local:
 
 
 help:
-	@echo "Tang9K FPGA Project - Available Targets:"
+	@echo "=============================================================="
+	@echo "Tang Nano 9K FPGA Project - OSS CAD Suite Build System"
+	@echo "=============================================================="
+	@echo "Platform: Tang Nano 9K (Gowin GW1NR-9C)"
+	@echo "Toolchain: Open Source (yosys, nextpnr-himbaechel, gowin_pack)"
+	@echo ""
+	@echo "NOTE: This Makefile is Tang9K-specific. Other platforms:"
+	@echo "  - TangPrimer25k requires Gowin IDE (GW5A not supported)"
+	@echo "  - Arty-S7-50 requires Xilinx Vivado (not OSS tools)"
+	@echo "  - See docs/PLATFORM_MODULARIZATION.md for details"
+	@echo "=============================================================="
 	@echo ""
 	@echo "Build targets:"
 	@echo "  make build      - Run full build (firmware + synth + place & route + pack)"
@@ -170,7 +188,7 @@ help:
 	@echo "  make synth      - Run yosys synthesis (generates hardware.json)"
 	@echo "  make place      - Run nextpnr (generates hardware.pnr.json)"
 	@echo "  make pack       - Run gowin_pack (generates hardware.fs)"
-	@echo "  make upload     - Program board using openFPGALoader"
+	@echo "  make upload     - Program Tang9K board using openFPGALoader"
 	@echo ""
 	@echo "SPI Wishbone Testbenches (src/tb/):"
 	@echo "  make tb-spi-wb       - SPI-WB Master protocol test (read/write/burst)"

@@ -76,7 +76,7 @@ SPIQuadCopter/
 |-------|----------|
 | Getting Started | [Quick Start](docs/QUICK_START.md) |
 | System Design | [System Overview](docs/SYSTEM_OVERVIEW.md) |
-| SPI Protocol | [SPI-WB Master Design](docs/SPI_WB_MASTER_DESIGN.md) |
+| SPI Protocol | [SPI Slave WB Bridge Design](docs/SPI_SLAVE_WB_BRIDGE_DESIGN.md) |
 | Hardware Setup | [Detailed Pinout](docs/PINOUT.md) |
 | ESC Config | [BLHeli Passthrough](docs/BLHELI_PASSTHROUGH.md) |
 | SERV Firmware | [SERV MSP Bridge](serv/firmware/README.md) |
