@@ -94,7 +94,7 @@ module spi_wb_integration_tb;
     logic spi_cs_n_sync;
     
     // SPI to Wishbone Master
-    spi_wb_master #(
+    spi_slave_wb_bridge #(
         .WB_ADDR_WIDTH(32),
         .WB_DATA_WIDTH(32)
     ) u_spi_wb (

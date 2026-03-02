@@ -9,7 +9,7 @@
 
 `timescale 1ns / 1ps
 
-module spi_wb_master_tb;
+module spi_slave_wb_bridge_tb;
 
     // Clock period (72 MHz = ~13.9ns, use 14ns)
     localparam CLK_PERIOD = 14;
@@ -82,7 +82,7 @@ module spi_wb_master_tb;
     );
     
     // DUT: SPI to Wishbone Master
-    spi_wb_master #(
+    spi_slave_wb_bridge #(
         .WB_ADDR_WIDTH(32),
         .WB_DATA_WIDTH(32)
     ) u_dut (
@@ -217,8 +217,8 @@ module spi_wb_master_tb;
     
     // Main test
     initial begin
-        $dumpfile("spi_wb_master_tb.vcd");
-        $dumpvars(0, spi_wb_master_tb);
+        $dumpfile("spi_slave_wb_bridge_tb.vcd");
+        $dumpvars(0, spi_slave_wb_bridge_tb);
         
         // Initialize
         pass_count = 0;

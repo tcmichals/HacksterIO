@@ -1,5 +1,5 @@
 /**
- * SPI to Wishbone Master Bridge
+ * SPI Slave to Wishbone Bridge
  * 
  * Protocol (all multi-byte values little-endian):
  *   Frame:    [cmd] [len 2B] [addr 4B] [data/pad N] [DA]
@@ -19,7 +19,7 @@
 
 `default_nettype none
 
-module spi_wb_master #(
+module spi_slave_wb_bridge #(
     parameter WB_ADDR_WIDTH = 32,
     parameter WB_DATA_WIDTH = 32,
     parameter WB_SEL_WIDTH = WB_DATA_WIDTH / 8

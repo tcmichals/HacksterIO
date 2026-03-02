@@ -2,7 +2,7 @@
  * SPI to PWM Decoder Integration Testbench
  * 
  * Tests the complete data path:
- *   SPI Master → spi_slave → spi_wb_master → pwmdecoder_wb
+ *   SPI Master → spi_slave → spi_slave_wb_bridge → pwmdecoder_wb
  * 
  * Test scenario:
  *   1. Generate PWM waveforms with known pulse widths
@@ -101,10 +101,10 @@ module spi_pwm_integration_tb;
     );
     
     // SPI to Wishbone Master
-    spi_wb_master #(
-        .WB_ADDR_WIDTH(32),
+    spi_slave_wb_bridge #(
+        .WB_ADDR_WIDTH(16),
         .WB_DATA_WIDTH(32)
-    ) u_spi_wb_master (
+    ) u_spi_slave_wb_bridge (
         .clk(clk),
         .rst(rst),
         .spi_rx_valid(spi_rx_valid),

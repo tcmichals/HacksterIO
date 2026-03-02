@@ -12,7 +12,7 @@ INCLUDE_PATHS = -I.. -I../.. -I../../spiSlave -I../../pwmDecoder -I../../neoPXSt
 
 # Common source files
 SPI_SLAVE = ../../spiSlave/spi_slave.sv
-SPI_WB_MASTER = ../spi_wb_master.sv
+SPI_SLAVE_WB_BRIDGE = ../spi_slave_wb_bridge.sv
 PWM_DECODER = ../../pwmDecoder/pwmdecoder.v
 PWM_DECODER_WB = ../../pwmDecoder/pwmdecoder_wb.v
 NEOPX_WB = ../../neoPXStrip/wb_neoPx.v
@@ -24,16 +24,16 @@ NEOPX_SENDPX = ../../neoPXStrip/sendPx_axis_flexible.sv
 all: tb-all
 
 # ============================================================================
-# SPI-WB Master Testbench
+# SPI Slave to Wishbone Bridge Testbench
 # Tests: single read, single write, burst read, invalid command
 # ============================================================================
-tb-spi-wb: spi_wb_master_tb.vvp
-	@echo "=== Running SPI-WB Master Testbench ==="
+tb-spi-wb: spi_slave_wb_bridge_tb.vvp
+	@echo "=== Running SPI Slave WB Bridge Testbench ==="
 	$(VVP) $<
 	@echo ""
 
-spi_wb_master_tb.vvp: spi_wb_master_tb.sv $(SPI_WB_MASTER) $(SPI_SLAVE)
-	@echo "=== Compiling SPI-WB Master Testbench ==="
+spi_slave_wb_bridge_tb.vvp: spi_slave_wb_bridge_tb.sv $(SPI_SLAVE_WB_BRIDGE) $(SPI_SLAVE)
+	@echo "=== Compiling SPI Slave WB Bridge Testbench ==="
 	$(IVERILOG) $(IVERILOG_FLAGS) $(INCLUDE_PATHS) -o $@ $^
 
 # ============================================================================
@@ -45,7 +45,7 @@ tb-spi-pwm: spi_pwm_integration_tb.vvp
 	$(VVP) $<
 	@echo ""
 
-spi_pwm_integration_tb.vvp: spi_pwm_integration_tb.sv $(SPI_WB_MASTER) $(SPI_SLAVE) $(PWM_DECODER) $(PWM_DECODER_WB)
+spi_pwm_integration_tb.vvp: spi_pwm_integration_tb.sv $(SPI_SLAVE_WB_BRIDGE) $(SPI_SLAVE) $(PWM_DECODER) $(PWM_DECODER_WB)
 	@echo "=== Compiling SPI-PWM Integration Testbench ==="
 	$(IVERILOG) $(IVERILOG_FLAGS) $(INCLUDE_PATHS) -o $@ $^
 
@@ -57,7 +57,7 @@ tb-spi-neopx: spi_neopx_integration_tb.vvp
 	$(VVP) $<
 	@echo ""
 
-spi_neopx_integration_tb.vvp: spi_neopx_integration_tb.sv $(SPI_WB_MASTER) $(SPI_SLAVE) $(NEOPX_WB) $(NEOPX_SENDPX)
+spi_neopx_integration_tb.vvp: spi_neopx_integration_tb.sv $(SPI_SLAVE_WB_BRIDGE) $(SPI_SLAVE) $(NEOPX_WB) $(NEOPX_SENDPX)
 	@echo "=== Compiling SPI-NeoPixel Integration Testbench ==="
 	$(IVERILOG) $(IVERILOG_FLAGS) $(INCLUDE_PATHS) -o $@ $^
 
@@ -70,7 +70,7 @@ tb-all: tb-spi-wb tb-spi-pwm
 # ============================================================================
 # Waveform viewing
 # ============================================================================
-wave-spi-wb: spi_wb_master_tb.vcd
+wave-spi-wb: spi_slave_wb_bridge_tb.vcd
 	$(GTK) $< &
 
 wave-spi-pwm: spi_pwm_integration_tb.vcd
@@ -86,7 +86,7 @@ help:
 	@echo "SPI Wishbone Testbench Makefile"
 	@echo ""
 	@echo "Targets:"
-	@echo "  make tb-spi-wb    - Run SPI-WB Master testbench (read/write/burst)"
+	@echo "  make tb-spi-wb    - Run SPI Slave WB Bridge testbench (read/write/burst)"
 	@echo "  make tb-spi-pwm   - Run SPI-PWM integration test (PWM waveform → SPI read)"
 	@echo "  make tb-spi-neopx - Run SPI-NeoPixel integration test"
 	@echo "  make tb-all       - Run all SPI testbenches"

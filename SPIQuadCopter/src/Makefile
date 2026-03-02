@@ -1,4 +1,5 @@
-# Makefile for LED Blinker Testing
+# Makefile for Tang Nano 9K PLL Testing
+# This is a simulation-only Makefile for testing the PLL module
 
 IVERILOG = iverilog
 VVP = vvp

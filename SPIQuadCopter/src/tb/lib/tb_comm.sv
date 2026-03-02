@@ -77,7 +77,7 @@ endtask
 
 // SPI -> Wishbone transaction helper using the same global names
 //
-// Protocol (new spi_wb_master.sv format, all multi-byte values little-endian):
+// Protocol (spi_slave_wb_bridge.sv format, all multi-byte values little-endian):
 //   TX: [cmd 1B] [len 2B LE] [addr 4B LE] [data/pad N] [0xDA sync]
 //   RX: [DA]     [resp]      [len echo]   [addr echo]  [data/ack]
 //

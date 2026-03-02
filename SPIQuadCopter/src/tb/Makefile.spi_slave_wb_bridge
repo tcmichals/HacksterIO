@@ -5,13 +5,13 @@ VVP = vvp
 GTK = gtkwave
 
 # Source files
-TB_FILE = spi_wb_master_tb.sv
-DUT_FILE = ../spi_wb_master.sv
+TB_FILE = spi_slave_wb_bridge_tb.sv
+DUT_FILE = ../spi_slave_wb_bridge.sv
 SPI_SLAVE = ../../spiSlave/spi_slave.sv
 
 # Output files
-VVP_FILE = spi_wb_master_tb.vvp
-VCD_FILE = spi_wb_master_tb.vcd
+VVP_FILE = spi_slave_wb_bridge_tb.vvp
+VCD_FILE = spi_slave_wb_bridge_tb.vcd
 
 # Iverilog flags
 IVERILOG_FLAGS = -g2012 -Wall -DSIM_DEBUG
