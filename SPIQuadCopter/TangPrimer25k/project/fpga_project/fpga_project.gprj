@@ -41,7 +41,7 @@
         <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/serv/serv-core/servile/servile_mux.v" type="file.verilog" enable="1"/>
         <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/serv/serv-core/servile/servile_rf_mem_if.v" type="file.verilog" enable="1"/>
         <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/spiSlave/spi_slave.sv" type="file.verilog" enable="1"/>
-        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/src/spi_wb_master.sv" type="file.verilog" enable="1"/>
+        <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/src/spi_slave_wb_bridge.sv" type="file.verilog" enable="1"/>
         <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/src/tang9k_top.sv" type="file.verilog" enable="1"/>
         <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/src/wb_debug_gpio.sv" type="file.verilog" enable="1"/>
         <File path="/home/tcmichals/projects/github/HacksterIO/SPIQuadCopter/src/wb_dshot_controller.sv" type="file.verilog" enable="1"/>

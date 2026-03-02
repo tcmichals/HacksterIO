@@ -13,6 +13,10 @@ IO_PORT "o_debug_1" DRIVE=4 IO_TYPE=LVCMOS33 PULL_MODE=DOWN;
 IO_LOC  "i_clk" 52;
 IO_PORT "i_clk" IO_TYPE=LVCMOS33 PULL_MODE=UP;
 
+// Reset button (S2) - active low
+IO_LOC  "i_reset_n" 4;
+IO_PORT "i_reset_n" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+
 IO_LOC  "i_spi_clk" 25;
 IO_PORT "i_spi_clk" IO_TYPE=LVCMOS33;
 
