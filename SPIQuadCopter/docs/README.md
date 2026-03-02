@@ -5,7 +5,7 @@
 | Document | Description |
 |----------|-------------|
 | [SYSTEM_OVERVIEW.md](SYSTEM_OVERVIEW.md) | **Start here** — Dual-bus architecture, address maps, and peripheral details |
-| [SPI_WB_MASTER_DESIGN.md](SPI_WB_MASTER_DESIGN.md) | SPI-to-Wishbone protocol specification |
+| [SPI_SLAVE_WB_BRIDGE_DESIGN.md](SPI_SLAVE_WB_BRIDGE_DESIGN.md) | SPI-to-Wishbone protocol specification |
 | [system_block_diagram.md](system_block_diagram.md) | Mermaid block diagram of the system |
 | [BLHELI_PASSTHROUGH.md](BLHELI_PASSTHROUGH.md) | BLHeli ESC configuration via SERV CPU |
 | [BLHELI_QUICKSTART.md](BLHELI_QUICKSTART.md) | Quick BLHeli setup reference |

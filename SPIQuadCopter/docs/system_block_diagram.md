@@ -16,7 +16,7 @@ flowchart TB
     subgraph SPI_BUS["SPI Bus (wb_mux_6)"]
       direction TB
       SPI_SLAVE["SPI Slave"]
-      SPI_WB["spi_wb_master"]
+      SPI_WB["spi_slave_wb_bridge"]
       VER["Version\n(0x0000)"]
       LED["LED Controller\n(0x0100)"]
       PWM["PWM Decoder\n(0x0200)"]

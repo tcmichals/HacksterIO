@@ -13,7 +13,7 @@ Complete documentation for building, programming, and understanding the Tang9K F
 ### Architecture & Design
 - **[SYSTEM_OVERVIEW.md](SYSTEM_OVERVIEW.md)** — Dual-bus architecture, address maps, peripherals
 - **[system_block_diagram.md](system_block_diagram.md)** — Mermaid block diagram
-- **[SPI_WB_MASTER_DESIGN.md](SPI_WB_MASTER_DESIGN.md)** — SPI-to-Wishbone protocol
+- **[SPI_SLAVE_WB_BRIDGE_DESIGN.md](SPI_SLAVE_WB_BRIDGE_DESIGN.md)** — SPI-to-Wishbone protocol
 - **[72MHZ_PLL.md](72MHZ_PLL.md)** — PLL configuration
 - **[TIMING_OPTIMIZATION.md](TIMING_OPTIMIZATION.md)** — Timing closure notes
 - **[IMPLEMENTATION_OPTIONS.md](IMPLEMENTATION_OPTIONS.md)** — Design trade-offs (SV vs SERV vs RP2040)
@@ -37,7 +37,7 @@ Complete documentation for building, programming, and understanding the Tang9K F
 |------|------|
 | Get started quickly | QUICK_START.md |
 | Understand the system architecture | SYSTEM_OVERVIEW.md |
-| Understand the SPI protocol | SPI_WB_MASTER_DESIGN.md |
+| Understand the SPI protocol | SPI_SLAVE_WB_BRIDGE_DESIGN.md |
 | Configure ESCs | BLHELI_PASSTHROUGH.md |
 | Check pin assignments | PINOUT.md or HARDWARE_PINS.md |
 | Fix a build error | BUILD_AND_PROGRAM.md |

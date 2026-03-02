@@ -21,7 +21,7 @@ SPIQuadCopter/
 │   ├── tang9k_top.sv           # Top-level I/O, buses, arbiter
 │   ├── pll.sv                  # 27→72 MHz clock generation
 │   ├── spi_slave.sv            # SPI slave interface
-│   ├── spi_wb_master.sv        # SPI-to-Wishbone protocol
+│   ├── spi_slave_wb_bridge.sv    # SPI-to-Wishbone protocol
 │   ├── wb_mux_5.v              # SERV bus mux (5 peripherals)
 │   ├── wb_mux_6.v              # SPI bus mux (6 peripherals)
 │   ├── wb_arbiter_2.sv         # 2-master DSHOT arbiter

@@ -23,7 +23,7 @@ The system has two independent Wishbone bus masters:
 │         │                                                                   │
 │         ▼                                                                   │
 │  ┌──────────────┐                                                           │
-│  │spi_wb_master │                                                           │
+│  │spi_slave_wb_bridge │                                                     │
 │  │ (Protocol:   │                                                           │
 │  │  A1=Read     │                                                           │
 │  │  A2=Write)   │                                                           │
@@ -183,7 +183,7 @@ Debug values in firmware:
 | wb_mux_6.v | 6-port Wishbone mux for SPI bus |
 | wb_arbiter_2.sv | 2-master arbiter for shared DSHOT |
 | spi_slave.sv | SPI slave interface |
-| spi_wb_master.sv | SPI-to-Wishbone protocol bridge |
+| spi_slave_wb_bridge.sv | SPI-to-Wishbone protocol bridge |
 | wb_debug_gpio.sv | 3-bit debug GPIO for SERV |
 | wb_dshot_controller.sv | 4-channel DSHOT150 output |
 | wb_led_controller.sv | 4-LED controller |
