@@ -1,35 +1,30 @@
-# --- VIVADO & SDK common ---
-# Ignore the vivado project directory and its contents
-/vivado_proj/*
-
-# Folders (and all of their contents) that should always be ignored
-.Xil/
-.metadata/
-webtalk/
-RemoteSystemsTempFiles/
-.sdk/
-
-# File patterns that should always be ignored (journal files, log files, dump files)
+# --- VIVADO REPOSITORY MANAGEMENT ---
+# Ignore all project noise, but keep the essentials
 *.jou
 *.log
-*.backup.jou
-*.backup.log
-*.upgrade_log
-*.dmp
-vivado_pid*
-*~
+*.pb
+*.jou
+*.dir/
+*.os/
+/vivado_proj/*.cache/
+/vivado_proj/*.hw/
+/vivado_proj/*.ip_user_files/
+/vivado_proj/*.runs/
+/vivado_proj/*.sim/
+/vivado_proj/*.gen/
 
-# --- Vitis/SDK specific (adjust paths as necessary if using Vitis) ---
-# Exclude entire hardware platform folder, regenerate from .xsa (or .hdf) file
-/sdk/design_1_wrapper_hw_platform_0/ 
+# --- KEEP THESE (Whitelist) ---
+# Ensure these aren't ignored even if inside vivado_proj
+!/vivado_proj/*.xpr
+!/vivado_proj/*.srcs/
+!/vivado_proj/*.bd
+!/vivado_proj/recreate_bd.tcl
 
-# BSP: only keep necessary source control files (e.g., .cproject, .project, .mss, Makefile)
-/sdk/sncp_bsp/ps7_cortexa9_0/*
-
-# Application: ignored file patterns, exclude Debug & Release folders
-/sdk/**/*.o
-/sdk/**/*.d
-/sdk/**/*.a
-/sdk/sncp/Debug/
-/sdk/sncp/Release/
-
+# --- VITIS / SDK ---
+.Xil/
+.metadata/
+*.xsa
+/sdk/*/Debug/
+/sdk/*/Release/
+/sdk/.sdk/
+/sdk/RemoteSystemsTempFiles/
