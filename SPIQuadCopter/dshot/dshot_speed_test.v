@@ -10,7 +10,7 @@
 module dshot_speed_test;
 
     // Clock parameters
-    localparam CLK_FREQ_HZ = 72_000_000;
+    localparam CLK_FREQ_HZ = 54_000_000;
     localparam CLK_PERIOD = 13889; // 72 MHz = 13.889ns = 13889ps
     
     // Test signals

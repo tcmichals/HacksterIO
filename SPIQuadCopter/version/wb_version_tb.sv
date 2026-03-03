@@ -38,26 +38,33 @@ module wb_version_tb();
         rst = 0;
         #20;
 
-        $display("Starting wb_version Test");
+        $display("Starting wb_version Test (10 iterations)");
         
-        // Test Read
-        @(posedge clk);
-        wb_cyc_i = 1;
-        wb_stb_i = 1;
-        wb_we_i = 0;
-        wb_adr_i = 32'h100;
-        
-        wait(wb_ack_o);
-        if (wb_dat_o === 32'hDEADBEEF) 
-            $display("SUCCESS: Read 0x%x", wb_dat_o);
-        else 
-            $display("FAILURE: Read 0x%x != 0xDEADBEEF", wb_dat_o);
+        // Loop 10 times
+        for (int i = 0; i < 10; i++) begin
+            $display("\n=== Iteration %0d ===", i+1);
             
-        @(posedge clk);
-        wb_cyc_i = 0;
-        wb_stb_i = 0;
+            // Test Read
+            @(posedge clk);
+            wb_cyc_i = 1;
+            wb_stb_i = 1;
+            wb_we_i = 0;
+            wb_adr_i = 32'h100;
+            
+            wait(wb_ack_o);
+            if (wb_dat_o === 32'hDEADBEEF) 
+                $display("SUCCESS: Read 0x%x", wb_dat_o);
+            else 
+                $display("FAILURE: Read 0x%x != 0xDEADBEEF", wb_dat_o);
+                
+            @(posedge clk);
+            wb_cyc_i = 0;
+            wb_stb_i = 0;
+            
+            #50;
+        end
         
-        #50;
+        $display("\nAll 10 iterations complete");
         $finish;
     end
 

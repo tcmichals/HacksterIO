@@ -63,7 +63,7 @@
 `timescale 1 ns / 1 ns
 
 module dshot_output #(
-		parameter clockFrequency = 72000000  // 72 MHz PLL clock
+		parameter clockFrequency = 54000000  // 54 MHz clock (Tang9K)
 	) (
 		input  wire        i_clk,          //       clock.clk
 		input  wire        i_reset,        //       reset.reset
@@ -74,6 +74,12 @@ module dshot_output #(
 		output wire        o_ready         // Ready for new command (guard time elapsed)
 	);
 	
+	// Frequency validation - minimum 10 MHz required for accurate DSHOT timing
+	generate
+		if (clockFrequency < 10_000_000) begin
+			initial $error("clockFrequency must be >= 10 MHz for DSHOT timing. Current: %0d Hz", clockFrequency);
+		end
+	endgenerate
 
 
 /* state machine state of single bit */
@@ -98,29 +104,29 @@ DSHOT1200 Bit time is 0.83us    0.625us     0.313us
    Note: Timing is calculated at runtime based on i_dshot_mode input.
 */
 
-// Timing constants for each mode (in clock cycles @ 72MHz)
+// Timing constants for each mode (in clock cycles @ 54MHz)
 localparam [15:0] GUARD_BAND_SIGNAL = 16'd7;  // Timing adjustment for signal edges
 
-// DSHOT150 timing @ 72MHz
-localparam [15:0] T0H_150 = 180;   // 2.50µs
-localparam [15:0] T0L_150 = 300;   // 4.17µs
-localparam [15:0] T1H_150 = 360;   // 5.00µs
-localparam [15:0] T1L_150 = 120;   // 1.67µs
-localparam [15:0] GUARD_150 = 18000; // 250µs
+// DSHOT150 timing @ 54MHz
+localparam [15:0] T0H_150 = 135;   // 2.50µs
+localparam [15:0] T0L_150 = 225;   // 4.17µs
+localparam [15:0] T1H_150 = 270;   // 5.00µs
+localparam [15:0] T1L_150 = 90;    // 1.67µs
+localparam [15:0] GUARD_150 = 13500; // 250µs
 
-// DSHOT300 timing @ 72MHz
-localparam [15:0] T0H_300 = 90;    // 1.25µs
-localparam [15:0] T0L_300 = 150;   // 2.08µs
-localparam [15:0] T1H_300 = 180;   // 2.50µs
-localparam [15:0] T1L_300 = 60;    // 0.83µs
-localparam [15:0] GUARD_300 = 9000;  // 125µs
+// DSHOT300 timing @ 54MHz
+localparam [15:0] T0H_300 = 68;    // 1.25µs
+localparam [15:0] T0L_300 = 112;   // 2.08µs
+localparam [15:0] T1H_300 = 135;   // 2.50µs
+localparam [15:0] T1L_300 = 45;    // 0.83µs
+localparam [15:0] GUARD_300 = 6750;  // 125µs
 
-// DSHOT600 timing @ 72MHz
-localparam [15:0] T0H_600 = 45;    // 0.625µs
-localparam [15:0] T0L_600 = 75;    // 1.04µs
-localparam [15:0] T1H_600 = 90;    // 1.25µs
-localparam [15:0] T1L_600 = 30;    // 0.42µs
-localparam [15:0] GUARD_600 = 4500;  // 62.5µs
+// DSHOT600 timing @ 54MHz
+localparam [15:0] T0H_600 = 34;    // 0.625µs
+localparam [15:0] T0L_600 = 56;    // 1.04µs
+localparam [15:0] T1H_600 = 68;    // 1.25µs
+localparam [15:0] T1L_600 = 23;    // 0.42µs
+localparam [15:0] GUARD_600 = 3375;  // 62.5µs
 
 /* number of bits to shift */
 localparam [3:0] NUM_BIT_TO_SHIFT = 15;

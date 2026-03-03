@@ -93,14 +93,11 @@ SRCS := spiSlave/spi_slave.sv src/pll.sv \
 	pwmDecoder/pwmdecoder.v pwmDecoder/pwmdecoder_wb.v \
 	neoPXStrip/sendPx_axis_flexible.sv neoPXStrip/wb_neoPx.v \
 	version/wb_version.sv \
-	src/wb_mux_5.v \
+	src/wb_mux_4.v \
 	src/wb_mux_6.v \
 	src/wb_usb_uart.sv \
 	src/wb_debug_gpio.sv \
 	src/wb_esc_uart.sv \
-	verilog-wishbone/rtl/priority_encoder.v \
-	verilog-wishbone/rtl/arbiter.v \
-	verilog-wishbone/rtl/wb_arbiter_2.v \
 	dshot/dshot_out.v \
 	verilog-uart/rtl/uart_tx.v verilog-uart/rtl/uart_rx.v \
 serv/rtl/serv_wb_top.v \
@@ -123,7 +120,6 @@ serv/serv-core/rtl/serv_decode.v \
 serv/serv-core/rtl/serv_immdec.v \
 serv/serv-core/rtl/serv_mem_if.v \
 serv/serv-core/rtl/serv_rf_if.v \
-serv/serv-core/rtl/serv_rf_ram.v \
 serv/serv-core/rtl/serv_rf_top.v \
 serv/serv-core/rtl/serv_state.v \
 serv/serv-core/rtl/serv_synth_wrapper.v \
@@ -139,7 +135,7 @@ YOSYS_FLAGS := -m slang -Q -p "synth_gowin -top $(TOP) -json $(BUILD_DIR)/hardwa
 NEXTPNR_FLAGS := --device GW1NR-LV9QN88PC6/I5 --json $(BUILD_DIR)/hardware.json \
 				 --write $(BUILD_DIR)/hardware.pnr.json --report $(BUILD_DIR)/hardware.pnr \
 				 --vopt family=GW1N-9C --vopt cst=$(CST) --sdc tang9k_timing.sdc --seed $(SEED) \
-				 --timing-allow-fail
+				 --timing-allow-fail --placer-heap-cell-placement-timeout 100000000
 GOWIN_PACK_FLAGS := -d GW1N-9C -o $(BUILD_DIR)/hardware.fs $(BUILD_DIR)/hardware.pnr.json
 
 .PHONY: install-tools
@@ -296,7 +292,7 @@ tb-serv:
 	$(MAKE) -C serv sim
 
 # SPI Wishbone testbenches (in src/tb/)
-.PHONY: tb-spi-wb tb-spi-pwm tb-spi-all
+.PHONY: tb-spi-wb tb-spi-pwm tb-spi-all tb-dshot
 tb-spi-wb:
 	@echo "Running SPI-WB Master testbench..."
 	$(MAKE) -C src/tb tb-spi-wb
@@ -306,14 +302,25 @@ tb-spi-pwm:
 	$(MAKE) -C src/tb tb-spi-pwm
 
 tb-spi-all:
-	@echo "Running all SPI testbenches..."
+	@echo "Running all peripheral testbenches (SPI, NeoPixel, DSHOT)..."
 	$(MAKE) -C src/tb tb-all
+	@echo ""
+	$(MAKE) tb-neopx
+	@echo ""
+	$(MAKE) tb-dshot
+	@echo ""
+	@echo "=== All Peripheral Testbenches Complete ==="
+
+# DSHOT testbench
+tb-dshot:
+	@echo "Running DSHOT testbench..."
+	$(MAKE) -C dshot simulate
 
 # NeoPixel Wishbone testbench
 .PHONY: tb-neopx
 tb-neopx:
 	@echo "Running NeoPixel Wishbone testbench..."
-	$(MAKE) -C neoPXStrip test
+	$(MAKE) -C neoPXStrip run
 
 
 lint:

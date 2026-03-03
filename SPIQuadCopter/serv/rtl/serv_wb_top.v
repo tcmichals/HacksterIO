@@ -3,7 +3,7 @@
 `default_nettype none
 
 module serv_wb_top #(
-    parameter MEMSIZE = 2048,  // 2KB RAM (512 words)
+    parameter MEMSIZE = 1024,  // 1KB RAM (256 words) - reduced for Tang9K resource constraints
     parameter MEMFILE = ""     // Firmware hex file
 )(
     input  wire        i_clk,
@@ -113,6 +113,7 @@ module serv_wb_top #(
     );
 
     // Register file RAM (dual-port)
+    (* ram_style = "block" *)
     reg [RF_WIDTH-1:0] rf_ram [0:(1<<RF_L2D)-1];
     
     always @(posedge i_clk) begin

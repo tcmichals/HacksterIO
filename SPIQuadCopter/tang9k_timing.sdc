@@ -3,7 +3,7 @@
 #
 # Notes:
 # - External board oscillator: i_sys_clk = 27 MHz
-# - PLL generates clk_72m = 54 MHz (implemented in RTL as pll_27m_to_72m / u_pll_72m)
+# - PLL (pll_gowin_27m) generates clk_72m = 54 MHz (net name preserved for compatibility)
 
 # Primary input clock: 27 MHz external oscillator
 # Note: Not constraining i_sys_clk since all design logic runs on clk_72m
@@ -14,9 +14,9 @@
 create_clock -name clk_72m -period 18.518518 [get_nets clk_72m]
 
 # FALSE PATH DOCUMENTATION:
-# nextpnr reports a cross-clock timing warning (u_pll_72m.clkin -> clk_72m).
+# nextpnr reports a cross-clock timing warning (u_pll.clkin -> clk_72m).
 # This is a FALSE PATH and can be safely ignored because:
-# 1. All design logic runs exclusively on clk_72m (66 MHz PLL output)
+# 1. All design logic runs exclusively on clk_72m (54 MHz PLL output)
 # 2. No user logic operates on the raw 27 MHz input clock
 # 3. The PLL handles clock domain crossing internally
 # 4. nextpnr-himbaechel doesn't support set_clock_groups to mark as async
