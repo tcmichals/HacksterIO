@@ -2,83 +2,87 @@
 
 ## Architecture
 
-The system has two independent Wishbone bus masters:
+The system has two independent Wishbone bus masters with clean separation:
 
-1. **SERV RISC-V CPU** - Handles MSP protocol, ESC configuration, motor control
-2. **SPI-WB Master** - External host (Raspberry Pi) reads/writes flight control peripherals
+1. **SERV RISC-V CPU** - Handles MSP protocol, ESC configuration
+2. **SPI-WB Master** - External host (Raspberry Pi) controls motors and reads sensors
+
+**Key Design Feature**: No arbiter needed - SPI has direct DSHOT access, SERV handles protocols only.
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                              Tang9K FPGA (72 MHz)                           │
-│                                                                             │
-│  ┌─────────────┐                                                            │
-│  │ Raspberry Pi│                                                            │
-│  │  SPI Master │                                                            │
-│  └──────┬──────┘                                                            │
-│         │ SPI                                                               │
-│         ▼                                                                   │
-│  ┌─────────────┐                                                            │
-│  │  spi_slave  │                                                            │
-│  └──────┬──────┘                                                            │
-│         │                                                                   │
-│         ▼                                                                   │
-│  ┌──────────────┐                                                           │
-│  │spi_slave_wb_bridge │                                                     │
-│  │ (Protocol:   │                                                           │
-│  │  A1=Read     │                                                           │
-│  │  A2=Write)   │                                                           │
-│  └──────┬───────┘                                                           │
-│         │                                                                   │
-│         │ Wishbone                                                          │
-│         ▼                                                                   │
-│  ┌─────────────┐         ┌────────────────────────────────┐                 │
-│  │  wb_mux_6   │         │      SERV RISC-V CPU           │                 │
-│  │ (SPI Bus)   │         │   (bit-serial, ~2.25 MIPS)     │                 │
-│  │             │         │                                │                 │
-│  │ Peripherals:│         │   ┌──────────┐  ┌──────────┐   │                 │
-│  │ - Version R │         │   │ 8KB RAM  │  │ Firmware │   │                 │
-│  │ - LED    RW │         │   │ (I+D)    │  │ (.mem)   │   │                 │
-│  │ - PWM    R  │         │   └──────────┘  └──────────┘   │                 │
-│  │ - DSHOT  RW │◄──┐     └───────────┬────────────────────┘                 │
-│  │ - NeoPixel  │   │                 │                                      │
-│  │ - MuxMirror │   │                 │ Wishbone (External Bus)              │
-│  └─────────────┘   │                 ▼                                      │
-│                    │          ┌─────────────┐                               │
-│   wb_arbiter_2 ────┤          │  wb_mux_5   │                               │
-│   (DSHOT shared)   │          │ (SERV Bus)  │                               │
-│                    │          └──────┬──────┘                               │
-│                    │                 │                                      │
-│                    │     ┌───────────┼───────────┬───────────┬──────────┐   │
-│                    │     ▼           ▼           ▼           ▼          ▼   │
-│                    │ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ │
-│                    │ │ Debug  │ │ DSHOT  │ │  Mux   │ │  USB   │ │  ESC   │ │
-│                    │ │ GPIO   │ │(arbiter│ │  Reg   │ │  UART  │ │  UART  │ │
-│                    │ │0x100   │ │0x400   │ │0x700   │ │0x800   │ │0x900   │ │
-│                    │ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘ │
-│                    │     │          │          │          │          │      │
-│                    └─────┼──────────┘          │          │          │      │
-│                          │                     │          │          │      │
-│                          ▼                     │          │          │      │
-│                    o_debug[2:0]                │          │          │      │
-│                                                │          │          │      │
-│                                    mux_sel ◄───┘          │          │      │
-│                                    mux_ch                 │          │      │
-│                                       │                   │          │      │
-│                                       ▼                   ▼          │      │
-│                              ┌─────────────────────────────────┐     │      │
-│                              │   Motor Pin Mux (4ch)           │     │      │
-│                              │  mux_sel=0: ESC UART ◄──────────┼─────┘      │
-│                              │  mux_sel=1: DSHOT output        │            │
-│                              └─────────────┬───────────────────┘            │
-│                                            │                                │
-└────────────────────────────────────────────┼────────────────────────────────┘
-                                             │
-              ┌──────────────────────────────┼──────────────────────────────┐
-              │                              │                              │
-              ▼                              ▼                              │
-       USB UART Pin                   Motor Pins [3:0]                      │
-       (PC @ 115200)                  (Half-duplex to ESCs)                 │
-```
+┌───────────────────────────────────────────────────────────────────────────┐
+│                           Tang9K FPGA (72 MHz)                            │
+│                                                                           │
+│  ┌─────────────┐                                                          │
+│  │ Raspberry Pi│                                                          │
+│  │  SPI Master │                                                          │
+│  └──────┬──────┘                                                          │
+│         │ SPI                                                             │
+│         ▼                                                                 │
+│  ┌─────────────┐                                                          │
+│  │  spi_slave  │                                                          │
+│  └──────┬──────┘                                                          │
+│         │                                                                 │
+│         ▼                                                                 │
+│  ┌──────────────────┐                                                     │
+│  │spi_slave_wb_bridge│                                                    │
+│  │ (Protocol:       │                                                     │
+│  │  A1=Read         │                                                     │
+│  │  A2=Write)       │                                                     │
+│  └────────┬─────────┘                                                     │
+│           │                                                               │
+│           │ Wishbone Master (SPI Bus)                                     │
+│           ▼                                                               │
+│  ┌───────────────────────────────────────────────────────┐                │
+│  │                  wb_mux_6 (SPI Bus)                   │                │
+│  │                                                       │                │
+│  │  ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐   │
+│  │  │Version │ │  LED   │ │  PWM   │ │ DSHOT  │ │NeoPixel│ │Mux     │   │
+│  │  │0x0000  │ │0x0100  │ │0x0200  │ │0x0300  │ │0x0400  │ │Mirror  │   │
+│  │  │   R    │ │  RW    │ │   R    │ │  RW    │ │  RW    │ │0x0500  │   │
+│  │  └────────┘ └────────┘ └────────┘ └───┬────┘ └────────┘ └────────┘   │
+│  │                                       │                               │
+│  └───────────────────────────────────────┼───────────────────────────────┘
+│                                          │                               
+│                                          │ DSHOT output (from SPI bus)   
+│                                          ▼                               
+│  ┌──────────────────────────────────────────────┐                        │
+│  │         Motor Pin Mux (4ch)                  │                        │
+│  │  mux_sel=0: ESC UART ◄───────────────────────┤                        │
+│  │  mux_sel=1: DSHOT output (from above)        │                        │
+│  └──────────────────┬──────────▲────────────────┘                        │
+│                     │          │                                         │
+│                     │          │ ESC UART, mux_sel, mux_ch               │
+│  ════════════════════════════════════════════════════════════════════════
+│                                │                                         │
+│  ┌──────────────────────────────────────────────────────┐                │
+│  │                  wb_mux_4 (SERV Bus)                 │                │
+│  │                                                      │                │
+│  │  ┌────────┐  ┌────────┐  ┌────────┐  ┌────────┐     │                │
+│  │  │ Debug  │  │  Mux   │  │  USB   │  │  ESC   │     │                │
+│  │  │ GPIO   │  │  Reg   │  │  UART  │  │  UART  │     │                │
+│  │  │0x100   │  │0x700   │  │0x800   │  │0x900   │     │                │
+│  │  └───┬────┘  └───┬────┘  └───┬────┘  └───┬────┘     │                │
+│  │      │           │           │           │          │                │
+│  └──────┼───────────┼───────────┼───────────┼──────────┘                │
+│         │           │           │           │                            │
+│         │           └───────────┴───────────┴─────────── to Motor Mux    │
+│         │                       │                                        │
+│         ▼                       │                                        │
+│    o_debug[2:0]                 │ Wishbone Master (CPU Bus)              │
+│                                 ▼                                        │
+│                      ┌──────────────────────────────────────┐             │
+│                      │      SERV RISC-V CPU                 │             │
+│                      │   (bit-serial, ~2.25 MIPS)           │             │
+│                      │                                      │             │
+│                      │   ┌──────────┐  ┌──────────┐         │             │
+│                      │   │ 8KB RAM  │  │ Firmware │         │             │
+│                      │   │ (I+D)    │  │ (.mem)   │         │             │
+│                      │   └──────────┘  └──────────┘         │             │
+│                      └──────────────────────────────────────┘             │
+│                                                                           │
+└───────────────────────────────────────────────────────────────────────────┘
+
 
 ## SERV RISC-V CPU
 
@@ -90,13 +94,12 @@ The system has two independent Wishbone bus masters:
 
 ## Dual-Bus Architecture
 
-### SERV Wishbone Bus (wb_mux_5)
+### SERV Wishbone Bus (wb_mux_4)
 SERV handles protocol bridging and ESC configuration:
 
 | Address        | Peripheral     | Access | Description                           |
 |----------------|----------------|--------|---------------------------------------|
 | 0x4000_0100    | Debug GPIO     | RW     | 3-bit digital output for debugging    |
-| 0x4000_0400    | DSHOT (arbiter)| RW     | Motor control (shared with SPI)       |
 | 0x4000_0700    | Mux Register   | RW     | DSHOT vs UART mode select             |
 | 0x4000_0800    | USB UART       | RW     | MSP from PC (115200 baud)             |
 | 0x4000_0900    | ESC UART       | RW     | Half-duplex to ESC (19200 baud)       |
@@ -109,14 +112,16 @@ External flight controller accesses sensors and actuators:
 | 0x0000   | Version        | R      | Hardware version register      |
 | 0x0100   | LED Controller | RW     | 4 output LEDs                  |
 | 0x0200   | PWM Decoder    | R      | 6-channel pulse widths (μs)    |
-| 0x0300   | DSHOT (arbiter)| RW     | Motor control (shared with SERV)|
+| 0x0300   | DSHOT          | RW     | Motor control (direct access)  |
 | 0x0400   | NeoPixel       | RW     | 8x WS2812 LEDs                 |
 | 0x0500   | Mux Mirror     | R      | Read-only shadow of mux reg    |
 
-### DSHOT Arbiter
-Both SERV and SPI buses can access DSHOT controller via `wb_arbiter_2`:
-- SERV has priority (for MSP_SET_MOTOR testing)
-- SPI access for normal flight control
+## Clean Bus Separation
+
+The simplified design eliminates the arbiter by giving each bus dedicated access:
+- **SPI Bus**: Direct DSHOT motor control (0x0300)
+- **SERV Bus**: Protocol handling only (no DSHOT access)
+- **Result**: No arbitration needed, simpler design, lower LUT count (~100 LUTs saved)
 
 ## Motor Pin Mux
 
@@ -177,15 +182,16 @@ Debug values in firmware:
 
 | Module | Purpose |
 |--------|---------|
-| tang9k_top.sv | Top-level: instantiates all buses, arbiters, peripherals |
+| tang9k_top.sv | Top-level: PLL, reset, GPIO mux, instantiates system |
+| common_serv_spi_top.sv | SERV + RAM + wb_spisystem wrapper |
 | serv-core/ | SERV bit-serial RISC-V CPU |
-| wb_mux_5.v | 5-port Wishbone mux for SERV bus |
+| wb_mux_4.v | 4-port Wishbone mux for SERV bus |
 | wb_mux_6.v | 6-port Wishbone mux for SPI bus |
-| wb_arbiter_2.sv | 2-master arbiter for shared DSHOT |
 | spi_slave.sv | SPI slave interface |
 | spi_slave_wb_bridge.sv | SPI-to-Wishbone protocol bridge |
 | wb_debug_gpio.sv | 3-bit debug GPIO for SERV |
 | wb_dshot_controller.sv | 4-channel DSHOT150 output |
+| wb_serial_dshot_mux.sv | Motor pin mux (DSHOT/UART) |
 | wb_led_controller.sv | 4-LED controller |
 | wb_usb_uart.sv | USB UART (115200 baud) |
 | wb_esc_uart.sv | ESC half-duplex UART (19200 baud) |

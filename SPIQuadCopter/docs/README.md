@@ -22,12 +22,12 @@
 
 ## Architecture
 
-The system uses a **dual Wishbone bus** design:
+The system uses a **simplified dual Wishbone bus** design:
 
-- **SPI Bus** (`wb_mux_6`) — External flight controller reads/writes peripherals (Version, LED, PWM, DSHOT, NeoPixel, Mux Mirror)
-- **SERV Bus** (`wb_mux_5`) — SERV RISC-V CPU handles MSP protocol, ESC configuration, and motor pin mux control
+- **SPI Bus** (`wb_mux_6`) — External flight controller has direct DSHOT access plus reads sensors (Version, LED, PWM, DSHOT, NeoPixel, Mux Mirror)
+- **SERV Bus** (`wb_mux_4`) — SERV RISC-V CPU handles MSP protocol, ESC configuration, and motor pin mux control (no DSHOT access)
 
-Both buses share the DSHOT controller via `wb_arbiter_2`.
+**Clean Separation**: No arbiter needed - SPI controls motors, SERV handles protocols.
 
 See [SYSTEM_OVERVIEW.md](SYSTEM_OVERVIEW.md) for the full architecture and address map.
 

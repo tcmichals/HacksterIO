@@ -69,7 +69,6 @@ Both buses remain fully functional after refactoring:
 │  │  (enabled when ENABLE_CPU_BUS=1)                    │   │
 │  ├─────────────────────────────────────────────────────┤   │
 │  │  • Debug GPIO (0x40000100)                          │   │
-│  │  • DSHOT Controller (0x40000400, via arbiter)       │   │
 │  │  • Serial/DSHOT Mux (0x40000700)                    │   │
 │  │  • USB UART (0x40000800, 115200 baud MSP)           │   │
 │  │  • ESC UART (0x40000900, 19200 baud BLHeli)         │   │
@@ -82,11 +81,12 @@ Both buses remain fully functional after refactoring:
 │  │  • Version Register (0x0000)                        │   │
 │  │  • LED Controller (0x0100)                          │   │
 │  │  • PWM Decoder (0x0200)                             │   │
-│  │  • DSHOT Controller (0x0300, via arbiter)           │   │
+│  │  • DSHOT Controller (0x0300, direct access)         │   │
 │  │  • NeoPixel (0x0400)                                │   │
 │  │  • Mux Mirror (0x0500, read-only status)            │   │
 │  └─────────────────────────────────────────────────────┘   │
 │                                                               │
+│  Note: DSHOT accessible only via SPI bus (no arbiter)       │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -145,7 +145,7 @@ arty_s7_top.sv (Board-specific)
 | **Mux Control** | CPU Wishbone @ 0x40000700 | CPU Wishbone @ 0x40000700 | External GPIO (3 signals) |
 | **USB UART** | Hardware @ 0x40000800 | Hardware @ 0x40000800 | Implement in processor |
 | **ESC UART** | Hardware @ 0x40000900 | Hardware @ 0x40000900 | Implement in processor |
-| **DSHOT Control** | CPU or SPI bus | CPU or SPI bus | SPI bus only |
+| **DSHOT Control** | SPI bus only | SPI bus only | SPI bus only |
 | **Mux Status** | CPU @ 0x40000700 or SPI @ 0x0500 | CPU @ 0x40000700 or SPI @ 0x0500 | SPI @ 0x0500 |
 | **This Makefile** | ✅ **Supported** | ❌ Use Gowin IDE | ❌ Use Vivado TCL/XDC |
 
@@ -155,9 +155,8 @@ Controls whether the CPU Wishbone bus and peripherals are instantiated:
 
 ### ENABLE_CPU_BUS = 1 (Tang Nano 9K, TangPrimer25k)
 - CPU Wishbone bus **enabled**
-- 5 CPU peripherals instantiated:
+- 4 CPU peripherals instantiated:
   - Debug GPIO
-  - DSHOT (via arbiter)
   - Serial/DSHOT Mux control register
   - USB UART
   - ESC UART
@@ -276,7 +275,7 @@ All peripheral modules remain identical:
 - `neoPXStrip/wb_neoPx.v`
 - `pwmDecoder/pwmdecoder_wb.v`
 - `version/wb_version.sv`
-- All Wishbone infrastructure (muxes, arbiters)
+- All Wishbone infrastructure (muxes)
 - SERV processor files
 
 ## Testing Checklist
@@ -318,7 +317,7 @@ If issues occur during testing:
 3. **Incremental debugging:**
    - Test SPI bus first (always enabled)
    - Then verify CPU bus (ENABLE_CPU_BUS=1)
-   - Check DSHOT arbiter sharing
+   - Check DSHOT direct access on SPI bus
 
 ## Benefits of Refactoring
 

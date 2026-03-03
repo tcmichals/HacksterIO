@@ -20,15 +20,12 @@ flowchart TB
       VER["Version\n(0x0000)"]
       LED["LED Controller\n(0x0100)"]
       PWM["PWM Decoder\n(0x0200)"]
+      DSHOT["DSHOT Controller\n(0x0300)\nDirect Access"]
       NEOPX["NeoPixel\n(0x0400)"]
       MUX_MIRROR["Mux Mirror\n(0x0500)"]
     end
 
-    subgraph ARBITER["Shared Resource"]
-      DSHOT["DSHOT Controller\n(0x0300)\nwb_arbiter_2"]
-    end
-
-    subgraph SERV_BUS["SERV Bus (wb_mux_5)"]
+    subgraph SERV_BUS["SERV Bus (wb_mux_4)"]
       direction TB
       SERV["SERV RISC-V\n(Bit-serial RV32I)"]
       DEBUG_GPIO["Debug GPIO\n(0x100)"]
@@ -45,16 +42,15 @@ flowchart TB
   SPI_WB --> VER
   SPI_WB --> LED
   SPI_WB --> PWM
+  SPI_WB --> DSHOT
   SPI_WB --> NEOPX
   SPI_WB --> MUX_MIRROR
-  SPI_WB --> DSHOT
 
   %% SERV Bus connections
   SERV --> DEBUG_GPIO
   SERV --> MUX_REG
   SERV --> USB_UART
   SERV --> ESC_UART
-  SERV --> DSHOT
 
   %% External connections
   USB <-->|115200| USB_UART
@@ -68,13 +64,10 @@ flowchart TB
 
 ## Architecture Notes
 
-### Dual Wishbone Bus
-- **SPI Bus**: Flight controller access to peripherals
-- **SERV Bus**: CPU handles protocol processing
-
-### Shared DSHOT
-- `wb_arbiter_2` allows both buses to access DSHOT controller
-- Priority: Round-robin arbitration
+### Clean Bus Separation
+- **SPI Bus**: Direct DSHOT motor control (no arbiter needed)
+- **SERV Bus**: Protocol processing only (no DSHOT access)
+- **Result**: Simplified design, ~100 LUTs saved
 
 ### ESC Configuration Flow
 1. PC connects via USB UART (115200 baud)
