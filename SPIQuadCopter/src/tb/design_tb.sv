@@ -39,6 +39,7 @@ module design_tb();
     // Instantiate the top-level module tang9k_top
     tang9k_top dut (
         .i_clk        (i_clk),
+        .i_reset_n    (1'b1),      // Not pressed (active low)
         .i_spi_clk    (i_sclk),
         .i_spi_cs_n   (spi_cs_n),
         .i_spi_mosi   (spi_mosi),
@@ -49,6 +50,8 @@ module design_tb();
         .o_led_2      (o_led1),
         .o_led_3      (o_led2),
         .o_led_4      (o_led3),
+        .o_led_5      (),
+        .o_led_6      (),          // Heartbeat LED
 
         .i_usb_uart_rx(1'b1),
         .o_usb_uart_tx(),
@@ -68,7 +71,12 @@ module design_tb();
         .o_neopixel   (o_neopixel),
         .o_debug_0    (),
         .o_debug_1    (),
-        .o_debug_2    ()
+        .o_debug_2    (),
+        
+        // GPIO Mux Control (tie to defaults for normal DSHOT operation)
+        .i_mux_msp_mode(1'b0),     // 0 = DSHOT mode (not MSP passthrough)
+        .i_mux_ch0     (1'b0),     // Motor channel select bit 0
+        .i_mux_ch1     (1'b0)      // Motor channel select bit 1
     );
 
     // DSHOT Monitor Task

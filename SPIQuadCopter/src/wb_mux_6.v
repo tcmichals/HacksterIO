@@ -192,14 +192,25 @@ wire master_cycle = wbm_cyc_i & wbm_stb_i;
 
 wire select_error = ~(wbs0_sel | wbs1_sel | wbs2_sel | wbs3_sel | wbs4_sel | wbs5_sel) & master_cycle;
 
-// master
-assign wbm_dat_o = wbs0_sel ? wbs0_dat_i :
-                   wbs1_sel ? wbs1_dat_i :
-                   wbs2_sel ? wbs2_dat_i :
-                   wbs3_sel ? wbs3_dat_i :
-                   wbs4_sel ? wbs4_dat_i :
-                   wbs5_sel ? wbs5_dat_i :
-                   {DATA_WIDTH{1'b0}};
+// Registered data output for timing closure
+reg [DATA_WIDTH-1:0] wbm_dat_o_reg;
+
+always @(posedge clk) begin
+    if (rst) begin
+        wbm_dat_o_reg <= {DATA_WIDTH{1'b0}};
+    end else begin
+        wbm_dat_o_reg <= wbs0_sel ? wbs0_dat_i :
+                         wbs1_sel ? wbs1_dat_i :
+                         wbs2_sel ? wbs2_dat_i :
+                         wbs3_sel ? wbs3_dat_i :
+                         wbs4_sel ? wbs4_dat_i :
+                         wbs5_sel ? wbs5_dat_i :
+                         {DATA_WIDTH{1'b0}};
+    end
+end
+
+// master - use registered output
+assign wbm_dat_o = wbm_dat_o_reg;
 
 assign wbm_ack_o = wbs0_ack_i |
                    wbs1_ack_i |

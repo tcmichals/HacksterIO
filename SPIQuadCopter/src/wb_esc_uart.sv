@@ -22,7 +22,7 @@
  */
 
 module wb_esc_uart #(
-    parameter CLK_FREQ_HZ = 72_000_000
+    parameter CLK_FREQ_HZ = 54_000_000
 ) (
     input  logic        clk,
     input  logic        rst,
@@ -46,7 +46,7 @@ module wb_esc_uart #(
     // Baud rate calculation (FIXED at 19200 for BLHeli ESC protocol)
     // =========================================================================
     localparam integer BAUD_RATE    = 19_200;
-    localparam integer CLKS_PER_BIT = CLK_FREQ_HZ / BAUD_RATE;  // 3750 @ 72MHz/19200
+    localparam integer CLKS_PER_BIT = CLK_FREQ_HZ / BAUD_RATE;  // 2812 @ 54MHz/19200
     localparam integer HALF_BIT     = CLKS_PER_BIT / 2;
     localparam integer GUARD_CLKS   = CLKS_PER_BIT;             // Guard time after TX
     

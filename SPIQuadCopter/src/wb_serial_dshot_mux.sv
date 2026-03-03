@@ -10,7 +10,7 @@
  */
 
 module wb_serial_dshot_mux #(
-    parameter CLK_FREQ_HZ = 72_000_000
+    parameter CLK_FREQ_HZ = 54_000_000
 ) (
     input  wire        wb_clk_i,
     input  wire        wb_rst_i,

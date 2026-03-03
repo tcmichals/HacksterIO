@@ -8,6 +8,8 @@
  *
  * Used by Tang platform boards (Tang Nano 9K, TangPrimer25K).
  * The Arty-S7 would use wb_spisystem directly without this wrapper.
+ *
+ * Note: GPIO mux control allows external override of mux register.
  */
 
 module common_serv_spi_top #(
@@ -53,7 +55,10 @@ module common_serv_spi_top #(
     
     // USB UART Interface
     input  logic usb_uart_rx,
-    output logic usb_uart_tx
+    output logic usb_uart_tx,
+    
+    // GPIO Mux Control (optional external override)
+    input  logic [2:0] gpio_mux_ctrl  // [0]=msp_mode, [2:1]=mux_ch
 );
 
     // =========================================================================
@@ -108,10 +113,10 @@ module common_serv_spi_top #(
     );
 
     // =========================================================================
-    // Instruction/Data RAM (8KB)
+    // Instruction/Data RAM (10KB)
     // =========================================================================
     wb_ram #(
-        .DEPTH(8192),
+        .DEPTH(10240),
         .MEMFILE("serv/firmware/firmware.mem")
     ) u_serv_ram (
         .i_clk(clk),
@@ -182,6 +187,9 @@ module common_serv_spi_top #(
         .cpu_wb_stb_i(cpu_wb_stb),
         .cpu_wb_cyc_i(cpu_wb_cyc),
         .cpu_wb_ack_o(cpu_wb_ack),
+        
+        // GPIO Mux Control
+        .gpio_mux_ctrl(gpio_mux_ctrl),
         
         // External mux control (not used when ENABLE_CPU_BUS=1)
         .ext_mux_sel(1'b0),

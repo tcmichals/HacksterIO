@@ -2,12 +2,17 @@
  * Tang Nano 9K Top Module
  *
  * Board-specific wrapper for Tang Nano 9K with:
- * - PLL: 27 MHz input -> 72 MHz system clock
+ * - PLL: 27 MHz input -> 54 MHz system clock
  * - Reset generation (POR + optional button)
  * - Heartbeat LED (LED6, 1 Hz blink)
  * - common_serv_spi_top (SERV + RAM + wb_spisystem)
  *
  * See docs/SYSTEM_OVERVIEW.md for architecture details.
+ *
+ * GPIO Mux Control:
+ * - Can be controlled by external GPIO pins for testing/development
+ * - [0] = MSP mode (0=DSHOT, 1=UART passthrough)
+ * - [2:1] = Motor channel select (0-3)
  */
 
 module tang9k_top #(
@@ -58,23 +63,28 @@ module tang9k_top #(
     // Debug GPIO pins
     output logic o_debug_0,
     output logic o_debug_1,
-    output logic o_debug_2
+    output logic o_debug_2,
+    
+    // GPIO Mux Control (optional external override)
+    input  logic i_mux_msp_mode,   // MSP/passthrough mode
+    input  logic i_mux_ch0,        // Motor channel bit 0
+    input  logic i_mux_ch1         // Motor channel bit 1
 );
 
     // =========================================================================
-    // PLL: 27 MHz -> 72 MHz
+    // PLL: 27 MHz -> 54 MHz
     // =========================================================================
     logic clk_72m;
     logic pll_locked;
     
-    pll_27m_to_72m u_pll_72m (
+    pll_gowin_27m u_pll (
         .clkin(i_clk),
-        .clk72(clk_72m),
+        .clkout(clk_72m),
         .locked(pll_locked)
     );
 
     // =========================================================================
-    // Synchronize pll_locked to 27 MHz domain (2-stage synchronizer)
+    // Synchronize PLL lock signal to input clock domain
     // =========================================================================
     logic pll_locked_meta = 1'b0;
     logic pll_locked_sync = 1'b0;
@@ -85,7 +95,7 @@ module tang9k_top #(
     end
 
     // =========================================================================
-    // Power-On Reset Generation (27 MHz domain)
+    // Power-On Reset Generation (input clock domain)
     // Combines PLL lock + optional reset button
     // =========================================================================
     logic [19:0] rst_cnt_27m;  // 2^20 / 27MHz = ~38ms reset
@@ -110,7 +120,7 @@ module tang9k_top #(
     end
     
     // =========================================================================
-    // Synchronize reset to 72 MHz domain (2-stage synchronizer)
+    // Synchronize reset to system clock domain (54 MHz)
     // =========================================================================
     logic sys_reset_meta = 1'b1;
     logic sys_reset_sync = 1'b1;
@@ -201,7 +211,10 @@ module tang9k_top #(
         
         // USB UART
         .usb_uart_rx(i_usb_uart_rx),
-        .usb_uart_tx(o_usb_uart_tx)
+        .usb_uart_tx(o_usb_uart_tx),
+        
+        // GPIO Mux Control
+        .gpio_mux_ctrl({i_mux_ch1, i_mux_ch0, i_mux_msp_mode})
     );
 
 endmodule

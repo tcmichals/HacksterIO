@@ -36,8 +36,8 @@
 `default_nettype none
 
 module wb_dshot_controller #(
-    parameter CLK_FREQ_HZ = 72_000_000,  // Updated for 72MHz
-    parameter GUARD_TIME = 18000,        // ~250us @ 72MHz
+    parameter CLK_FREQ_HZ = 54_000_000,  // Updated for 54MHz
+    parameter GUARD_TIME = 13500,        // ~250us @ 54MHz
     parameter DEFAULT_MODE = 150         // Default DSHOT mode (150, 300, or 600)
 ) (
     // Wishbone slave interface
@@ -66,6 +66,13 @@ module wb_dshot_controller #(
     output wire        motor3_ready,
     output wire        motor4_ready
 );
+
+    // Frequency validation - minimum 10 MHz required for accurate DSHOT timing
+    generate
+        if (CLK_FREQ_HZ < 10_000_000) begin
+            $error("CLK_FREQ_HZ must be >= 10 MHz for DSHOT timing. Current: %0d Hz", CLK_FREQ_HZ);
+        end
+    endgenerate
 
     // Address decode
     wire [3:0] addr = wb_adr_i[5:2];  // Word-aligned addresses

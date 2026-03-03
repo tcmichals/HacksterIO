@@ -2,7 +2,7 @@
 `default_nettype none
 
 module wb_usb_uart #(
-    parameter CLK_FREQ = 72_000_000,
+    parameter CLK_FREQ = 54_000_000,
     parameter BAUD     = 115200
 )(
     input  wire        clk,
