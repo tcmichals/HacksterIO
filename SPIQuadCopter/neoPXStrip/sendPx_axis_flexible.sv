@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 
 module sendPx_axis_flexible #(
-    parameter integer CLK_FREQ_HZ = 72_000_000,
+    parameter integer CLK_FREQ_HZ = 54_000_000,
     parameter integer LED_TYPE    = 0   // 0 = WS2812 (24-bit), 1 = SK6812 (32-bit)
 )(
     input  wire        axis_aclk,

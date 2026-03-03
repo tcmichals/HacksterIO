@@ -24,7 +24,7 @@ module wb_neoPx #(
     parameter DATA_WIDTH = 32,
     parameter ADDR_WIDTH = 32,
     parameter SELECT_WIDTH = (DATA_WIDTH/8),
-    parameter CLK_FREQ_HZ = 72_000_000
+    parameter CLK_FREQ_HZ = 54_000_000
 ) (
     input  wire                    i_clk,
     input  wire                    i_rst,
@@ -40,6 +40,13 @@ module wb_neoPx #(
     input  wire                    wb_cyc_i,
     output wire                    o_serial
 );
+
+    // Frequency validation - minimum 10 MHz required for accurate NeoPixel timing
+    generate
+        if (CLK_FREQ_HZ < 10_000_000 || CLK_FREQ_HZ > 200_000_000) begin
+            initial $error("CLK_FREQ_HZ out of valid range. Must be between 10 MHz and 200 MHz. Current: %0d Hz", CLK_FREQ_HZ);
+        end
+    endgenerate
 
     // --- Internal Registers ---
     reg [31:0] ledData[0:7]; 
