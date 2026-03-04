@@ -1,0 +1,23 @@
+Missing the .gen folder (generated output products) in Vivado usually means IP cores or block designs were not synthesized, causing bitstream generation to fail. Fix this by ensuring all IP is generated: right-click IPs in the Sources tab, select Reset Output Products, then Generate Output Products before rerunning synthesis and implementation. 
+AMD
+AMD
+ +1
+Key Troubleshooting Steps:
+Regenerate IP: If using IP cores (especially after licensing changes or moving projects), you must regenerate them to create necessary netlists.
+Check Constraints: Ensure your .xdc file pins are correctly mapped; missing or incorrect pin constraints (DRC errors) can halt bitstream creation.
+Clean Project: If files are missing, close Vivado, delete the project_name.runs and <project_name>.gen folders, then reopen and re-run the synthesis/implementation flow.
+Check Board Files: Ensure your board part definition is correctly selected in the project settings, especially if the design uses Xilinx board-specific IP. 
+Reddit
+Reddit
+ +5
+If the .gen folder is missing, it signifies that the synthesis tool cannot find the necessary IP netlists, as noted by users on the Digilent Forum and in the AMD Support article. 
+Digilent Forum
+Digilent Forum
+ +1
+ 
+ 
+ 
+ 
+ ALSO
+ reset Sysntesis
+ https://adaptivesupport.amd.com/s/question/0D52E00006hpiYiSAI/cannot-generate-bitstream?language=en_US
