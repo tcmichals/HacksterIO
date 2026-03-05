@@ -33,7 +33,7 @@
 module axi_esc_uart #(
     parameter integer C_S_AXI_DATA_WIDTH = 32,
     parameter integer C_S_AXI_ADDR_WIDTH = 5,
-    parameter integer CLK_FREQ_HZ = 100_000_000
+    parameter integer CLK_FREQ_HZ = 54_000_000
 ) (
     // AXI4-Lite Interface
     input  wire                                 S_AXI_ACLK,

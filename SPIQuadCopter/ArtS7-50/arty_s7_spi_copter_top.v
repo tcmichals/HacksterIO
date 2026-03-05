@@ -17,7 +17,7 @@
  */
 
 module arty_s7_spi_copter_top #(
-    parameter CLK_FREQ_HZ = 80_000_000  // System clock frequency (MUST match Clock Wizard output!)
+    parameter CLK_FREQ_HZ = 54_000_000  // System clock frequency (MUST match Clock Wizard output!)
 ) (
     // System Clock (frequency set by CLK_FREQ_HZ parameter)
     input  wire        clk,
