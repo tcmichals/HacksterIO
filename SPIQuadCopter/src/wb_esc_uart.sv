@@ -19,6 +19,9 @@
  *   - When TX idle, RX enabled (listening)
  *   - When TX starts, RX disabled until TX complete + guard time
  *   - Guard time: ~1 bit period after stop bit
+ *
+ * Note: Break signal for ESC bootloader entry is handled by the mux
+ *       (force_low bit), not by the UART.
  */
 
 module wb_esc_uart #(
@@ -96,7 +99,7 @@ module wb_esc_uart #(
                         tx_out           <= 1'b0;     // Start bit
                         tx_ready         <= 1'b0;
                         tx_active        <= 1'b1;
-                        tx_data_consumed <= 1'b1;  // Signal we took the data
+                        tx_data_consumed <= 1'b1;
                     end
                 end
                 

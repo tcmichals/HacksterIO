@@ -158,13 +158,17 @@ module tang9k_top #(
     assign o_led_6 = ~heartbeat_led_27m;  // Active-low LED
 
     // =========================================================================
-    // Debug GPIO Signals
+    // Debug GPIO Signals (32-bit from core, only lower 3 bits routed to pins)
     // =========================================================================
-    logic [2:0] debug_gpio;
+    logic [31:0] debug_gpio;
     
+    // Route USB UART signals to debug pins for logic analyzer
+    //   debug_0: firmware-controlled (heartbeat)
+    //   debug_1: USB RX (data FROM PC to FPGA)
+    //   debug_2: USB TX (data FROM FPGA to PC)
     assign o_debug_0 = debug_gpio[0];
-    assign o_debug_1 = debug_gpio[1];
-    assign o_debug_2 = debug_gpio[2];
+    assign o_debug_1 = i_usb_uart_rx;  // USB RX line
+    assign o_debug_2 = o_usb_uart_tx;  // USB TX line
 
     // =========================================================================
     // System Integration (SERV + RAM + Peripherals)
@@ -208,6 +212,10 @@ module tang9k_top #(
         
         // Debug GPIO
         .debug_gpio(debug_gpio),
+        
+        // SERV Debug (not routed on Tang 9K - limited pins)
+        .debug_pc(),
+        .debug_pc_valid(),
         
         // USB UART
         .usb_uart_rx(i_usb_uart_rx),

@@ -329,7 +329,7 @@ class App:
 
     def draw_led(self, start_y):
         self.stdscr.addstr(start_y, 2, "ON-BOARD LED CONTROL", curses.A_UNDERLINE)
-        self.stdscr.addstr(start_y+2, 2, "Press [1-5] to toggle, [0] back")
+        self.stdscr.addstr(start_y+2, 2, "Press [1-5] to toggle, [b] back")
         try: self.led_state = self.driver.get_leds()
         except: pass
         for i in range(5):

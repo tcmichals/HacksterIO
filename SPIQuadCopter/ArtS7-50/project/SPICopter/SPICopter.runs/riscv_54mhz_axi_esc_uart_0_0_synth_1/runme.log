@@ -1,0 +1,337 @@
+
+*** Running vivado
+    with args -log riscv_54mhz_axi_esc_uart_0_0.vds -m64 -product Vivado -mode batch -messageDb vivado.pb -notrace -source riscv_54mhz_axi_esc_uart_0_0.tcl
+
+
+****** Vivado v2025.2 (64-bit)
+  **** SW Build 6299465 on Fri Nov 14 12:34:56 MST 2025
+  **** IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
+  **** SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
+  **** Start of session at: Mon Mar  9 22:46:47 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
+
+source riscv_54mhz_axi_esc_uart_0_0.tcl -notrace
+create_project: Time (s): cpu = 00:00:16 ; elapsed = 00:00:06 . Memory (MB): peak = 1604.234 ; gain = 130.059 ; free physical = 3795 ; free virtual = 5791
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/home/tcmichals/harddrive/tools/AMD/2025.2/data/ip'.
+Command: synth_design -top riscv_54mhz_axi_esc_uart_0_0 -part xc7s50csga324-1 -incremental_mode off -mode out_of_context
+Starting synth_design
+Attempting to get a license for feature 'Synthesis' and/or device 'xc7s50'
+INFO: [Common 17-349] Got license for feature 'Synthesis' and/or device 'xc7s50'
+INFO: [Device 21-403] Loading part xc7s50csga324-1
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 7 processes.
+INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
+INFO: [Synth 8-7075] Helper process launched with PID 42753
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:07 ; elapsed = 00:00:07 . Memory (MB): peak = 2272.844 ; gain = 481.875 ; free physical = 196 ; free virtual = 2836
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'riscv_54mhz_axi_esc_uart_0_0' [/media/tcmichals/projects/Tang9K/HacksterIO/SPIQuadCopter/ArtS7-50/project/SPICopter/SPICopter.gen/sources_1/bd/riscv_54mhz/ip/riscv_54mhz_axi_esc_uart_0_0/synth/riscv_54mhz_axi_esc_uart_0_0.v:53]
+INFO: [Synth 8-6157] synthesizing module 'axi_esc_uart' [/media/tcmichals/projects/Tang9K/HacksterIO/SPIQuadCopter/ArtS7-50/axi_esc_uart.v:33]
+	Parameter C_S_AXI_DATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_S_AXI_ADDR_WIDTH bound to: 5 - type: integer 
+	Parameter CLK_FREQ_HZ bound to: 54000000 - type: integer 
+INFO: [Synth 8-155] case statement is not full and has no default [/media/tcmichals/projects/Tang9K/HacksterIO/SPIQuadCopter/ArtS7-50/axi_esc_uart.v:367]
+INFO: [Synth 8-6155] done synthesizing module 'axi_esc_uart' (0#1) [/media/tcmichals/projects/Tang9K/HacksterIO/SPIQuadCopter/ArtS7-50/axi_esc_uart.v:33]
+INFO: [Synth 8-6155] done synthesizing module 'riscv_54mhz_axi_esc_uart_0_0' (0#1) [/media/tcmichals/projects/Tang9K/HacksterIO/SPIQuadCopter/ArtS7-50/project/SPICopter/SPICopter.gen/sources_1/bd/riscv_54mhz/ip/riscv_54mhz_axi_esc_uart_0_0/synth/riscv_54mhz_axi_esc_uart_0_0.v:53]
+INFO: [Synth 8-7129] Port S_AXI_AWADDR[1] in module axi_esc_uart is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_AWADDR[0] in module axi_esc_uart is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_AWPROT[2] in module axi_esc_uart is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_AWPROT[1] in module axi_esc_uart is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_AWPROT[0] in module axi_esc_uart is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[31] in module axi_esc_uart is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[30] in module axi_esc_uart is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[29] in module axi_esc_uart is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[28] in module axi_esc_uart is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[27] in module axi_esc_uart is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[26] in module axi_esc_uart is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[25] in module axi_esc_uart is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[24] in module axi_esc_uart is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[23] in module axi_esc_uart is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[22] in module axi_esc_uart is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[21] in module axi_esc_uart is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[20] in module axi_esc_uart is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[19] in module axi_esc_uart is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[18] in module axi_esc_uart is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[17] in module axi_esc_uart is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[16] in module axi_esc_uart is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[15] in module axi_esc_uart is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[14] in module axi_esc_uart is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[13] in module axi_esc_uart is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[12] in module axi_esc_uart is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[11] in module axi_esc_uart is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[10] in module axi_esc_uart is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[9] in module axi_esc_uart is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[8] in module axi_esc_uart is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WSTRB[3] in module axi_esc_uart is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WSTRB[2] in module axi_esc_uart is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WSTRB[1] in module axi_esc_uart is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WSTRB[0] in module axi_esc_uart is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_ARADDR[1] in module axi_esc_uart is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_ARADDR[0] in module axi_esc_uart is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_ARPROT[2] in module axi_esc_uart is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_ARPROT[1] in module axi_esc_uart is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_ARPROT[0] in module axi_esc_uart is either unconnected or has no load
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:09 ; elapsed = 00:00:09 . Memory (MB): peak = 2364.812 ; gain = 573.844 ; free physical = 1429 ; free virtual = 3878
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:09 ; elapsed = 00:00:09 . Memory (MB): peak = 2379.656 ; gain = 588.688 ; free physical = 1422 ; free virtual = 3872
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:09 ; elapsed = 00:00:09 . Memory (MB): peak = 2379.656 ; gain = 588.688 ; free physical = 1422 ; free virtual = 3872
+---------------------------------------------------------------------------------
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2379.656 ; gain = 0.000 ; free physical = 1472 ; free virtual = 3940
+INFO: [Project 1-570] Preparing netlist for logic optimization
+
+Processing XDC Constraints
+Initializing timing engine
+Completed Processing XDC Constraints
+
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2493.395 ; gain = 0.000 ; free physical = 1295 ; free virtual = 3859
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+Constraint Validation Runtime : Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 2493.430 ; gain = 0.000 ; free physical = 1295 ; free virtual = 3859
+INFO: [Designutils 20-5008] Incremental synthesis strategy off
+---------------------------------------------------------------------------------
+Finished Constraint Validation : Time (s): cpu = 00:00:16 ; elapsed = 00:00:17 . Memory (MB): peak = 2493.430 ; gain = 702.461 ; free physical = 1143 ; free virtual = 3753
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Loading Part and Timing Information
+---------------------------------------------------------------------------------
+Loading part: xc7s50csga324-1
+---------------------------------------------------------------------------------
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:16 ; elapsed = 00:00:17 . Memory (MB): peak = 2501.398 ; gain = 710.430 ; free physical = 1143 ; free virtual = 3753
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying 'set_property' XDC Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished applying 'set_property' XDC Constraints : Time (s): cpu = 00:00:16 ; elapsed = 00:00:17 . Memory (MB): peak = 2501.398 ; gain = 710.430 ; free physical = 1143 ; free virtual = 3753
+---------------------------------------------------------------------------------
+INFO: [Synth 8-802] inferred FSM for state register 'tx_state_reg' in module 'axi_esc_uart'
+INFO: [Synth 8-802] inferred FSM for state register 'rx_state_reg' in module 'axi_esc_uart'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                 TX_IDLE |                              000 |                              000
+                TX_START |                              001 |                              001
+                 TX_DATA |                              010 |                              010
+                 TX_STOP |                              011 |                              011
+                TX_GUARD |                              100 |                              100
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'tx_state_reg' using encoding 'sequential' in module 'axi_esc_uart'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                 RX_IDLE |                               00 |                              000
+                RX_START |                               01 |                              001
+                 RX_DATA |                               10 |                              010
+                 RX_STOP |                               11 |                              011
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'rx_state_reg' using encoding 'sequential' in module 'axi_esc_uart'
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:17 ; elapsed = 00:00:18 . Memory (MB): peak = 2501.398 ; gain = 710.430 ; free physical = 1147 ; free virtual = 3758
+---------------------------------------------------------------------------------
+No constraint files found.
+---------------------------------------------------------------------------------
+Start RTL Component Statistics 
+---------------------------------------------------------------------------------
+Detailed RTL Component Info : 
++---Adders : 
+	   2 Input   16 Bit       Adders := 2     
+	   2 Input    3 Bit       Adders := 2     
++---Registers : 
+	               32 Bit    Registers := 1     
+	               16 Bit    Registers := 2     
+	                8 Bit    Registers := 4     
+	                3 Bit    Registers := 2     
+	                1 Bit    Registers := 18    
++---Muxes : 
+	   5 Input   16 Bit        Muxes := 1     
+	   4 Input   16 Bit        Muxes := 1     
+	   5 Input    8 Bit        Muxes := 1     
+	   5 Input    3 Bit        Muxes := 2     
+	   4 Input    3 Bit        Muxes := 1     
+	   4 Input    2 Bit        Muxes := 1     
+	   2 Input    1 Bit        Muxes := 11    
+	   4 Input    1 Bit        Muxes := 10    
+	   5 Input    1 Bit        Muxes := 11    
+---------------------------------------------------------------------------------
+Finished RTL Component Statistics 
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Part Resource Summary
+---------------------------------------------------------------------------------
+Part Resources:
+DSPs: 120 (col length:60)
+BRAMs: 150 (col length: RAMB18 60 RAMB36 30)
+---------------------------------------------------------------------------------
+Finished Part Resource Summary
+---------------------------------------------------------------------------------
+No constraint files found.
+---------------------------------------------------------------------------------
+Start Cross Boundary and Area Optimization
+---------------------------------------------------------------------------------
+INFO: [Synth 8-3917] design riscv_54mhz_axi_esc_uart_0_0 has port S_AXI_BRESP[1] driven by constant 0
+INFO: [Synth 8-3917] design riscv_54mhz_axi_esc_uart_0_0 has port S_AXI_BRESP[0] driven by constant 0
+INFO: [Synth 8-3917] design riscv_54mhz_axi_esc_uart_0_0 has port S_AXI_RRESP[1] driven by constant 0
+INFO: [Synth 8-3917] design riscv_54mhz_axi_esc_uart_0_0 has port S_AXI_RRESP[0] driven by constant 0
+INFO: [Synth 8-7129] Port S_AXI_AWADDR[1] in module riscv_54mhz_axi_esc_uart_0_0 is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_AWADDR[0] in module riscv_54mhz_axi_esc_uart_0_0 is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_AWPROT[2] in module riscv_54mhz_axi_esc_uart_0_0 is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_AWPROT[1] in module riscv_54mhz_axi_esc_uart_0_0 is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_AWPROT[0] in module riscv_54mhz_axi_esc_uart_0_0 is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[31] in module riscv_54mhz_axi_esc_uart_0_0 is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[30] in module riscv_54mhz_axi_esc_uart_0_0 is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[29] in module riscv_54mhz_axi_esc_uart_0_0 is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[28] in module riscv_54mhz_axi_esc_uart_0_0 is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[27] in module riscv_54mhz_axi_esc_uart_0_0 is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[26] in module riscv_54mhz_axi_esc_uart_0_0 is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[25] in module riscv_54mhz_axi_esc_uart_0_0 is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[24] in module riscv_54mhz_axi_esc_uart_0_0 is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[23] in module riscv_54mhz_axi_esc_uart_0_0 is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[22] in module riscv_54mhz_axi_esc_uart_0_0 is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[21] in module riscv_54mhz_axi_esc_uart_0_0 is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[20] in module riscv_54mhz_axi_esc_uart_0_0 is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[19] in module riscv_54mhz_axi_esc_uart_0_0 is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[18] in module riscv_54mhz_axi_esc_uart_0_0 is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[17] in module riscv_54mhz_axi_esc_uart_0_0 is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[16] in module riscv_54mhz_axi_esc_uart_0_0 is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[15] in module riscv_54mhz_axi_esc_uart_0_0 is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[14] in module riscv_54mhz_axi_esc_uart_0_0 is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[13] in module riscv_54mhz_axi_esc_uart_0_0 is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[12] in module riscv_54mhz_axi_esc_uart_0_0 is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[11] in module riscv_54mhz_axi_esc_uart_0_0 is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[10] in module riscv_54mhz_axi_esc_uart_0_0 is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[9] in module riscv_54mhz_axi_esc_uart_0_0 is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WDATA[8] in module riscv_54mhz_axi_esc_uart_0_0 is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WSTRB[3] in module riscv_54mhz_axi_esc_uart_0_0 is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WSTRB[2] in module riscv_54mhz_axi_esc_uart_0_0 is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WSTRB[1] in module riscv_54mhz_axi_esc_uart_0_0 is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_WSTRB[0] in module riscv_54mhz_axi_esc_uart_0_0 is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_ARADDR[1] in module riscv_54mhz_axi_esc_uart_0_0 is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_ARADDR[0] in module riscv_54mhz_axi_esc_uart_0_0 is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_ARPROT[2] in module riscv_54mhz_axi_esc_uart_0_0 is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_ARPROT[1] in module riscv_54mhz_axi_esc_uart_0_0 is either unconnected or has no load
+INFO: [Synth 8-7129] Port S_AXI_ARPROT[0] in module riscv_54mhz_axi_esc_uart_0_0 is either unconnected or has no load
+---------------------------------------------------------------------------------
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:00:19 ; elapsed = 00:00:20 . Memory (MB): peak = 2501.398 ; gain = 710.430 ; free physical = 1147 ; free virtual = 3754
+---------------------------------------------------------------------------------
+No constraint files found.
+---------------------------------------------------------------------------------
+Start Timing Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Timing Optimization : Time (s): cpu = 00:00:19 ; elapsed = 00:00:20 . Memory (MB): peak = 2501.398 ; gain = 710.430 ; free physical = 1147 ; free virtual = 3754
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Technology Mapping
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Technology Mapping : Time (s): cpu = 00:00:19 ; elapsed = 00:00:21 . Memory (MB): peak = 2501.398 ; gain = 710.430 ; free physical = 1147 ; free virtual = 3746
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished IO Insertion : Time (s): cpu = 00:00:24 ; elapsed = 00:00:25 . Memory (MB): peak = 2587.180 ; gain = 796.211 ; free physical = 923 ; free virtual = 3608
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Instances
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Instances : Time (s): cpu = 00:00:24 ; elapsed = 00:00:25 . Memory (MB): peak = 2587.180 ; gain = 796.211 ; free physical = 923 ; free virtual = 3608
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Rebuilding User Hierarchy
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:00:24 ; elapsed = 00:00:25 . Memory (MB): peak = 2587.180 ; gain = 796.211 ; free physical = 923 ; free virtual = 3608
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Ports
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Ports : Time (s): cpu = 00:00:24 ; elapsed = 00:00:25 . Memory (MB): peak = 2587.180 ; gain = 796.211 ; free physical = 923 ; free virtual = 3608
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:24 ; elapsed = 00:00:25 . Memory (MB): peak = 2587.180 ; gain = 796.211 ; free physical = 923 ; free virtual = 3608
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Nets
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Nets : Time (s): cpu = 00:00:24 ; elapsed = 00:00:25 . Memory (MB): peak = 2587.180 ; gain = 796.211 ; free physical = 923 ; free virtual = 3608
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Writing Synthesis Report
+---------------------------------------------------------------------------------
+
+Report BlackBoxes: 
++-+--------------+----------+
+| |BlackBox name |Instances |
++-+--------------+----------+
++-+--------------+----------+
+
+Report Cell Usage: 
++------+-------+------+
+|      |Cell   |Count |
++------+-------+------+
+|1     |CARRY4 |     8|
+|2     |LUT1   |    31|
+|3     |LUT2   |    17|
+|4     |LUT3   |    12|
+|5     |LUT4   |    26|
+|6     |LUT5   |    29|
+|7     |LUT6   |    27|
+|8     |FDRE   |    99|
+|9     |FDSE   |     2|
++------+-------+------+
+---------------------------------------------------------------------------------
+Finished Writing Synthesis Report : Time (s): cpu = 00:00:24 ; elapsed = 00:00:25 . Memory (MB): peak = 2587.180 ; gain = 796.211 ; free physical = 923 ; free virtual = 3608
+---------------------------------------------------------------------------------
+Synthesis finished with 0 errors, 0 critical warnings and 0 warnings.
+Synthesis Optimization Runtime : Time (s): cpu = 00:00:22 ; elapsed = 00:00:23 . Memory (MB): peak = 2587.180 ; gain = 682.438 ; free physical = 923 ; free virtual = 3608
+Synthesis Optimization Complete : Time (s): cpu = 00:00:24 ; elapsed = 00:00:25 . Memory (MB): peak = 2587.188 ; gain = 796.211 ; free physical = 923 ; free virtual = 3608
+INFO: [Project 1-571] Translating synthesized netlist
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2602.055 ; gain = 0.000 ; free physical = 912 ; free virtual = 3597
+INFO: [Netlist 29-17] Analyzing 8 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2750.676 ; gain = 0.000 ; free physical = 878 ; free virtual = 3562
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+Synth Design complete | Checksum: 6389c20e
+INFO: [Common 17-83] Releasing license: Synthesis
+107 Infos, 0 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:33 ; elapsed = 00:00:46 . Memory (MB): peak = 2750.711 ; gain = 1104.992 ; free physical = 862 ; free virtual = 3547
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 1768.650; main = 1762.110; forked = 254.113
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 3495.633; main = 2750.680; forked = 994.230
+Write ShapeDB Complete: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2774.688 ; gain = 0.000 ; free physical = 862 ; free virtual = 3548
+INFO: [Common 17-1381] The checkpoint '/media/tcmichals/projects/Tang9K/HacksterIO/SPIQuadCopter/ArtS7-50/project/SPICopter/SPICopter.runs/riscv_54mhz_axi_esc_uart_0_0_synth_1/riscv_54mhz_axi_esc_uart_0_0.dcp' has been generated.
+INFO: [Vivado 12-24828] Executing command : report_utilization -file riscv_54mhz_axi_esc_uart_0_0_utilization_synth.rpt -pb riscv_54mhz_axi_esc_uart_0_0_utilization_synth.pb
+INFO: [Common 17-206] Exiting Vivado at Mon Mar  9 22:47:50 2026...

@@ -30,8 +30,8 @@ module spi_slave_wb_bridge #(
     // SPI Slave Interface (directly from SPI slave module)
     input  wire                      spi_rx_valid,
     input  wire [7:0]                spi_rx_data,
-    output reg                       spi_tx_valid,
-    output reg  [7:0]                spi_tx_data,
+    output wire                      spi_tx_valid,
+    output wire [7:0]                spi_tx_data,
     input  wire                      spi_tx_ready,
     input  wire                      spi_cs_n,       // Active low chip select
     
@@ -84,6 +84,10 @@ module spi_slave_wb_bridge #(
     reg        wb_error;       // Wishbone error flag
     reg        first_data_byte; // Flag for first data byte (TX=addr[3])
     
+    // TX holding register for reliable handshake
+    reg [7:0]  tx_hold_data;   // Data waiting to be sent
+    reg        tx_hold_valid;  // Data is waiting in hold register
+    
     assign busy = (state != ST_IDLE);
     
     // SPI CS rising edge detection (end of transaction)
@@ -93,6 +97,16 @@ module spi_slave_wb_bridge #(
     always @(posedge clk) begin
         spi_cs_n_d <= spi_cs_n;
     end
+    
+    // TX handshake: hold valid until slave accepts (ready && valid)
+    wire tx_accepted = spi_tx_valid && spi_tx_ready;
+    
+    // Drive SPI TX from holding register
+    assign spi_tx_data = tx_hold_data;
+    assign spi_tx_valid = tx_hold_valid;
+    
+    // Helper task-like logic: load TX hold register
+    // Called from state machine when new data should be sent
     
     // Main state machine
     always @(posedge clk) begin
@@ -109,8 +123,8 @@ module spi_slave_wb_bridge #(
             wb_error <= 1'b0;
             first_data_byte <= 1'b0;
             // Pre-load DA for next transaction
-            spi_tx_valid <= 1'b1;
-            spi_tx_data <= SYNC_BYTE;
+            tx_hold_data <= SYNC_BYTE;
+            tx_hold_valid <= 1'b1;
             // Deassert Wishbone
             wb_stb_o <= 1'b0;
             wb_cyc_o <= 1'b0;
@@ -119,8 +133,10 @@ module spi_slave_wb_bridge #(
             wb_adr_o <= {WB_ADDR_WIDTH{1'b0}};
             wb_dat_o <= {WB_DATA_WIDTH{1'b0}};
         end else begin
-            // Default: no new TX data this cycle
-            spi_tx_valid <= 1'b0;
+            // Clear hold valid when slave accepts data
+            if (tx_accepted) begin
+                tx_hold_valid <= 1'b0;
+            end
             
             case (state)
                 // ============================================================
@@ -131,18 +147,18 @@ module spi_slave_wb_bridge #(
                         cmd <= spi_rx_data;
                         if (spi_rx_data == CMD_READ) begin
                             // Valid read command - pre-load response 0x21
-                            spi_tx_valid <= 1'b1;
-                            spi_tx_data <= RESP_READ;
+                            tx_hold_data <= RESP_READ;
+                            tx_hold_valid <= 1'b1;
                             state <= ST_LEN0;
                         end else if (spi_rx_data == CMD_WRITE) begin
                             // Valid write command - pre-load response 0x22
-                            spi_tx_valid <= 1'b1;
-                            spi_tx_data <= RESP_WRITE;
+                            tx_hold_data <= RESP_WRITE;
+                            tx_hold_valid <= 1'b1;
                             state <= ST_LEN0;
                         end else begin
                             // Invalid command - stay in IDLE, keep DA loaded
-                            spi_tx_valid <= 1'b1;
-                            spi_tx_data <= SYNC_BYTE;
+                            tx_hold_data <= SYNC_BYTE;
+                            tx_hold_valid <= 1'b1;
                             // Stay in ST_IDLE
                         end
                     end
@@ -155,8 +171,8 @@ module spi_slave_wb_bridge #(
                     if (spi_rx_valid) begin
                         len[7:0] <= spi_rx_data;
                         // Pre-load len[0] for echo
-                        spi_tx_valid <= 1'b1;
-                        spi_tx_data <= spi_rx_data;
+                        tx_hold_valid <= 1'b1;
+                        tx_hold_data <= spi_rx_data;
                         state <= ST_LEN1;
                     end
                 end
@@ -169,8 +185,8 @@ module spi_slave_wb_bridge #(
                         len[15:8] <= spi_rx_data;
                         remaining <= {spi_rx_data, len[7:0]};
                         // Pre-load len[1] for echo
-                        spi_tx_valid <= 1'b1;
-                        spi_tx_data <= spi_rx_data;
+                        tx_hold_valid <= 1'b1;
+                        tx_hold_data <= spi_rx_data;
                         state <= ST_ADDR0;
                     end
                 end
@@ -181,8 +197,8 @@ module spi_slave_wb_bridge #(
                 ST_ADDR0: begin
                     if (spi_rx_valid) begin
                         addr[7:0] <= spi_rx_data;
-                        spi_tx_valid <= 1'b1;
-                        spi_tx_data <= spi_rx_data;
+                        tx_hold_valid <= 1'b1;
+                        tx_hold_data <= spi_rx_data;
                         state <= ST_ADDR1;
                     end
                 end
@@ -190,8 +206,8 @@ module spi_slave_wb_bridge #(
                 ST_ADDR1: begin
                     if (spi_rx_valid) begin
                         addr[15:8] <= spi_rx_data;
-                        spi_tx_valid <= 1'b1;
-                        spi_tx_data <= spi_rx_data;
+                        tx_hold_valid <= 1'b1;
+                        tx_hold_data <= spi_rx_data;
                         state <= ST_ADDR2;
                     end
                 end
@@ -199,8 +215,8 @@ module spi_slave_wb_bridge #(
                 ST_ADDR2: begin
                     if (spi_rx_valid) begin
                         addr[23:16] <= spi_rx_data;
-                        spi_tx_valid <= 1'b1;
-                        spi_tx_data <= spi_rx_data;
+                        tx_hold_valid <= 1'b1;
+                        tx_hold_data <= spi_rx_data;
                         state <= ST_ADDR3;
                     end
                 end
@@ -209,8 +225,8 @@ module spi_slave_wb_bridge #(
                     if (spi_rx_valid) begin
                         addr[31:24] <= spi_rx_data;
                         // Pre-load addr[3] for echo (will be sent during first data byte)
-                        spi_tx_valid <= 1'b1;
-                        spi_tx_data <= spi_rx_data;
+                        tx_hold_valid <= 1'b1;
+                        tx_hold_data <= spi_rx_data;
                         
                         // For reads: start WB read now
                         if (cmd == CMD_READ) begin
@@ -265,8 +281,8 @@ module spi_slave_wb_bridge #(
                         // Check for terminator
                         if (spi_rx_data == SYNC_BYTE && remaining == 0) begin
                             // Transaction complete - pre-load DA for next
-                            spi_tx_valid <= 1'b1;
-                            spi_tx_data <= SYNC_BYTE;
+                            tx_hold_valid <= 1'b1;
+                            tx_hold_data <= SYNC_BYTE;
                             state <= ST_IDLE;
                         end else if (remaining > 0) begin
                             remaining <= remaining - 1;
@@ -275,27 +291,27 @@ module spi_slave_wb_bridge #(
                                 // READ: send data byte, receive pad
                                 if (first_data_byte) begin
                                     // First byte: TX already has addr[3], now pre-load data[0]
-                                    spi_tx_valid <= 1'b1;
-                                    spi_tx_data <= read_data[7:0];
+                                    tx_hold_valid <= 1'b1;
+                                    tx_hold_data <= read_data[7:0];
                                     first_data_byte <= 1'b0;
                                     word_byte_cnt <= 2'd1;
                                 end else begin
                                     // Subsequent bytes
                                     case (word_byte_cnt)
                                         2'd1: begin
-                                            spi_tx_valid <= 1'b1;
-                                            spi_tx_data <= read_data[15:8];
+                                            tx_hold_valid <= 1'b1;
+                                            tx_hold_data <= read_data[15:8];
                                             word_byte_cnt <= 2'd2;
                                         end
                                         2'd2: begin
-                                            spi_tx_valid <= 1'b1;
-                                            spi_tx_data <= read_data[23:16];
+                                            tx_hold_valid <= 1'b1;
+                                            tx_hold_data <= read_data[23:16];
                                             word_byte_cnt <= 2'd3;
                                         end
                                         2'd3: begin
                                             // Last byte of word - preload data[3]
-                                            spi_tx_valid <= 1'b1;
-                                            spi_tx_data <= read_data[31:24];
+                                            tx_hold_valid <= 1'b1;
+                                            tx_hold_data <= read_data[31:24];
                                             // Check if more complete words remain
                                             // remaining is current value, will be decremented to remaining-1
                                             // We need 4+ more bytes after this one for another word
@@ -313,8 +329,8 @@ module spi_slave_wb_bridge #(
                                             end
                                         end
                                         default: begin
-                                            spi_tx_valid <= 1'b1;
-                                            spi_tx_data <= read_data[7:0];
+                                            tx_hold_valid <= 1'b1;
+                                            tx_hold_data <= read_data[7:0];
                                             word_byte_cnt <= 2'd1;
                                         end
                                     endcase
@@ -331,12 +347,12 @@ module spi_slave_wb_bridge #(
                                 // Pre-load 0xEE ack (or addr[3] echo for first byte)
                                 if (first_data_byte) begin
                                     // TX already has addr[3], now pre-load EE
-                                    spi_tx_valid <= 1'b1;
-                                    spi_tx_data <= WRITE_ACK;
+                                    tx_hold_valid <= 1'b1;
+                                    tx_hold_data <= WRITE_ACK;
                                     first_data_byte <= 1'b0;
                                 end else begin
-                                    spi_tx_valid <= 1'b1;
-                                    spi_tx_data <= WRITE_ACK;
+                                    tx_hold_valid <= 1'b1;
+                                    tx_hold_data <= WRITE_ACK;
                                 end
                                 
                                 if (word_byte_cnt == 2'd3) begin
@@ -388,8 +404,8 @@ module spi_slave_wb_bridge #(
                 
                 default: begin
                     state <= ST_IDLE;
-                    spi_tx_valid <= 1'b1;
-                    spi_tx_data <= SYNC_BYTE;
+                    tx_hold_valid <= 1'b1;
+                    tx_hold_data <= SYNC_BYTE;
                 end
             endcase
         end

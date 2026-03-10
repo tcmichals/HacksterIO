@@ -11,7 +11,6 @@
       "validated": "true"
     },
     "design_tree": {
-      "reset_inv_0": "",
       "proc_sys_reset_0": "",
       "microblaze_riscv_0": "",
       "microblaze_riscv_0_local_memory": {
@@ -172,17 +171,6 @@
       }
     },
     "components": {
-      "reset_inv_0": {
-        "vlnv": "xilinx.com:inline_hdl:ilvector_logic:1.0",
-        "parameters": {
-          "C_OPERATION": {
-            "value": "not"
-          },
-          "C_SIZE": {
-            "value": "1"
-          }
-        }
-      },
       "proc_sys_reset_0": {
         "vlnv": "xilinx.com:ip:proc_sys_reset:5.0",
         "ip_revision": "17",
@@ -1543,7 +1531,6 @@
       "reset_1": {
         "ports": [
           "reset",
-          "reset_inv_0/Op1",
           "proc_sys_reset_0/ext_reset_in",
           "reset_inv_1/Op1"
         ]

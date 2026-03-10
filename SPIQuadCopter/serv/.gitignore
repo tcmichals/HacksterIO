@@ -1,0 +1,7 @@
+# Generated files
+firmware/version.h
+firmware/firmware.elf
+firmware/firmware.hex
+firmware/firmware.mem
+obj_dir/
+*.vcd

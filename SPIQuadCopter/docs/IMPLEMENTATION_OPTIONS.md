@@ -929,3 +929,335 @@ The Raspberry Pi Pico (RP2040) offers an alternative architecture using ARM Cort
 | **Raspberry Pi Pico** | 🟡 Great alternative if SPI timing flexibility exists |
 
 **For this project:** The Tang Nano 9K's SPI slave advantage justifies the RTL complexity. The timing closure issue (0.2% off) is solvable with minor optimizations. Continue with Tang 9K unless SPI requirements change.
+
+---
+
+# Part 4: CPU Options - SERV vs VexRiscv vs Ibex
+
+## CPU Comparison for FPGA SoC
+
+When picking a soft CPU for FPGA designs, three leading RISC-V options exist:
+
+| Feature | SERV | VexRiscv | Ibex |
+|---------|------|----------|------|
+| **Architecture** | Bit-serial (1-bit ALU) | 2-5 stage pipeline | 2-stage pipeline |
+| **Size (LUTs)** | ~200 | ~1500-3000 | ~1800 |
+| **Performance** | ~0.03 DMIPS/MHz | ~1.0 DMIPS/MHz | ~0.7 DMIPS/MHz |
+| **At 80 MHz** | ~2.4 MIPS | ~80 MIPS | ~56 MIPS |
+| **Debug Support** | None (PC only) | Full JTAG/GDB | PULP riscv-dbg |
+| **Language** | Verilog | SpinalHDL→Verilog | SystemVerilog |
+| **M Extension** | Optional | Configurable | Yes |
+| **C Extension** | Yes | Configurable | Yes |
+| **Interrupts** | Optional Zicsr | Full CSR | Full CSR |
+| **Wishbone Bus** | Yes | Yes (with wrapper) | AXI-Lite (needs bridge) |
+| **OpenOCD Config** | No | Yes (well tested) | Yes |
+
+## VexRiscv Advantages
+
+**VexRiscv** is particularly attractive for this project:
+
+1. **Full GDB/JTAG Debug** - Uses BSCANE2 on Xilinx, tunnels through existing JTAG
+2. **Configurable Pipeline** - 2-5 stages, trade area for speed
+3. **Well-Tested** - Used in LiteX, SpinalHDL ecosystem
+4. **SpinalHDL Generated** - Pre-built Verilog available
+5. **~33× faster than SERV** - Real-time capable
+
+### VexRiscv Debug via JTAG
+
+On Arty S7-50, VexRiscv debug uses the existing FTDI JTAG:
+
+```
+USB Cable → FTDI FT2232H → BSCANE2 → VexRiscv Debug Module
+                ↓
+         OpenOCD → GDB
+```
+
+**No external wiring** - tunnels through FPGA JTAG.
+
+```tcl
+# OpenOCD config for VexRiscv on Arty S7
+adapter driver ftdi
+adapter speed 10000
+
+ftdi vid_pid 0x0403 0x6010
+ftdi channel 0
+ftdi layout_init 0x0088 0x008b
+
+transport select jtag
+jtag newtap xc7 tap -irlen 6 -expected-id 0x037c4093
+
+target create vexriscv.cpu0 vexriscv -chain-position xc7.tap
+vexriscv readWaitCycles 10
+vexriscv cpuConfigFile cpu0.yaml
+
+init
+halt
+```
+
+### VexRiscv Plugin Configuration
+
+VexRiscv is configured via SpinalHDL plugins. Minimal config for this project:
+
+```scala
+val config = VexRiscvConfig(
+  plugins = List(
+    new IBusSimplePlugin(
+      resetVector = 0x80000000l,
+      cmdForkOnSecondStage = false,
+      cmdForkPersistence = false
+    ),
+    new DBusSimplePlugin(
+      catchAddressMisaligned = false,
+      catchAccessFault = false
+    ),
+    new DecoderSimplePlugin(
+      catchIllegalInstruction = false
+    ),
+    new RegFilePlugin(
+      regFileReadyKind = plugin.SYNC,
+      zeroBoot = true
+    ),
+    new IntAluPlugin,
+    new SrcPlugin(
+      separatedAddSub = false
+    ),
+    new FullBarrelShifterPlugin,
+    new HazardSimplePlugin(
+      bypassExecute = true,
+      bypassMemory = true,
+      bypassWriteBack = true
+    ),
+    new BranchPlugin(
+      earlyBranch = false,
+      catchAddressMisaligned = false
+    ),
+    new CsrPlugin(
+      config = CsrPluginConfig.smallest
+    ),
+    new YamlPlugin("cpu0.yaml"),
+    new DebugPlugin(ClockDomain.current, 2)  // JTAG debug!
+  )
+)
+```
+
+## When to Use Each CPU
+
+| Use Case | Recommended CPU |
+|----------|-----------------|
+| **Smallest possible** | SERV (~200 LUTs) |
+| **Debug needed, medium performance** | VexRiscv (~2000 LUTs) |
+| **Production, safety-critical** | Ibex (~1800 LUTs) |
+| **Fastest execution** | VexRiscv 5-stage (~3000 LUTs) |
+
+## Migration Path: SERV → VexRiscv
+
+For this project, the migration path would be:
+
+1. **Keep current SERV** for Tang boards (limited debug needed)
+2. **Use VexRiscv** on Arty S7-50 for development/debug
+3. **Same Wishbone peripherals** work with both CPUs
+4. **Same firmware** (with minor HAL differences)
+
+The `common_serv_spi_top` module can be parameterized to swap CPUs:
+
+```verilog
+module common_spi_top #(
+    parameter CPU_TYPE = "SERV"  // or "VEXRISCV"
+) (
+    // ... ports
+);
+
+generate
+    if (CPU_TYPE == "SERV") begin : gen_serv
+        serv_wb_top u_cpu (...);
+    end else if (CPU_TYPE == "VEXRISCV") begin : gen_vex
+        VexRiscv u_cpu (...);
+    end
+endgenerate
+```
+
+---
+
+# Part 5: Platform Comparison
+
+## Supported Platforms
+
+| Spec | Tang Nano 9K | Tang Nano 20K | Arty S7-50 |
+|------|--------------|---------------|------------|
+| **FPGA** | Gowin GW1NR-9C | Gowin GW2AR-18 | Xilinx XC7S50 |
+| **LUTs** | 8,640 | 20,736 | 32,500 |
+| **BRAM** | 26 × 18Kb | 46 × 18Kb | 75 × 36Kb |
+| **Target Clock** | 54 MHz | 80 MHz | 80 MHz |
+| **Toolchain** | OSS CAD Suite | OSS CAD Suite | Vivado |
+| **JTAG Debug** | No (USB prog only) | No (USB prog only) | Yes (FTDI) |
+| **Price** | ~$15 | ~$20 | ~$120 |
+| **Debug Options** | UART printf, pins | UART printf, pins | ILA, JTAG, GDB |
+
+## Resource Utilization
+
+| Component | LUTs | Tang 9K | Tang 20K | Arty S7 |
+|-----------|------|---------|----------|---------|
+| SERV CPU | ~200 | ✅ | ✅ | ✅ |
+| VexRiscv | ~2000 | ⚠️ 23% | ✅ 10% | ✅ 6% |
+| wb_spisystem | ~3000 | ✅ 35% | ✅ 14% | ✅ 9% |
+| Debug GPIO (32b) | ~100 | ✅ | ✅ | ✅ |
+| **Total (SERV)** | ~3500 | 40% | 17% | 11% |
+| **Total (VexRiscv)** | ~5300 | 61% | 26% | 16% |
+
+## Debug Capabilities by Platform
+
+| Feature | Tang 9K | Tang 20K | Arty S7-50 |
+|---------|---------|----------|------------|
+| UART printf | ✅ | ✅ | ✅ |
+| Debug pins (logic analyzer) | 3 bits | 3 bits | 32-bit ILA |
+| PC trace (ILA) | ❌ | ❌ | ✅ 32-bit |
+| JTAG (FPGA) | ❌ | ❌ | ✅ FTDI |
+| GDB (CPU) | ❌ | ❌ | ✅ (with VexRiscv) |
+| Hardware breakpoints | ❌ | ❌ | ✅ (with VexRiscv) |
+| Register inspection | ❌ | ❌ | ✅ (with VexRiscv) |
+
+## Recommended Usage
+
+| Platform | Role | Why |
+|----------|------|-----|
+| **Arty S7-50** | Development/Debug | ILA, JTAG, GDB support |
+| **Tang Nano 20K** | Production target | Cheap, sufficient resources |
+| **Tang Nano 9K** | Legacy/minimal | Works but constrained |
+
+## Architecture: 90% Code Sharing
+
+All platforms share `common_serv_spi_top`:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  Platform Top (board-specific)                          │
+│  ├── PLL (Vivado Clock Wizard / Gowin IP)               │
+│  ├── Reset synchronizer                                 │
+│  ├── Heartbeat LED                                      │
+│  └── Pin assignments                                    │
+├─────────────────────────────────────────────────────────┤
+│  common_serv_spi_top (shared)                           │
+│  ├── SERV RISC-V CPU                                    │
+│  ├── 8KB RAM                                            │
+│  └── wb_spisystem (all Wishbone peripherals)            │
+│      ├── wb_led_controller                              │
+│      ├── wb_dshot_controller                            │
+│      ├── wb_pwm_decoder                                 │
+│      ├── wb_debug_gpio (32-bit)                         │
+│      ├── wb_usb_uart                                    │
+│      ├── wb_esc_uart                                    │
+│      └── wb_version                                     │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Firmware is identical** - Same `.bin` file works on all platforms.
+
+---
+
+# Part 6: Debug Strategy
+
+## Development Workflow
+
+```
+┌──────────────────┐
+│  Arty S7-50      │  ← Primary development
+│  - Full ILA      │
+│  - GDB (VexRiscv)│
+│  - Fast iteration│
+└────────┬─────────┘
+         │
+         │ Debug & validate
+         ▼
+┌──────────────────┐
+│  Tang Nano 20K   │  ← Production target
+│  - UART printf   │
+│  - Pin debugging │
+└──────────────────┘
+```
+
+## Debug Signals on Arty S7-50
+
+The following signals are marked for ILA:
+
+```verilog
+(* mark_debug = "true" *) output wire [31:0] debug_gpio;
+(* mark_debug = "true" *) output wire [31:0] debug_pc;
+(* mark_debug = "true" *) output wire        debug_pc_valid;
+```
+
+**In Vivado:**
+1. Synthesize design
+2. Open Synthesized Design
+3. Set Up Debug → ILA appears with marked signals
+4. Add triggers (e.g., `debug_pc == 0x80001234`)
+5. Capture waveforms in Hardware Manager
+
+## Firmware Debug Output
+
+The 32-bit `debug_gpio` register is memory-mapped at `0x100`:
+
+```c
+// wb_regs.h
+#define WB_DEBUG_GPIO_OUT  (*(volatile uint32_t*)0x100)
+#define WB_DEBUG_GPIO_SET  (*(volatile uint32_t*)0x104)
+#define WB_DEBUG_GPIO_CLR  (*(volatile uint32_t*)0x108)
+#define WB_DEBUG_GPIO_TGL  (*(volatile uint32_t*)0x10C)
+
+// Usage in firmware
+void debug_checkpoint(uint8_t id) {
+    WB_DEBUG_GPIO_OUT = (WB_DEBUG_GPIO_OUT & 0xFFFFFF00) | id;
+}
+
+void debug_pulse(uint8_t bit) {
+    WB_DEBUG_GPIO_TGL = (1 << bit);
+    WB_DEBUG_GPIO_TGL = (1 << bit);
+}
+```
+
+**ILA trigger example:** Capture when `debug_gpio[7:0] == 0x42` (checkpoint 0x42)
+
+## PC Trace Analysis
+
+With `debug_pc` and `debug_pc_valid` in ILA:
+
+1. **Set trigger:** `debug_pc_valid == 1 && debug_pc == <function_address>`
+2. **Capture:** See execution flow
+3. **Analyze:** Correlate PC values with disassembly
+
+```bash
+# Generate disassembly for PC correlation
+riscv32-unknown-elf-objdump -d firmware.elf > firmware.dis
+
+# In ILA, when PC = 0x800001A4, look up in firmware.dis
+```
+
+---
+
+# Summary: Current Architecture
+
+## What We Have Now
+
+| Platform | Top Module | CPU | Debug |
+|----------|------------|-----|-------|
+| Tang Nano 9K | `tang9k_top.sv` | SERV | 3-bit pins + UART |
+| Tang Nano 20K | `tangnano20k_top.sv` (TBD) | SERV | 3-bit pins + UART |
+| Arty S7-50 | `arty_s7_spi_copter_top.v` | SERV | 32-bit ILA + UART |
+
+## Future Options
+
+| Upgrade | Effort | Benefit |
+|---------|--------|---------|
+| VexRiscv on Arty | Medium | Full GDB/JTAG debug |
+| VexRiscv on Tang 20K | Medium | Better performance |
+| DSHOT v2 (auto-repeat) | Low | Hardware motor refresh |
+
+## Quick Reference
+
+**Arty S7-50 ILA signals:**
+- `debug_gpio[31:0]` — Firmware debug output  
+- `debug_pc[31:0]` — SERV program counter
+- `debug_pc_valid` — PC valid on instruction fetch
+
+**Target clock:** 80 MHz (all platforms)
+
+**Firmware:** Same binary for all platforms (SERV RV32IC)

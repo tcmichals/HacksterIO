@@ -17,6 +17,9 @@ PWM_DECODER = ../../pwmDecoder/pwmdecoder.v
 PWM_DECODER_WB = ../../pwmDecoder/pwmdecoder_wb.v
 NEOPX_WB = ../../neoPXStrip/wb_neoPx.v
 NEOPX_SENDPX = ../../neoPXStrip/sendPx_axis_flexible.sv
+WB_USB_UART = ../wb_usb_uart.sv
+UART_TX = ../../verilog-uart/rtl/uart_tx.v
+UART_RX = ../../verilog-uart/rtl/uart_rx.v
 
 .PHONY: all clean help
 .PHONY: tb-spi-wb tb-spi-pwm tb-spi-neopx tb-all
@@ -62,6 +65,37 @@ spi_neopx_integration_tb.vvp: spi_neopx_integration_tb.sv $(SPI_SLAVE_WB_BRIDGE)
 	$(IVERILOG) $(IVERILOG_FLAGS) $(INCLUDE_PATHS) -o $@ $^
 
 # ============================================================================
+# USB UART Testbench
+# Tests: TX ready/busy, send multiple bytes
+# ============================================================================
+tb-usb-uart: wb_usb_uart_tb.vvp
+	@echo "=== Running USB UART Testbench ==="
+	$(VVP) $<
+	@echo ""
+
+wb_usb_uart_tb.vvp: wb_usb_uart_tb.sv $(WB_USB_UART) $(UART_TX) $(UART_RX)
+	@echo "=== Compiling USB UART Testbench ==="
+	$(IVERILOG) $(IVERILOG_FLAGS) $(INCLUDE_PATHS) -o $@ $^
+
+wave-usb-uart: wb_usb_uart_tb.vcd
+	$(GTK) $< &
+
+# ============================================================================
+# USB UART + MUX Testbench (realistic SERV-like behavior)
+# ============================================================================
+tb-usb-uart-mux: wb_usb_uart_mux_tb.vvp
+	@echo "=== Running USB UART+MUX Testbench ==="
+	$(VVP) $<
+	@echo ""
+
+wb_usb_uart_mux_tb.vvp: wb_usb_uart_mux_tb.sv $(WB_USB_UART) $(UART_TX) $(UART_RX) ../wb_mux_6.v
+	@echo "=== Compiling USB UART+MUX Testbench ==="
+	$(IVERILOG) $(IVERILOG_FLAGS) $(INCLUDE_PATHS) -o $@ $^
+
+wave-usb-uart-mux: wb_usb_uart_mux_tb.vcd
+	$(GTK) $< &
+
+# ============================================================================
 # Run all SPI testbenches
 # ============================================================================
 tb-all: tb-spi-wb tb-spi-pwm
@@ -89,10 +123,12 @@ help:
 	@echo "  make tb-spi-wb    - Run SPI Slave WB Bridge testbench (read/write/burst)"
 	@echo "  make tb-spi-pwm   - Run SPI-PWM integration test (PWM waveform → SPI read)"
 	@echo "  make tb-spi-neopx - Run SPI-NeoPixel integration test"
+	@echo "  make tb-usb-uart  - Run USB UART TX/RX testbench"
 	@echo "  make tb-all       - Run all SPI testbenches"
 	@echo ""
 	@echo "  make wave-spi-wb  - View SPI-WB Master waveform"
 	@echo "  make wave-spi-pwm - View SPI-PWM waveform"
+	@echo "  make wave-usb-uart - View USB UART waveform"
 	@echo ""
 	@echo "  make clean        - Remove generated files"
 	@echo "  make help         - Show this message"

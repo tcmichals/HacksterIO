@@ -89,16 +89,19 @@ export IVERILOG VVP
 SRCS := spiSlave/spi_slave.sv src/pll.sv \
 	src/spi_slave_wb_bridge.sv \
 	src/wb_spisystem.sv src/common_serv_spi_top.sv \
-	src/wb_dshot_controller.sv src/wb_serial_dshot_mux.sv src/wb_led_controller.sv src/tang9k_top.sv \
+	src/wb_dshot_mailbox.sv src/wb_serial_dshot_mux.sv src/wb_led_controller.sv src/tang9k_top.sv \
 	pwmDecoder/pwmdecoder.v pwmDecoder/pwmdecoder_wb.v \
 	neoPXStrip/sendPx_axis_flexible.sv neoPXStrip/wb_neoPx.v \
 	version/wb_version.sv \
 	src/wb_mux_4.v \
+	src/wb_mux_5.v \
 	src/wb_mux_6.v \
 	src/wb_usb_uart.sv \
 	src/wb_debug_gpio.sv \
 	src/wb_esc_uart.sv \
+	src/wb_timer.sv \
 	dshot/dshot_out.v \
+	dshot/dshot_mailbox.sv \
 	verilog-uart/rtl/uart_tx.v verilog-uart/rtl/uart_rx.v \
 serv/rtl/serv_wb_top.v \
 serv/rtl/wb_ram.v \
@@ -256,6 +259,45 @@ pack: $(BUILD_DIR)/hardware.pnr.json
 .PHONY: build
 build: firmware pack
 	@echo "Build finished. Bitstream: $(BUILD_DIR)/hardware.fs"
+	@echo ""
+	@echo "=== Tang Nano 9K Resource Utilization ==="
+	@$(YOSYS) -p "read_json $(BUILD_DIR)/hardware.json; stat" 2>&1 | \
+		awk 'BEGIN { lut=0; ff=0; alu=0; bsram=0 } \
+		     /^[[:space:]]*[0-9]+[[:space:]]+LUT[1234]/ { lut += $$1 } \
+		     /^[[:space:]]*[0-9]+[[:space:]]+DFF/ { ff += $$1 } \
+		     /^[[:space:]]*[0-9]+[[:space:]]+ALU/ { alu += $$1 } \
+		     /^[[:space:]]*[0-9]+[[:space:]]+(BSRAM|DPB|SPX9|SP)/ { bsram += $$1 } \
+		     END { \
+		       printf "LUTs:  %5d / 8640  (%2d%% used, %5d free)\n", lut, lut*100/8640, 8640-lut; \
+		       printf "FFs:   %5d / 6912  (%2d%% used, %5d free)\n", ff, ff*100/6912, 6912-ff; \
+		       printf "ALUs:  %5d / ~2000 (%2d%% used)\n", alu, alu*100/2000; \
+		       printf "BSRAM: %5d / 26    (%2d%% used, %5d free)\n", bsram, bsram*100/26, 26-bsram; \
+		     }'
+	@echo ""
+
+# Resource utilization report (standalone)
+.PHONY: stats
+stats: $(BUILD_DIR)/hardware.json
+	@echo ""
+	@echo "=== Tang Nano 9K Resource Utilization ==="
+	@echo ""
+	@$(YOSYS) -p "read_json $(BUILD_DIR)/hardware.json; stat" 2>&1 | \
+		awk '/^[[:space:]]*[0-9]+[[:space:]]+(LUT|DFF|ALU|MUX|BSRAM|DPB|SPX9|SP)/ { print }'
+	@echo ""
+	@echo "--- Summary ---"
+	@$(YOSYS) -p "read_json $(BUILD_DIR)/hardware.json; stat" 2>&1 | \
+		awk 'BEGIN { lut=0; ff=0; alu=0; bsram=0 } \
+		     /^[[:space:]]*[0-9]+[[:space:]]+LUT[1234]/ { lut += $$1 } \
+		     /^[[:space:]]*[0-9]+[[:space:]]+DFF/ { ff += $$1 } \
+		     /^[[:space:]]*[0-9]+[[:space:]]+ALU/ { alu += $$1 } \
+		     /^[[:space:]]*[0-9]+[[:space:]]+(BSRAM|DPB|SPX9|SP)/ { bsram += $$1 } \
+		     END { \
+		       printf "LUTs:  %5d / 8640  (%2d%% used, %5d free)\n", lut, lut*100/8640, 8640-lut; \
+		       printf "FFs:   %5d / 6912  (%2d%% used, %5d free)\n", ff, ff*100/6912, 6912-ff; \
+		       printf "ALUs:  %5d / ~2000 (%2d%% used)\n", alu, alu*100/2000; \
+		       printf "BSRAM: %5d / 26    (%2d%% used, %5d free)\n", bsram, bsram*100/26, 26-bsram; \
+		     }'
+	@echo ""
 
 .PHONY: upload
 upload: $(BUILD_DIR)/hardware.fs

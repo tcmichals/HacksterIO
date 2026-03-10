@@ -22,6 +22,7 @@
  *
  * CPU Wishbone Bus (0x4000_xxxx, optional when ENABLE_CPU_BUS=1):
  *   0x40000100: Debug GPIO (RW)
+ *   0x40000200: Timer (R/W)
  *   0x40000700: Serial/DSHOT Mux (RW)
  *   0x40000800: USB UART (RW)
  *   0x40000900: ESC UART (RW)
@@ -73,8 +74,8 @@ module wb_spisystem #(
     // NeoPixel Output
     output logic neopixel,
     
-    // Debug GPIO (3 pins)
-    output logic [2:0] debug_gpio,
+    // Debug GPIO (32 bits for ILA debugging)
+    output logic [31:0] debug_gpio,
     
     // USB UART Interface 
     input  logic usb_uart_rx,
@@ -118,7 +119,7 @@ module wb_spisystem #(
     logic [3:0]  spi_wb_sel;
     logic        spi_wb_we, spi_wb_stb, spi_wb_cyc, spi_wb_ack, spi_wb_err;
     
-    // CPU Wishbone Mux slave ports (4 slaves - no DSHOT)
+    // CPU Wishbone Mux slave ports (6 slaves - includes DSHOT mailbox and Timer)
     logic [31:0] cpu_s0_adr, cpu_s0_dat_i, cpu_s0_dat_o;
     logic [3:0]  cpu_s0_sel;
     logic        cpu_s0_we, cpu_s0_stb, cpu_s0_ack, cpu_s0_cyc;
@@ -134,6 +135,14 @@ module wb_spisystem #(
     logic [31:0] cpu_s3_adr, cpu_s3_dat_i, cpu_s3_dat_o;
     logic [3:0]  cpu_s3_sel;
     logic        cpu_s3_we, cpu_s3_stb, cpu_s3_ack, cpu_s3_cyc;
+    
+    logic [31:0] cpu_s4_adr, cpu_s4_dat_i, cpu_s4_dat_o;
+    logic [3:0]  cpu_s4_sel;
+    logic        cpu_s4_we, cpu_s4_stb, cpu_s4_ack, cpu_s4_cyc;
+    
+    logic [31:0] cpu_s5_adr, cpu_s5_dat_i, cpu_s5_dat_o;
+    logic [3:0]  cpu_s5_sel;
+    logic        cpu_s5_we, cpu_s5_stb, cpu_s5_ack, cpu_s5_cyc;
     
     // SPI Wishbone Mux slave ports (6 slaves)
     logic [31:0] spi_s0_adr, spi_s0_dat_i, spi_s0_dat_o;
@@ -164,9 +173,9 @@ module wb_spisystem #(
     logic        motor1_dshot, motor2_dshot, motor3_dshot, motor4_dshot;
     
     // Peripheral signals
-    logic [3:0]  led_out;
+    logic [4:0]  led_out;
     logic        neopixel_out;
-    logic [2:0]  debug_gpio_out;
+    logic [31:0] debug_gpio_out;
     
     // Serial/DSHOT Mux signals
     logic        mux_sel;
@@ -224,15 +233,15 @@ module wb_spisystem #(
     );
 
     // =========================================================================
-    // CPU Wishbone Mux (4 slaves) - only instantiated when ENABLE_CPU_BUS=1
+    // CPU Wishbone Mux (6 slaves) - only instantiated when ENABLE_CPU_BUS=1
     // =========================================================================
     generate
         if (ENABLE_CPU_BUS) begin : gen_cpu_mux
-            wb_mux_4 #(
+            wb_mux_6 #(
                 .DATA_WIDTH(32),
                 .ADDR_WIDTH(32),
                 .SELECT_WIDTH(4)
-            ) u_wb_mux_4_cpu (
+            ) u_wb_mux_6_cpu (
                 .clk(clk),
                 .rst(rst),
                 
@@ -262,7 +271,7 @@ module wb_spisystem #(
                 .wbs0_addr(32'h40000100),
                 .wbs0_addr_msk(32'hFFFFFF00),
                 
-                // Slave 1: Serial/DSHOT Mux (0x40000700)
+                // Slave 1: DSHOT Mailbox Port A (0x40000300)
                 .wbs1_adr_o(cpu_s1_adr),
                 .wbs1_dat_i(cpu_s1_dat_i),
                 .wbs1_dat_o(cpu_s1_dat_o),
@@ -273,10 +282,10 @@ module wb_spisystem #(
                 .wbs1_err_i(1'b0),
                 .wbs1_rty_i(1'b0),
                 .wbs1_cyc_o(cpu_s1_cyc),
-                .wbs1_addr(32'h40000700),
+                .wbs1_addr(32'h40000300),
                 .wbs1_addr_msk(32'hFFFFFF00),
                 
-                // Slave 2: USB UART (0x40000800)
+                // Slave 2: Serial/DSHOT Mux (0x40000400)
                 .wbs2_adr_o(cpu_s2_adr),
                 .wbs2_dat_i(cpu_s2_dat_i),
                 .wbs2_dat_o(cpu_s2_dat_o),
@@ -287,10 +296,10 @@ module wb_spisystem #(
                 .wbs2_err_i(1'b0),
                 .wbs2_rty_i(1'b0),
                 .wbs2_cyc_o(cpu_s2_cyc),
-                .wbs2_addr(32'h40000800),
+                .wbs2_addr(32'h40000400),
                 .wbs2_addr_msk(32'hFFFFFF00),
                 
-                // Slave 3: ESC UART (0x40000900)
+                // Slave 3: USB UART (0x40000800)
                 .wbs3_adr_o(cpu_s3_adr),
                 .wbs3_dat_i(cpu_s3_dat_i),
                 .wbs3_dat_o(cpu_s3_dat_o),
@@ -301,8 +310,36 @@ module wb_spisystem #(
                 .wbs3_err_i(1'b0),
                 .wbs3_rty_i(1'b0),
                 .wbs3_cyc_o(cpu_s3_cyc),
-                .wbs3_addr(32'h40000900),
-                .wbs3_addr_msk(32'hFFFFFF00)
+                .wbs3_addr(32'h40000800),
+                .wbs3_addr_msk(32'hFFFFFF00),
+                
+                // Slave 4: ESC UART (0x40000900)
+                .wbs4_adr_o(cpu_s4_adr),
+                .wbs4_dat_i(cpu_s4_dat_i),
+                .wbs4_dat_o(cpu_s4_dat_o),
+                .wbs4_we_o(cpu_s4_we),
+                .wbs4_sel_o(cpu_s4_sel),
+                .wbs4_stb_o(cpu_s4_stb),
+                .wbs4_ack_i(cpu_s4_ack),
+                .wbs4_err_i(1'b0),
+                .wbs4_rty_i(1'b0),
+                .wbs4_cyc_o(cpu_s4_cyc),
+                .wbs4_addr(32'h40000900),
+                .wbs4_addr_msk(32'hFFFFFF00),
+                
+                // Slave 5: Timer (0x40000200)
+                .wbs5_adr_o(cpu_s5_adr),
+                .wbs5_dat_i(cpu_s5_dat_i),
+                .wbs5_dat_o(cpu_s5_dat_o),
+                .wbs5_we_o(cpu_s5_we),
+                .wbs5_sel_o(cpu_s5_sel),
+                .wbs5_stb_o(cpu_s5_stb),
+                .wbs5_ack_i(cpu_s5_ack),
+                .wbs5_err_i(1'b0),
+                .wbs5_rty_i(1'b0),
+                .wbs5_cyc_o(cpu_s5_cyc),
+                .wbs5_addr(32'h40000200),
+                .wbs5_addr_msk(32'hFFFFFF00)
             );
         end else begin : gen_no_cpu_mux
             // When no CPU bus, tie off all outputs and use external GPIO mux control
@@ -337,6 +374,20 @@ module wb_spisystem #(
             assign cpu_s3_we = 1'b0;
             assign cpu_s3_stb = 1'b0;
             assign cpu_s3_cyc = 1'b0;
+            
+            assign cpu_s4_adr = 32'h0;
+            assign cpu_s4_dat_o = 32'h0;
+            assign cpu_s4_sel = 4'h0;
+            assign cpu_s4_we = 1'b0;
+            assign cpu_s4_stb = 1'b0;
+            assign cpu_s4_cyc = 1'b0;
+            
+            assign cpu_s5_adr = 32'h0;
+            assign cpu_s5_dat_o = 32'h0;
+            assign cpu_s5_sel = 4'h0;
+            assign cpu_s5_we = 1'b0;
+            assign cpu_s5_stb = 1'b0;
+            assign cpu_s5_cyc = 1'b0;
             
             // Use external GPIO mux control instead
             assign mux_sel = ext_mux_sel;
@@ -472,7 +523,7 @@ module wb_spisystem #(
 
     // LED Controller (SPI bus)
     wb_led_controller #(
-        .LED_WIDTH(4)
+        .LED_WIDTH(5)
     ) u_led_ctrl (
         .clk(clk),
         .rst(rst),
@@ -494,7 +545,7 @@ module wb_spisystem #(
     assign led_2 = ~led_out[1];
     assign led_3 = ~led_out[2];
     assign led_4 = ~led_out[3];
-    assign led_5 = 1'b1;  // Off (active-low)
+    assign led_5 = ~led_out[4];  // Wishbone controlled
 
     // PWM Decoder (SPI bus)
     pwmdecoder_wb #(
@@ -520,28 +571,39 @@ module wb_spisystem #(
         .i_pwm_5(pwm_ch5)
     );
 
-    // DSHOT Controller (direct from SPI bus)
-    wb_dshot_controller #(
+    // DSHOT Mailbox (dual-port: Port A for CPU, Port B for SPI)
+    wb_dshot_mailbox #(
         .CLK_FREQ_HZ(CLK_FREQ_HZ),
-        .GUARD_TIME(13500),
         .DEFAULT_MODE(150)
-    ) u_dshot_ctrl (
-        .wb_clk_i(clk),
-        .wb_rst_i(rst),
-        .wb_dat_i(spi_s3_dat_o),
-        .wb_adr_i(spi_s3_adr),
-        .wb_we_i(spi_s3_we),
-        .wb_sel_i(spi_s3_sel),
-        .wb_stb_i(spi_s3_stb),
-        .wb_cyc_i(spi_s3_cyc),
-        .wb_dat_o(spi_s3_dat_i),
-        .wb_ack_o(spi_s3_ack),
-        .wb_stall_o(),
+    ) u_dshot_mailbox (
+        .clk(clk),
+        .rst(rst),
+        
+        // Port A: CPU (SERV)
+        .wba_adr_i(cpu_s1_adr),
+        .wba_dat_i(cpu_s1_dat_o),
+        .wba_dat_o(cpu_s1_dat_i),
+        .wba_sel_i(cpu_s1_sel),
+        .wba_we_i(cpu_s1_we),
+        .wba_stb_i(cpu_s1_stb),
+        .wba_cyc_i(cpu_s1_cyc),
+        .wba_ack_o(cpu_s1_ack),
+        
+        // Port B: SPI
+        .wbb_adr_i(spi_s3_adr),
+        .wbb_dat_i(spi_s3_dat_o),
+        .wbb_dat_o(spi_s3_dat_i),
+        .wbb_sel_i(spi_s3_sel),
+        .wbb_we_i(spi_s3_we),
+        .wbb_stb_i(spi_s3_stb),
+        .wbb_cyc_i(spi_s3_cyc),
+        .wbb_ack_o(spi_s3_ack),
+        
+        // Motor outputs
         .motor1_o(motor1_dshot),
         .motor2_o(motor2_dshot),
         .motor3_o(motor3_dshot),
         .motor4_o(motor4_dshot),
-        .dshot_tx(),
         .motor1_ready(),
         .motor2_ready(),
         .motor3_ready(),
@@ -578,9 +640,9 @@ module wb_spisystem #(
     // =========================================================================
     generate
         if (ENABLE_CPU_BUS) begin : gen_cpu_peripherals
-            // Debug GPIO
+            // Debug GPIO (32-bit for ILA debugging)
             wb_debug_gpio #(
-                .GPIO_WIDTH(3)
+                .GPIO_WIDTH(32)
             ) u_debug_gpio (
                 .clk(clk),
                 .rst(rst),
@@ -600,14 +662,14 @@ module wb_spisystem #(
             ) u_serial_mux (
                 .wb_clk_i(clk),
                 .wb_rst_i(rst),
-                .wb_dat_i(cpu_s1_dat_o),
-                .wb_adr_i(cpu_s1_adr),
-                .wb_we_i(cpu_s1_we),
-                .wb_sel_i(cpu_s1_sel),
-                .wb_stb_i(cpu_s1_stb),
-                .wb_cyc_i(cpu_s1_cyc),
-                .wb_dat_o(cpu_s1_dat_i),
-                .wb_ack_o(cpu_s1_ack),
+                .wb_dat_i(cpu_s2_dat_o),
+                .wb_adr_i(cpu_s2_adr),
+                .wb_we_i(cpu_s2_we),
+                .wb_sel_i(cpu_s2_sel),
+                .wb_stb_i(cpu_s2_stb),
+                .wb_cyc_i(cpu_s2_cyc),
+                .wb_dat_o(cpu_s2_dat_i),
+                .wb_ack_o(cpu_s2_ack),
                 .wb_stall_o(),
                 .mux_sel(mux_sel),
                 .mux_ch(mux_ch),
@@ -628,12 +690,12 @@ module wb_spisystem #(
             ) u_usb_uart (
                 .clk(clk),
                 .rst(rst),
-                .wb_adr_i(cpu_s2_adr),
-                .wb_dat_i(cpu_s2_dat_o),
-                .wb_dat_o(cpu_s2_dat_i),
-                .wb_we_i(cpu_s2_we),
-                .wb_stb_i(cpu_s2_stb),
-                .wb_ack_o(cpu_s2_ack),
+                .wb_adr_i(cpu_s3_adr),
+                .wb_dat_i(cpu_s3_dat_o),
+                .wb_dat_o(cpu_s3_dat_i),
+                .wb_we_i(cpu_s3_we),
+                .wb_stb_i(cpu_s3_stb),
+                .wb_ack_o(cpu_s3_ack),
                 .uart_rx(usb_uart_rx),
                 .uart_tx(usb_uart_tx_wire)
             );
@@ -644,23 +706,39 @@ module wb_spisystem #(
             ) u_esc_uart (
                 .clk(clk),
                 .rst(rst),
-                .wb_adr_i(cpu_s3_adr[3:0]),
-                .wb_dat_i(cpu_s3_dat_o),
-                .wb_dat_o(cpu_s3_dat_i),
-                .wb_we_i(cpu_s3_we),
-                .wb_stb_i(cpu_s3_stb),
-                .wb_cyc_i(cpu_s3_cyc),
-                .wb_ack_o(cpu_s3_ack),
+                .wb_adr_i(cpu_s4_adr[3:0]),
+                .wb_dat_i(cpu_s4_dat_o),
+                .wb_dat_o(cpu_s4_dat_i),
+                .wb_we_i(cpu_s4_we),
+                .wb_stb_i(cpu_s4_stb),
+                .wb_cyc_i(cpu_s4_cyc),
+                .wb_ack_o(cpu_s4_ack),
                 .tx_out(esc_uart_tx),
                 .rx_in(esc_uart_rx),
                 .tx_active(esc_uart_tx_active)
+            );
+            
+            // Timer (free-running counter for DSHOT auto-repeat timing)
+            wb_timer #(
+                .CLK_FREQ_HZ(CLK_FREQ_HZ)
+            ) u_timer (
+                .clk(clk),
+                .rst(rst),
+                .wb_adr_i(cpu_s5_adr),
+                .wb_dat_i(cpu_s5_dat_o),
+                .wb_dat_o(cpu_s5_dat_i),
+                .wb_sel_i(cpu_s5_sel),
+                .wb_we_i(cpu_s5_we),
+                .wb_stb_i(cpu_s5_stb),
+                .wb_cyc_i(cpu_s5_cyc),
+                .wb_ack_o(cpu_s5_ack)
             );
             
             // Tie off external output (not used in CPU mode)
             assign ext_esc_uart_rx = 1'b1;  // Idle high (UART idle state)
         end else begin : gen_no_cpu_peripherals
             // When no CPU bus, tie off internal UARTs
-            assign debug_gpio_out = 3'b0;
+            assign debug_gpio_out = 32'b0;
             assign usb_uart_tx_wire = 1'b1;  // Idle high
             
             // Use external ESC UART for motor mux
@@ -676,6 +754,10 @@ module wb_spisystem #(
             assign cpu_s2_ack = 1'b0;
             assign cpu_s3_dat_i = 32'h0;
             assign cpu_s3_ack = 1'b0;
+            assign cpu_s4_dat_i = 32'h0;
+            assign cpu_s4_ack = 1'b0;
+            assign cpu_s5_dat_i = 32'h0;
+            assign cpu_s5_ack = 1'b0;
             
             // Create simple GPIO-controlled mux for external processor
             wb_serial_dshot_mux #(

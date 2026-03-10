@@ -70,25 +70,28 @@ module wb_serial_dshot_mux #(
     end
 
     reg reg_mux_sel; // Internal register
+    reg reg_force_low; // Force output LOW for break signal
 
     always_ff @(posedge wb_clk_i) begin
         if (wb_rst_i) begin
             reg_mux_sel <= 1'b1; // Default to DSHOT Mode (Safety)
             mux_ch  <= 2'b0;
             msp_mode <= 1'b0;
+            reg_force_low <= 1'b0;
             wb_ack_o <= 1'b0;
             wb_dat_o <= 32'b0;
         end else begin
-            wb_ack_o <= sel & ~wb_ack_o;
+            wb_ack_o <= 1'b0;
             
-            if (sel && ~wb_ack_o) begin
+            if (sel && !wb_ack_o) begin
+                wb_ack_o <= 1'b1;
                 if (wb_we_i) begin
-                    $display("[MUX_DUT %0t] WB WRITE: dat=%h", $time, wb_dat_i);
                     reg_mux_sel <= wb_dat_i[0];
                     mux_ch  <= wb_dat_i[2:1];
                     msp_mode <= wb_dat_i[3];
+                    reg_force_low <= wb_dat_i[4]; // bit[4] = force LOW
                 end
-                wb_dat_o <= {28'b0, msp_mode, mux_ch, reg_mux_sel};
+                wb_dat_o <= {27'b0, reg_force_low, msp_mode, mux_ch, reg_mux_sel};
             end
         end
     end
@@ -218,8 +221,14 @@ module wb_serial_dshot_mux #(
                         pad_oe_active_high <= 1'b1; 
                     end else begin
                         if (is_target) begin
-                            pad_out_data       <= serial_tx_reg;   // Use registered input
-                            pad_oe_active_high <= serial_oe_reg;   // Use registered input
+                            if (reg_force_low) begin
+                                // Break signal: drive LOW for bootloader entry
+                                pad_out_data       <= 1'b0;
+                                pad_oe_active_high <= 1'b1;
+                            end else begin
+                                pad_out_data       <= serial_tx_reg;   // Use registered input
+                                pad_oe_active_high <= serial_oe_reg;   // Use registered input
+                            end
                         end else begin
                             pad_out_data       <= 1'b0;
                             pad_oe_active_high <= 1'b0; 

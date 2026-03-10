@@ -26,6 +26,56 @@ import datetime
 MSP_HEADER_OUT = b"$M<"
 MSP_HEADER_IN = b"$M>"
 
+# 4-Way protocol constants
+FOURWAY_PC_SYNC = 0x2F
+FOURWAY_FC_SYNC = 0x2E
+
+# 4-Way commands
+FOURWAY_CMDS = {
+    'test_alive': 0x30,
+    'get_version': 0x31,
+    'get_name': 0x32,
+    'get_if_version': 0x33,
+    'exit': 0x34,
+    'reset': 0x35,
+    'init_flash': 0x37,
+    'erase_all': 0x38,
+    'page_erase': 0x39,
+    'read': 0x3A,
+    'write': 0x3B,
+    'read_eeprom': 0x3D,
+    'write_eeprom': 0x3E,
+    'set_mode': 0x3F,
+}
+
+FOURWAY_ACK = {
+    0x00: 'OK',
+    0x01: 'UNKNOWN_ERROR',
+    0x02: 'INVALID_CMD',
+    0x03: 'INVALID_CRC',
+    0x04: 'VERIFY_ERROR',
+    0x05: 'D_INVALID_CMD',
+    0x06: 'D_CMD_FAILED',
+    0x07: 'D_UNKNOWN_ERROR',
+    0x08: 'INVALID_CHANNEL',
+    0x09: 'INVALID_PARAM',
+    0x0F: 'GENERAL_ERROR',
+}
+
+
+def crc16_xmodem(data: bytes) -> int:
+    """CRC16 X-Modem calculation"""
+    crc = 0
+    for byte in data:
+        crc ^= byte << 8
+        for _ in range(8):
+            if crc & 0x8000:
+                crc = (crc << 1) ^ 0x1021
+            else:
+                crc <<= 1
+        crc &= 0xFFFF
+    return crc
+
 
 def calc_checksum(buf: bytes) -> int:
     cs = 0
@@ -101,6 +151,118 @@ class MSP:
         return {"cmd": cmd, "size": size, "payload": payload, "cs": cs, "valid": ok}
 
 
+class FourWay:
+    """4-Way interface protocol handler"""
+    def __init__(self, ser: serial.Serial):
+        self.ser = ser
+
+    def send(self, cmd: int, address: int = 0, params: bytes = b"", timeout: float = 2.0):
+        """Send a 4way command and wait for response"""
+        if len(params) == 0:
+            params = bytes([0])  # Protocol requires at least 1 param byte
+        
+        param_len = len(params) if len(params) < 256 else 0  # 0 means 256
+        
+        # Build message: [sync][cmd][addr_h][addr_l][len][params...]
+        msg = bytes([FOURWAY_PC_SYNC, cmd, (address >> 8) & 0xFF, address & 0xFF, param_len]) + params
+        
+        # Calculate CRC16 over message (excluding CRC itself)
+        crc = crc16_xmodem(msg)
+        frame = msg + bytes([(crc >> 8) & 0xFF, crc & 0xFF])
+        
+        self.ser.write(frame)
+        self.ser.flush()
+        print(f"4way TX: cmd=0x{cmd:02X} addr=0x{address:04X} params={params.hex()}")
+        print(f"  Frame: {hexdump(frame)}")
+        
+        return self._read_response(timeout)
+
+    def _read_response(self, timeout: float):
+        """Read 4way response"""
+        t0 = time.time()
+        
+        # Wait for sync byte
+        while time.time() - t0 < timeout:
+            b = self.ser.read(1)
+            if not b:
+                continue
+            if b[0] == FOURWAY_FC_SYNC:
+                break
+        else:
+            print("4way: No response (timeout waiting for sync)")
+            return None
+        
+        # Read cmd, addr_h, addr_l, len
+        header = self.ser.read(4)
+        if len(header) < 4:
+            print(f"4way: Truncated header (got {len(header)} bytes)")
+            return None
+        
+        cmd = header[0]
+        address = (header[1] << 8) | header[2]
+        param_len = header[3] if header[3] != 0 else 256
+        
+        # Read params
+        params = self.ser.read(param_len)
+        if len(params) < param_len:
+            print(f"4way: Truncated params (got {len(params)}, expected {param_len})")
+        
+        # Read ACK byte
+        ack_b = self.ser.read(1)
+        ack = ack_b[0] if ack_b else 0xFF
+        
+        # Read CRC (2 bytes)
+        crc_bytes = self.ser.read(2)
+        if len(crc_bytes) < 2:
+            print("4way: Truncated CRC")
+            recv_crc = 0
+        else:
+            recv_crc = (crc_bytes[0] << 8) | crc_bytes[1]
+        
+        # Verify CRC
+        msg = bytes([FOURWAY_FC_SYNC, cmd, (address >> 8) & 0xFF, address & 0xFF, 
+                     header[3]]) + params + bytes([ack])
+        calc_crc = crc16_xmodem(msg)
+        crc_ok = recv_crc == calc_crc
+        
+        ack_str = FOURWAY_ACK.get(ack, f'UNKNOWN(0x{ack:02X})')
+        print(f"4way RX: cmd=0x{cmd:02X} addr=0x{address:04X} ack={ack_str} params={params.hex()}")
+        print(f"  CRC: recv=0x{recv_crc:04X} calc=0x{calc_crc:04X} ok={crc_ok}")
+        
+        return {
+            'cmd': cmd,
+            'address': address,
+            'params': params,
+            'ack': ack,
+            'ack_str': ack_str,
+            'crc_ok': crc_ok
+        }
+
+    def test_alive(self):
+        """Send keep-alive ping"""
+        return self.send(FOURWAY_CMDS['test_alive'])
+
+    def get_version(self):
+        """Get protocol version"""
+        return self.send(FOURWAY_CMDS['get_version'])
+
+    def get_name(self):
+        """Get interface name"""
+        return self.send(FOURWAY_CMDS['get_name'])
+
+    def exit_4way(self):
+        """Exit 4way mode, return to MSP"""
+        return self.send(FOURWAY_CMDS['exit'])
+
+    def init_flash(self, esc_num: int = 0):
+        """Initialize ESC for flashing (triggers bootloader)"""
+        return self.send(FOURWAY_CMDS['init_flash'], address=0, params=bytes([esc_num & 0x03]), timeout=10.0)
+
+    def read_flash(self, address: int, length: int):
+        """Read from ESC flash"""
+        return self.send(FOURWAY_CMDS['read'], address=address, params=bytes([length & 0xFF]))
+
+
 def parse_hex_bytes(s: str) -> bytes:
     s2 = s.replace("0x", "").replace(" ", "").replace(",", "")
     if len(s2) % 2 == 1:
@@ -149,6 +311,22 @@ def main():
 
     listen = sub.add_parser("listen", help="Listen and print bytes/lines from serial")
     listen.add_argument("--hex", action="store_true", help="Print bytes as hex")
+
+    fourway = sub.add_parser("fourway", help="Send 4-way interface commands (after MSP passthrough)")
+    fourway.add_argument("--cmd", choices=list(FOURWAY_CMDS.keys()),
+                         help="Single 4way command to send")
+    fourway.add_argument("--cmds", nargs='+', choices=list(FOURWAY_CMDS.keys()),
+                         help="Multiple 4way commands to send in sequence")
+    fourway.add_argument("--esc", type=int, default=0, choices=[0,1,2,3],
+                         help="ESC number (for init_flash)")
+    fourway.add_argument("--address", type=lambda x: int(x, 0), default=0,
+                         help="Address (for read/write commands)")
+    fourway.add_argument("--length", type=int, default=128,
+                         help="Length (for read commands)")
+    fourway.add_argument("--passthrough", action="store_true",
+                         help="Send MSP_SET_PASSTHROUGH (245) first to enter 4way mode")
+    fourway.add_argument("--delay", type=float, default=0.1,
+                         help="Delay in seconds between commands (default: 0.1)")
 
     args = p.parse_args()
     if args.mode is None:
@@ -205,6 +383,64 @@ def main():
             print("Payload TX:", hexdump(payload))
         if resp:
             print("Response payload:", resp.get("payload", b"").hex())
+    elif args.mode == "fourway":
+        # Enter 4way mode first if requested
+        if args.passthrough:
+            print("Entering 4way mode via MSP_SET_PASSTHROUGH...")
+            m = MSP(ser)
+            resp = m.send_msp(245, b"", expect_response=True)
+            if resp and resp.get('valid'):
+                print(f"4way mode active, {resp['payload'][0] if resp['payload'] else 0} ESCs reported")
+            else:
+                print("Failed to enter 4way mode")
+                ser.close()
+                sys.exit(1)
+        
+        fw = FourWay(ser)
+        
+        # Build command list from --cmd or --cmds
+        if args.cmds:
+            cmd_list = args.cmds
+        elif args.cmd:
+            cmd_list = [args.cmd]
+        else:
+            print("Error: must specify --cmd or --cmds")
+            ser.close()
+            sys.exit(1)
+        
+        for idx, cmd in enumerate(cmd_list):
+            if idx > 0:
+                time.sleep(args.delay)
+            print(f"\n--- Command {idx+1}/{len(cmd_list)}: {cmd} ---")
+            
+            if cmd == 'test_alive':
+                fw.test_alive()
+            elif cmd == 'get_version':
+                fw.get_version()
+            elif cmd == 'get_name':
+                resp = fw.get_name()
+                if resp and resp['params']:
+                    name = resp['params'].decode('ascii', errors='replace').rstrip('\x00')
+                    print(f"Interface name: {name}")
+            elif cmd == 'get_if_version':
+                fw.send(FOURWAY_CMDS['get_if_version'])
+            elif cmd == 'exit':
+                fw.exit_4way()
+                print("Exited 4way mode")
+            elif cmd == 'init_flash':
+                print(f"Initializing ESC {args.esc} for flashing...")
+                resp = fw.init_flash(args.esc)
+                if resp and resp['ack'] == 0:
+                    print(f"ESC {args.esc} bootloader active, signature: {resp['params'].hex()}")
+                else:
+                    print(f"ESC {args.esc} init failed")
+            elif cmd == 'read':
+                fw.read_flash(args.address, args.length)
+            elif cmd == 'reset':
+                fw.send(FOURWAY_CMDS['reset'], params=bytes([args.esc & 0x03]))
+            else:
+                # Generic send
+                fw.send(FOURWAY_CMDS[cmd])
     elif args.mode == "listen":
         print(f"Listening on {args.port} @ {args.baud} baud. Ctrl-C to exit.")
         try:

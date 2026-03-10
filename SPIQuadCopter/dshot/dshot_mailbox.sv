@@ -1,15 +1,11 @@
-// 1. Package definition for the dispatch interface
-package dshot_pkg;
-    typedef struct packed {
-        logic [31:0] data; // 32-bit Motor Command
-        logic [2:0]  id;   // Motor ID (0-7)
-        logic        vld;  // Pulse high on update
-    } motor_cmd_t;
-endpackage
+// Package definition for documentation (not used in synthesis due to tool limitations)
+// typedef struct packed {
+//     logic [31:0] data; // 32-bit Motor Command
+//     logic [2:0]  id;   // Motor ID (0-7)
+//     logic        vld;  // Pulse high on update
+// } motor_cmd_t;
 
-// 2. Main Mailbox Module
-import dshot_pkg::*;
-
+// Main Mailbox Module
 module motor_mailbox_sv #(
     parameter int NUM_MOTORS = 8
 )(
@@ -32,7 +28,9 @@ module motor_mailbox_sv #(
     output logic [31:0] gen_rdata,
 
     // --- Single-Channel DSHOT Dispatch Output ---
-    output motor_cmd_t  dshot_out
+    output logic [31:0] dshot_out_data,
+    output logic [2:0]  dshot_out_id,
+    output logic        dshot_out_vld
 );
 
 
@@ -46,12 +44,10 @@ module motor_mailbox_sv #(
 
     // --- Command FIFO for Synchronization ---
     localparam int FIFO_DEPTH = 4;
-    typedef struct packed {
-        logic [2:0]  id;
-        logic [31:0] data;
-    } fifo_entry_t;
+    
+    // FIFO entry: packed bits [34:0] = {id[2:0], data[31:0]}
+    logic [34:0] fifo_mem [FIFO_DEPTH];
 
-    fifo_entry_t fifo_mem [FIFO_DEPTH];
     logic [$clog2(FIFO_DEPTH)-1:0] rd_ptr, wr_ptr;
     logic [$clog2(FIFO_DEPTH):0]   fifo_count;
 
@@ -86,8 +82,9 @@ module motor_mailbox_sv #(
         end else begin
             // FIFO Push
             if (push_gen || push_wb) begin
-                fifo_mem[wr_ptr] <= push_gen ? '{id: gen_addr, data: gen_wdata} : 
-                                               '{id: wb_adr_i, data: wb_dat_i};
+                // Pack as {id[2:0], data[31:0]}
+                fifo_mem[wr_ptr] <= push_gen ? {gen_addr, gen_wdata} : 
+                                               {wb_adr_i, wb_dat_i};
                 wr_ptr           <= wr_ptr + 1'b1;
             end
 
@@ -103,19 +100,22 @@ module motor_mailbox_sv #(
     // --- FIFO Read & Motor Dispatch ---
     always_ff @(posedge clk) begin
         if (rst) begin
-            rd_ptr    <= '0;
-            dshot_out <= '0; // Correctly resets struct
+            rd_ptr         <= '0;
+            dshot_out_data <= '0;
+            dshot_out_id   <= '0;
+            dshot_out_vld  <= 1'b0;
         end else begin
-            dshot_out.vld <= 1'b0; // Default: pulse
+            dshot_out_vld <= 1'b0; // Default: pulse
 
             if (!fifo_empty) begin
+                // fifo_mem[x] is {id[2:0], data[31:0]} = [34:32], [31:0]
                 // Update Storage
-                motor_regs[fifo_mem[rd_ptr].id] <= fifo_mem[rd_ptr].data;
+                motor_regs[fifo_mem[rd_ptr][34:32]] <= fifo_mem[rd_ptr][31:0];
                 
                 // Dispatch to DSHOT Engine
-                dshot_out.data <= fifo_mem[rd_ptr].data;
-                dshot_out.id   <= fifo_mem[rd_ptr].id;
-                dshot_out.vld  <= 1'b1;
+                dshot_out_data <= fifo_mem[rd_ptr][31:0];
+                dshot_out_id   <= fifo_mem[rd_ptr][34:32];
+                dshot_out_vld  <= 1'b1;
                 
                 rd_ptr <= rd_ptr + 1'b1;
             end

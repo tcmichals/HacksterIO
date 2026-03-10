@@ -77,7 +77,7 @@ module serv_wb_top #(
         .rf_width       (RF_WIDTH),
         .sim            (1'b0),
         .debug          (1'b0),
-        .with_c         (1'b0),    // No compressed instructions
+        .with_c         (1'b1),    // Compressed instructions ENABLED (RV32IC)
         .with_csr       (1'b0),    // No CSR (saves ~100 LUTs)
         .with_mdu       (1'b0)     // No multiply/divide
     ) u_servile (

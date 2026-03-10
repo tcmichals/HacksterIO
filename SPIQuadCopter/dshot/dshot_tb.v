@@ -13,15 +13,15 @@
 
 module dshot_tb;
 
-    // Clock parameters - Updated for 72MHz PLL
+    // Clock parameters - Must match DUT clockFrequency
     localparam CLK_FREQ_HZ = 54_000_000;
-    localparam CLK_PERIOD = 13889; // 72 MHz = 13.889ns = 13889ps
+    localparam CLK_PERIOD = 18519; // 54 MHz = 18.519ns = 18519ps
     
     // DSHOT150 timing (in ps now!)
     localparam DSHOT150_BIT_PERIOD = 6670000;  // 6.67us = 6,670,000ps
     localparam DSHOT150_T0H = 2500000;         // 2.5us = 2,500,000ps
     localparam DSHOT150_T1H = 5000000;         // 5.0us = 5,000,000ps
-    localparam TOLERANCE = 300000;             // ±300ns = 300,000ps tolerance (increased for 72MHz)
+    localparam TOLERANCE = 300000;             // ±300ns = 300,000ps tolerance
     
     // Test signals
     reg         clk;

@@ -14,7 +14,7 @@
 module wb_neoPx_tb;
 
     // Parameters
-    parameter CLK_PERIOD = 13.888; // 72 MHz clock (1e9 / 72e6 ns)
+    parameter CLK_PERIOD = 18.518; // 54 MHz clock (1e9 / 54e6 ns)
     parameter DATA_WIDTH = 32;
     parameter ADDR_WIDTH = 32;
     

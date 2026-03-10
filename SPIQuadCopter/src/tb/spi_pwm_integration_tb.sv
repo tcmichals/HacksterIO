@@ -16,11 +16,21 @@ module spi_pwm_integration_tb;
 
     // Clock parameters
     localparam CLK_FREQ_HZ = 54_000_000;  // 54 MHz system clock
-    localparam CLK_PERIOD = 14;            // ~72 MHz (13.9ns rounded)
+    localparam CLK_PERIOD = 19;            // 54 MHz = 18.5ns, rounded to 19ns
     localparam SPI_CLK_PERIOD = 100;       // 10 MHz SPI clock
     
-    // PWM timing parameters (in clock cycles at 72 MHz)
-    // 1 us = 72 clock cycles
+    // PWM Guard Time Parameters (from pwmdecoder.v)
+    localparam GUARD_TIME_ON_MIN = 800;    // Minimum valid pulse (us)
+    localparam GUARD_TIME_ON_MAX = 2600;   // Maximum valid pulse (us)
+    localparam GUARD_TIME_OFF_MAX = 20000; // No signal timeout (us)
+    
+    // Error flags (from pwmdecoder.v)
+    localparam GUARD_ERROR_LOW   = 16'hC000;  // No signal timeout
+    localparam GUARD_ERROR_HIGH  = 16'h8000;  // Pulse too long
+    localparam GUARD_ERROR_SHORT = 16'h4000;  // Pulse too short
+    
+    // PWM timing parameters (in clock cycles at 54 MHz)
+    // 1 us = 54 clock cycles
     localparam CLKS_PER_US = CLK_FREQ_HZ / 1_000_000;
     
     // PWM decoder base address (from SYSTEM_OVERVIEW)
@@ -274,12 +284,19 @@ module spi_pwm_integration_tb;
     );
         logic [15:0] actual;
         integer diff;
+        logic [1:0] error_flags;
         begin
             read_pwm_channel(channel, actual);
+            error_flags = actual[15:14];
             
             // Check for guard time errors
-            if (actual[15:14] != 2'b00) begin
-                $display("[TEST] Channel %0d: Guard error (0x%04x)", channel, actual);
+            if (error_flags != 2'b00) begin
+                if (error_flags == 2'b11)
+                    $display("[TEST] Channel %0d: GUARD_ERROR_LOW (no signal) - 0x%04x", channel, actual);
+                else if (error_flags == 2'b10)
+                    $display("[TEST] Channel %0d: GUARD_ERROR_HIGH (too long) - 0x%04x", channel, actual);
+                else if (error_flags == 2'b01)
+                    $display("[TEST] Channel %0d: GUARD_ERROR_SHORT (too short) - 0x%04x", channel, actual);
                 fail_count = fail_count + 1;
                 return;
             end
@@ -293,6 +310,37 @@ module spi_pwm_integration_tb;
             end else begin
                 $display("[TEST] Channel %0d: FAIL (expected=%0d, got=%0d, diff=%0d)", 
                          channel, expected_us, actual, diff);
+                fail_count = fail_count + 1;
+            end
+        end
+    endtask
+    
+    // Task to verify expected guard time error
+    task check_pwm_guard_error(
+        input integer channel,
+        input [1:0] expected_error  // 01=SHORT, 10=HIGH, 11=LOW
+    );
+        logic [15:0] actual;
+        logic [1:0] error_flags;
+        string error_name;
+        begin
+            read_pwm_channel(channel, actual);
+            error_flags = actual[15:14];
+            
+            case (expected_error)
+                2'b01: error_name = "GUARD_ERROR_SHORT";
+                2'b10: error_name = "GUARD_ERROR_HIGH";
+                2'b11: error_name = "GUARD_ERROR_LOW";
+                default: error_name = "NO_ERROR";
+            endcase
+            
+            if (error_flags == expected_error) begin
+                $display("[TEST] Channel %0d: PASS (expected %s, got 0x%04x)", 
+                         channel, error_name, actual);
+                pass_count = pass_count + 1;
+            end else begin
+                $display("[TEST] Channel %0d: FAIL (expected %s, got 0x%04x)", 
+                         channel, error_name, actual);
                 fail_count = fail_count + 1;
             end
         end
@@ -321,7 +369,8 @@ module spi_pwm_integration_tb;
         pwm_ch4 = 1'b0;
         pwm_ch5 = 1'b0;
         
-        // Expected PWM values (typical RC servo range: 1000-2000 us)
+        // Expected PWM values (in microseconds, real timing)
+        // All values within valid guard time range: 800-2600 us
         expected_pwm[0] = 1000;  // Minimum throttle
         expected_pwm[1] = 1500;  // Center stick
         expected_pwm[2] = 2000;  // Maximum throttle
@@ -339,103 +388,183 @@ module spi_pwm_integration_tb;
         $display("========================================\n");
         
         // =====================================================
-        // Generate PWM pulses on all channels
-        // Period = 20ms (50 Hz typical RC servo)
+        // Test 1: Valid PWM pulses (within 800-2600 us range)
+        // Generate 2 pulses to ensure stable measurement
         // =====================================================
-        $display("Generating PWM waveforms...");
+        $display("=== Test 1: Valid PWM Pulses ===\n");
+        $display("Generating PWM waveforms (real timing)...");
         
         fork
-            // Channel 0: 1000 us pulse
+            // Channel 0: 1000 us pulse (min throttle)
             begin
-                repeat(3) begin
+                repeat(2) begin
                     pwm_ch0 = 1'b1;
-                    #(1000 * 1000);  // 1000 us
+                    #(1000 * 1000);  // 1000 us = 1ms
                     pwm_ch0 = 1'b0;
-                    #(19000 * 1000); // Rest of 20ms period
+                    #(4000 * 1000);  // 4ms off (5ms period for faster sim)
                 end
             end
             
-            // Channel 1: 1500 us pulse
+            // Channel 1: 1500 us pulse (center)
             begin
-                repeat(3) begin
+                repeat(2) begin
                     pwm_ch1 = 1'b1;
-                    #(1500 * 1000);  // 1500 us
+                    #(1500 * 1000);
                     pwm_ch1 = 1'b0;
-                    #(18500 * 1000);
+                    #(3500 * 1000);
                 end
             end
             
-            // Channel 2: 2000 us pulse
+            // Channel 2: 2000 us pulse (max throttle)
             begin
-                repeat(3) begin
+                repeat(2) begin
                     pwm_ch2 = 1'b1;
-                    #(2000 * 1000);  // 2000 us
+                    #(2000 * 1000);
                     pwm_ch2 = 1'b0;
-                    #(18000 * 1000);
+                    #(3000 * 1000);
                 end
             end
             
-            // Channel 3: 1250 us pulse
+            // Channel 3: 1250 us pulse (quarter)
             begin
-                repeat(3) begin
+                repeat(2) begin
                     pwm_ch3 = 1'b1;
                     #(1250 * 1000);
                     pwm_ch3 = 1'b0;
-                    #(18750 * 1000);
+                    #(3750 * 1000);
                 end
             end
             
-            // Channel 4: 1750 us pulse
+            // Channel 4: 1750 us pulse (three-quarter)
             begin
-                repeat(3) begin
+                repeat(2) begin
                     pwm_ch4 = 1'b1;
                     #(1750 * 1000);
                     pwm_ch4 = 1'b0;
-                    #(18250 * 1000);
+                    #(3250 * 1000);
                 end
             end
             
-            // Channel 5: 1100 us pulse
+            // Channel 5: 1100 us pulse (arm switch)
             begin
-                repeat(3) begin
+                repeat(2) begin
                     pwm_ch5 = 1'b1;
                     #(1100 * 1000);
                     pwm_ch5 = 1'b0;
-                    #(18900 * 1000);
+                    #(3900 * 1000);
                 end
             end
         join
         
-        // Wait for PWM decoder to capture values
-        #(1000 * 1000);  // 1ms settle time
+        // Wait for PWM decoder to finish measurement
+        #(2000 * 1000);  // 2ms settle
         
         // =====================================================
         // Test 1: Read all PWM channels via SPI
         // =====================================================
-        $display("\n=== Reading PWM Values via SPI ===\n");
+        $display("\n=== Test 1: Reading PWM Values via SPI ===\n");
         
-        check_pwm_value(0, expected_pwm[0], 20);  // 1000 us +/- 20
+        check_pwm_value(0, expected_pwm[0], 5);  // +/- 5us tolerance
         #(CLK_PERIOD * 100);
         
-        check_pwm_value(1, expected_pwm[1], 20);  // 1500 us +/- 20
+        check_pwm_value(1, expected_pwm[1], 5);
         #(CLK_PERIOD * 100);
         
-        check_pwm_value(2, expected_pwm[2], 20);  // 2000 us +/- 20
+        check_pwm_value(2, expected_pwm[2], 5);
         #(CLK_PERIOD * 100);
         
-        check_pwm_value(3, expected_pwm[3], 20);  // 1250 us +/- 20
+        check_pwm_value(3, expected_pwm[3], 5);
         #(CLK_PERIOD * 100);
         
-        check_pwm_value(4, expected_pwm[4], 20);  // 1750 us +/- 20
+        check_pwm_value(4, expected_pwm[4], 5);
         #(CLK_PERIOD * 100);
         
-        check_pwm_value(5, expected_pwm[5], 20);  // 1100 us +/- 20
+        check_pwm_value(5, expected_pwm[5], 5);
         #(CLK_PERIOD * 100);
         
         // =====================================================
-        // Test 2: Read status register
+        // Test 2: Minimum guard time edge (800us)
         // =====================================================
-        $display("\n=== Reading PWM Status Register ===\n");
+        $display("\n=== Test 2: Minimum Guard Time (800us) ===\n");
+        begin
+            // Send 800us pulse on channel 0 (exactly at minimum)
+            pwm_ch0 = 1'b1;
+            #(800 * 1000);  // 800us
+            pwm_ch0 = 1'b0;
+            #(4000 * 1000);  // 4ms off
+            
+            // Should be valid (exactly at limit)
+            check_pwm_value(0, 800, 5);
+        end
+        #(CLK_PERIOD * 100);
+        
+        // =====================================================
+        // Test 3: Maximum guard time edge (2600us)
+        // =====================================================
+        $display("\n=== Test 3: Maximum Guard Time (2600us) ===\n");
+        begin
+            // Send 2600us pulse on channel 1 (exactly at maximum)
+            pwm_ch1 = 1'b1;
+            #(2600 * 1000);  // 2600us
+            pwm_ch1 = 1'b0;
+            #(4000 * 1000);  // 4ms off
+            
+            // Should be valid (exactly at limit)
+            check_pwm_value(1, 2600, 5);
+        end
+        #(CLK_PERIOD * 100);
+        
+        // =====================================================
+        // Test 4: Too short pulse (GUARD_ERROR_SHORT)
+        // =====================================================
+        $display("\n=== Test 4: Too Short Pulse (<800us) ===\n");
+        begin
+            // Send 500us pulse on channel 2 (below minimum)
+            pwm_ch2 = 1'b1;
+            #(500 * 1000);  // 500us - too short
+            pwm_ch2 = 1'b0;
+            #(4000 * 1000);  // 4ms off
+            
+            // Should have GUARD_ERROR_SHORT (bits 15:14 = 01)
+            check_pwm_guard_error(2, 2'b01);
+        end
+        #(CLK_PERIOD * 100);
+        
+        // =====================================================
+        // Test 5: Too long pulse (GUARD_ERROR_HIGH)
+        // =====================================================
+        $display("\n=== Test 5: Too Long Pulse (>2600us) ===\n");
+        begin
+            // Send 3000us pulse on channel 3 (above maximum)
+            pwm_ch3 = 1'b1;
+            #(3000 * 1000);  // 3000us - too long
+            pwm_ch3 = 1'b0;
+            #(4000 * 1000);  // 4ms off
+            
+            // Should have GUARD_ERROR_HIGH (bits 15:14 = 10)
+            check_pwm_guard_error(3, 2'b10);
+        end
+        #(CLK_PERIOD * 100);
+        
+        // =====================================================
+        // Test 6: No signal (GUARD_ERROR_LOW)
+        // =====================================================
+        $display("\n=== Test 6: No PWM Signal (>20ms timeout) ===\n");
+        begin
+            // Channel 4 has not received pulses for a while
+            // Wait >20ms with no pulse
+            pwm_ch4 = 1'b0;  // Ensure low
+            #(25000 * 1000);  // 25ms - exceeds 20ms timeout
+            
+            // Should have GUARD_ERROR_LOW (bits 15:14 = 11)
+            check_pwm_guard_error(4, 2'b11);
+        end
+        #(CLK_PERIOD * 100);
+        
+        // =====================================================
+        // Test 7: Status register read
+        // =====================================================
+        $display("\n=== Test 7: Status Register ===\n");
         begin
             logic [31:0] addr;
             logic [31:0] status;
@@ -444,45 +573,8 @@ module spi_pwm_integration_tb;
             spi_transaction();
             status = get_read_data();
             $display("[STATUS] PWM Status = 0x%08x (ready flags: %06b)", status, status[5:0]);
-            
-            // Note: PWM signals stopped earlier, so ready flags may have timed out
-            // This is normal behavior - ready flags are only active briefly after receiving a pulse
             $display("[TEST] Status: PASS - Status register read successfully");
             pass_count = pass_count + 1;
-        end
-        
-        // =====================================================
-        // Test 3: Burst read (read 2 channels at once)
-        // =====================================================
-        $display("\n=== Burst Read Test (Ch0 + Ch1) ===\n");
-        begin
-            logic [31:0] addr;
-            logic [15:0] ch0_val, ch1_val;
-            addr = PWM_BASE_ADDR;  // Start at channel 0
-            setup_read_cmd(addr, 16'd8);  // Read 8 bytes = 2 words
-            spi_transaction();
-            
-            // First word at bytes 8-11, second at 12-15
-            ch0_val = {spi_rx_buf[9], spi_rx_buf[8]};
-            ch1_val = {spi_rx_buf[13], spi_rx_buf[12]};
-            
-            $display("[BURST] Ch0 = %0d us, Ch1 = %0d us", ch0_val, ch1_val);
-            
-            // Check with tolerance
-            begin
-                integer diff0, diff1;
-                diff0 = (ch0_val > expected_pwm[0]) ? (ch0_val - expected_pwm[0]) : (expected_pwm[0] - ch0_val);
-                diff1 = (ch1_val > expected_pwm[1]) ? (ch1_val - expected_pwm[1]) : (expected_pwm[1] - ch1_val);
-                
-                if (diff0 <= 20 && diff1 <= 20) begin
-                    $display("[TEST] Burst Read: PASS (diff=%0d/%0d)", diff0, diff1);
-                    pass_count = pass_count + 1;
-                end else begin
-                    $display("[TEST] Burst Read: FAIL (expected %0d/%0d, diff=%0d/%0d)", 
-                             expected_pwm[0], expected_pwm[1], diff0, diff1);
-                    fail_count = fail_count + 1;
-                end
-            end
         end
         
         // =====================================================

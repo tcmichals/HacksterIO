@@ -1,0 +1,27 @@
+#-----------------------------------------------------------
+# Vivado v2025.2 (64-bit)
+# SW Build 6299465 on Fri Nov 14 12:34:56 MST 2025
+# IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
+# SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
+# Start of session at: Mon Mar  9 22:42:37 2026
+# Process ID         : 38609
+# Current directory  : /media/tcmichals/projects/Tang9K/HacksterIO/SPIQuadCopter/ArtS7-50/project/SPICopter/SPICopter.runs/riscv_54mhz_ilmb_v10_0_synth_1
+# Command line       : vivado -log riscv_54mhz_ilmb_v10_0.vds -product Vivado -mode batch -messageDb vivado.pb -notrace -source riscv_54mhz_ilmb_v10_0.tcl
+# Log file           : /media/tcmichals/projects/Tang9K/HacksterIO/SPIQuadCopter/ArtS7-50/project/SPICopter/SPICopter.runs/riscv_54mhz_ilmb_v10_0_synth_1/riscv_54mhz_ilmb_v10_0.vds
+# Journal file       : /media/tcmichals/projects/Tang9K/HacksterIO/SPIQuadCopter/ArtS7-50/project/SPICopter/SPICopter.runs/riscv_54mhz_ilmb_v10_0_synth_1/vivado.jou
+# Running On         : hp
+# Platform           : Ubuntu
+# Operating System   : Ubuntu 24.04.3 LTS
+# Processor Detail   : Intel(R) Core(TM) i7-7700T CPU @ 2.90GHz
+# CPU Frequency      : 3599.806 MHz
+# CPU Physical cores : 4
+# CPU Logical cores  : 8
+# Host memory        : 12298 MB
+# Swap memory        : 4294 MB
+# Total Virtual      : 16593 MB
+# Available Virtual  : 4908 MB
+#-----------------------------------------------------------
+source riscv_54mhz_ilmb_v10_0.tcl -notrace
+create_project: Time (s): cpu = 00:00:16 ; elapsed = 00:00:06 . Memory (MB): peak = 1600.387 ; gain = 161.059 ; free physical = 1368 ; free virtual = 3700
+INFO: [IP_Flow 19-4838] Using cached IP synthesis design for IP riscv_54mhz_ilmb_v10_0, cache-ID = b4c9d37e60e254e6.
+INFO: [Common 17-206] Exiting Vivado at Mon Mar  9 22:43:08 2026...

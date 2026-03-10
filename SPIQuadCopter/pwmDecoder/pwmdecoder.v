@@ -17,8 +17,9 @@ reg [15:0] clk_counter;
 reg [1:0] pwm_sig;
 
 localparam CLK_DIVIDER = (clockFreq / 1_000_000) -1;
-localparam GUARD_ERROR_LOW 	= 16'hC000;
-localparam GUARD_ERROR_HIGH = 16'h8000;
+localparam GUARD_ERROR_LOW 	= 16'hC000;  // No signal (timeout)
+localparam GUARD_ERROR_HIGH = 16'h8000;  // Pulse too long (>max)
+localparam GUARD_ERROR_SHORT = 16'h4000; // Pulse too short (<min)
 
 localparam MEASURING_ON = 2'b1;
 localparam MEASURING_OFF = 2'b0;
@@ -26,7 +27,7 @@ localparam MEASURE_COMPLETE = 2'b10;
 
 localparam NO_ERROR = 16'h0;
 localparam GUARD_TIME_ON_MAX = 16'd2600; 
-localparam GUARD_TIME_ON_MIN = 16'd800;
+localparam GUARD_TIME_ON_MIN = 16'd750;  // 750us min with 50us margin for clock alignment
 localparam GUARD_TIME_OFF_MAX = 16'd20000;
 
 initial begin
@@ -110,7 +111,11 @@ always @(posedge i_clk or negedge i_resetn) begin
                 begin
                     pwm_ready <= 1;
                     state <= MEASURE_COMPLETE;
-		            o_pwm_value <= pwm_on_count;
+                    // Check for too-short pulse (below minimum guard time)
+                    if (pwm_on_count < GUARD_TIME_ON_MIN)
+                        o_pwm_value <= pwm_on_count | GUARD_ERROR_SHORT;
+                    else
+		                o_pwm_value <= pwm_on_count;
                 end
             end
 

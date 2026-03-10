@@ -19,3 +19,9 @@
 [submodule "SPIQuadCopter/serv/serv-core"]
 	path = SPIQuadCopter/serv/serv-core
 	url = https://github.com/olofk/serv
+[submodule "SPIQuadCopter/vexriscv"]
+	path = SPIQuadCopter/vexriscv
+	url = https://github.com/SpinalHDL/VexRiscv.git
+[submodule "SPIQuadCopter/freertos-kernel"]
+	path = SPIQuadCopter/freertos-kernel
+	url = https://github.com/FreeRTOS/FreeRTOS-Kernel.git

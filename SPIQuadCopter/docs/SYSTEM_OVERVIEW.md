@@ -2,12 +2,12 @@
 
 ## Architecture
 
-The system has two independent Wishbone bus masters with clean separation:
+The system has two independent Wishbone bus masters with shared motor control:
 
-1. **SERV RISC-V CPU** - Handles MSP protocol, ESC configuration
+1. **SERV RISC-V CPU** - Handles MSP protocol, ESC configuration, and direct DSHOT control
 2. **SPI-WB Master** - External host (Raspberry Pi) controls motors and reads sensors
 
-**Key Design Feature**: No arbiter needed - SPI has direct DSHOT access, SERV handles protocols only.
+**Key Design Feature**: DSHOT Mailbox provides dual-port motor access. Both CPU and SPI can write motor commands with automatic arbitration (SPI has priority on collision).
 
 ```
 ┌───────────────────────────────────────────────────────────────────────────┐
@@ -55,14 +55,14 @@ The system has two independent Wishbone bus masters with clean separation:
 │                     │          │ ESC UART, mux_sel, mux_ch               │
 │  ════════════════════════════════════════════════════════════════════════
 │                                │                                         │
-│  ┌──────────────────────────────────────────────────────┐                │
-│  │                  wb_mux_4 (SERV Bus)                 │                │
-│  │                                                      │                │
-│  │  ┌────────┐  ┌────────┐  ┌────────┐  ┌────────┐     │                │
-│  │  │ Debug  │  │  Mux   │  │  USB   │  │  ESC   │     │                │
-│  │  │ GPIO   │  │  Reg   │  │  UART  │  │  UART  │     │                │
-│  │  │0x100   │  │0x700   │  │0x800   │  │0x900   │     │                │
-│  │  └───┬────┘  └───┬────┘  └───┬────┘  └───┬────┘     │                │
+│  ┌──────────────────────────────────────────────────────────────┐        │
+│  │                  wb_mux_5 (SERV Bus)                         │        │
+│  │                                                              │        │
+│  │  ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐     │        │
+│  │  │ Debug  │ │ DSHOT  │ │  Mux   │ │  USB   │ │  ESC   │     │        │
+│  │  │ GPIO   │ │Mailbox │ │  Reg   │ │  UART  │ │  UART  │     │        │
+│  │  │0x100   │ │0x300   │ │0x700   │ │0x800   │ │0x900   │     │        │
+│  │  └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘     │        │
 │  │      │           │           │           │          │                │
 │  └──────┼───────────┼───────────┼───────────┼──────────┘                │
 │         │           │           │           │                            │
@@ -94,12 +94,13 @@ The system has two independent Wishbone bus masters with clean separation:
 
 ## Dual-Bus Architecture
 
-### SERV Wishbone Bus (wb_mux_4)
-SERV handles protocol bridging and ESC configuration:
+### SERV Wishbone Bus (wb_mux_5)
+SERV handles protocol bridging, ESC configuration, and direct motor control:
 
 | Address        | Peripheral     | Access | Description                           |
 |----------------|----------------|--------|---------------------------------------|
 | 0x4000_0100    | Debug GPIO     | RW     | 3-bit digital output for debugging    |
+| 0x4000_0300    | DSHOT Mailbox  | RW     | Dual-port motor control (shared w/SPI)|
 | 0x4000_0700    | Mux Register   | RW     | DSHOT vs UART mode select             |
 | 0x4000_0800    | USB UART       | RW     | MSP from PC (115200 baud)             |
 | 0x4000_0900    | ESC UART       | RW     | Half-duplex to ESC (19200 baud)       |
@@ -116,12 +117,13 @@ External flight controller accesses sensors and actuators:
 | 0x0400   | NeoPixel       | RW     | 8x WS2812 LEDs                 |
 | 0x0500   | Mux Mirror     | R      | Read-only shadow of mux reg    |
 
-## Clean Bus Separation
+## Dual-Port DSHOT Access
 
-The simplified design eliminates the arbiter by giving each bus dedicated access:
-- **SPI Bus**: Direct DSHOT motor control (0x0300)
-- **SERV Bus**: Protocol handling only (no DSHOT access)
-- **Result**: No arbitration needed, simpler design, lower LUT count (~100 LUTs saved)
+Both buses can control motors via the DSHOT Mailbox:
+- **SPI Bus**: Direct DSHOT motor control (0x0300) - has priority
+- **SERV Bus**: Direct DSHOT motor control (0x4000_0300) - lower priority
+- **Arbitration**: FIFO-based mailbox with Port B (SPI) priority on simultaneous writes
+- **Use Case**: Pi sends high-rate motor commands, CPU can send failsafe/override commands
 
 ## Motor Pin Mux
 

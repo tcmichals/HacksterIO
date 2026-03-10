@@ -2,6 +2,36 @@
 
 This firmware implements the MultiWii Serial Protocol (MSP) bridge for the SERV RISC-V CPU.
 
+## Prerequisites
+
+### RISC-V Toolchain (xPack)
+
+The firmware requires the xPack RISC-V Embedded GCC toolchain with newlib-nano support.
+
+**Automatic installation:**
+```bash
+cd serv/
+make install-toolchain
+```
+
+This downloads and installs the toolchain to `~/.local/tools/`.
+
+**Manual download:**
+- URL: https://github.com/xpack-dev-tools/riscv-none-elf-gcc-xpack/releases
+- Download the `linux-x64` version and extract to `~/.local/tools/`
+
+**Verify installation:**
+```bash
+make check-toolchain
+```
+
+## Building
+
+```bash
+cd serv/
+make firmware
+```
+
 ## Protocol
 - **MSP framing:** `$ M <` (host-to-device), `$ M >` (device-to-host)
 - **Packet:**

@@ -17,10 +17,10 @@ class MockSpi:
         return [0] * len(data)
 
 class WishboneDriver:
-    def __init__(self, bus=0, device=0, speed_hz=1000000):
+    def __init__(self, bus=0, device=0, speed_hz=6000000):
         """
         Initialize SPI Wishbone driver.
-        Default speed: 1MHz.
+        Default speed: 6MHz (best reliability from sweep test).
         """
         self.spi = spidev.SpiDev()
         try:
@@ -167,10 +167,39 @@ class WishboneDriver:
         data = struct.pack('<I', value)
         self.write(addr, data)
 
+    def set_motors(self, m1, m2, m3, m4):
+        """
+        Set all 4 motor DSHOT values at once.
+        Values: 0-2047 (0=disarmed, 48-2047=throttle range)
+        """
+        self.set_dshot(1, m1)
+        self.set_dshot(2, m2)
+        self.set_dshot(3, m3)
+        self.set_dshot(4, m4)
+
+    def stop_motors(self):
+        """Emergency stop - set all motors to 0."""
+        self.set_motors(0, 0, 0, 0)
+
+    def get_dshot_status(self):
+        """
+        Read DSHOT status register.
+        Returns dict with ready bits for each motor.
+        Base: 0x300, Offset: 0x10 (STATUS)
+        """
+        data = self.read(0x310, 4)
+        status = data[0]
+        return {
+            'motor1_ready': bool(status & 0x01),
+            'motor2_ready': bool(status & 0x02),
+            'motor3_ready': bool(status & 0x04),
+            'motor4_ready': bool(status & 0x08),
+        }
+
     def set_neopixel(self, index, r, g, b, w=0):
         """
         Set NeoPixel color.
-        Base: 0x500.
+        Base: 0x400 (Slave 4 - NeoPixel Controller).
         wb_neoPx.v Map:
           0x00, 0x04...0x1C for indices 0..7.
           Writes must be to the specific address for the pixel index.
@@ -179,7 +208,7 @@ class WishboneDriver:
         if index > 7:
             return
             
-        addr = 0x500 + (index * 4)
+        addr = 0x400 + (index * 4)
         
         # Pack G R B W (Most common SK6812 order)
         # MSB ....... LSB
@@ -196,7 +225,7 @@ class WishboneDriver:
         Returns a list of 8 tuples: (r, g, b, w)
         """
         # Read 32 bytes (8 pixels * 4 bytes)
-        raw_data = self.read(0x500, 32)
+        raw_data = self.read(0x400, 32)
         
         results = []
         for i in range(8):
@@ -213,36 +242,36 @@ class WishboneDriver:
 
     def trigger_neopixel_update(self):
         """
-        Write to an address outside 0x00-0x1C (e.g., 0x20) relative to 0x500
+        Write to an address outside 0x00-0x1C (e.g., 0x20) relative to 0x400
         to trigger the update logic in wb_neoPx.v.
         """
-        addr = 0x520 # 0x500 + 0x20
+        addr = 0x420 # 0x400 + 0x20
         self.write(addr, b'\x00\x00\x00\x00')
 
     # --- LED Methods ---
     def set_leds(self, val):
         """
-        Set on-board LEDs (4 bits for LED 1-4).
+        Set on-board LEDs (5 bits for LED 1-5).
         Base: 0x100 (Slave 1 - LED Controller). Offset 0x00.
         """
         # Pack 32-bit (byte 0 is LSB, which is what we want)
-        data = struct.pack('<I', val & 0x0F)  # 4 bits for 4 LEDs
+        data = struct.pack('<I', val & 0x1F)  # 5 bits for 5 LEDs
         self.write(0x100, data)
 
     def get_leds(self):
         """
-        Read on-board LEDs state (4 bits for LED 1-4).
+        Read on-board LEDs state (5 bits for LED 1-5).
         Base: 0x100 (Slave 1 - LED Controller). Offset 0x00.
         """
         data = self.read(0x100, 4)
         # Assume byte 0 is LSB
-        return data[0] & 0x0F  # 4 bits for 4 LEDs
+        return data[0] & 0x1F  # 5 bits for 5 LEDs
 
     def toggle_leds(self, mask):
         """
-        Toggle LEDs based on mask (4 bits for LED 1-4).
+        Toggle LEDs based on mask (5 bits for LED 1-5).
         Base: 0x100 (Slave 1 - LED Controller). Offset 0x04 = Toggle register.
         """
         offset = 0x104
-        data = struct.pack('<I', mask & 0x0F)  # 4 bits for 4 LEDs
+        data = struct.pack('<I', mask & 0x1F)  # 5 bits for 5 LEDs
         self.write(offset, data)

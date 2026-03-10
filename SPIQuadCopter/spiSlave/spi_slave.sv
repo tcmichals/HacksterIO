@@ -24,30 +24,32 @@ module spi_slave #(
 );
 
     // --- 1. Synchronization & Edge Detection ---
-    logic [2:0] sclk_sync;
-    logic [2:0] cs_n_sync;
-    logic [1:0] mosi_sync;
+    // 4 stages for metastability + glitch filtering at any speed
+    logic [3:0] sclk_sync;   // 4 stages for SCLK
+    logic [3:0] cs_n_sync;   // 4 stages for CS_n
+    logic [2:0] mosi_sync;   // 3 stages for MOSI
 
     always_ff @(posedge i_clk or posedge i_rst) begin
         if (i_rst) begin
-            sclk_sync <= 3'b000;
-            cs_n_sync <= 3'b111;
-            mosi_sync <= 2'b00;
+            sclk_sync <= 4'b0000;
+            cs_n_sync <= 4'b1111;
+            mosi_sync <= 3'b000;
         end else begin
-            sclk_sync <= {sclk_sync[1:0], i_sclk};
-            cs_n_sync <= {cs_n_sync[1:0], i_cs_n};
-            mosi_sync <= {mosi_sync[0], i_mosi};
+            sclk_sync <= {sclk_sync[2:0], i_sclk};
+            cs_n_sync <= {cs_n_sync[2:0], i_cs_n};
+            mosi_sync <= {mosi_sync[1:0], i_mosi};
         end
     end
 
-    // Derived signals from synchronizers
-    wire sclk_rising  = (sclk_sync[2:1] == 2'b01);
-    wire sclk_falling = (sclk_sync[2:1] == 2'b10);
-    wire cs_active    = ~cs_n_sync[1]; // Active Low CS
+    // Glitch-filtered edge detection: require 2 consecutive 0s before, 2 consecutive 1s after (or vice versa)
+    // This filters out noise spikes shorter than 2 clock cycles
+    wire sclk_rising  = (sclk_sync[3:0] == 4'b0011);  // Was low for 2 clks, now high for 2 clks
+    wire sclk_falling = (sclk_sync[3:0] == 4'b1100);  // Was high for 2 clks, now low for 2 clks
+    wire cs_active    = ~cs_n_sync[3]; // Use deepest stage for CS
     
     // Output the Busy status immediately based on synchronized CS
     assign o_busy = cs_active;
-    assign o_cs_n_sync = cs_n_sync[1];
+    assign o_cs_n_sync = cs_n_sync[3];
 
     // --- 2. Data Path & Logic ---
     logic [$clog2(DATA_WIDTH)-1:0] bit_cnt;
@@ -87,15 +89,15 @@ module spi_slave #(
             else begin
                 // ACTIVE STATE (Busy)
                 
-                // Sample MOSI (Rising Edge)
+                // Sample MOSI (Rising Edge) - use deepest sync stage
                 if (sclk_rising) begin
-                    rx_shift_reg <= {rx_shift_reg[DATA_WIDTH-2:0], mosi_sync[1]};
+                    rx_shift_reg <= {rx_shift_reg[DATA_WIDTH-2:0], mosi_sync[2]};
                     if (bit_cnt == 0) begin
-                        o_rx_data    <= {rx_shift_reg[DATA_WIDTH-2:0], mosi_sync[1]};
+                        o_rx_data    <= {rx_shift_reg[DATA_WIDTH-2:0], mosi_sync[2]};
                         o_data_valid <= 1'b1;
-                        // debug: log completed received byte
 `ifdef VERBOSE
-                        $display("[spi_slave %0t] RX byte complete: 0x%02x cs=%0d", $time, {rx_shift_reg[DATA_WIDTH-2:0], mosi_sync[1]}, cs_active);
+                        $display("[spi_slave %0t] RX byte complete: 0x%02x cs=%0d", $time, 
+                            {rx_shift_reg[DATA_WIDTH-2:0], mosi_sync[2]}, cs_active);
 `endif
                     end
                 end
@@ -112,7 +114,7 @@ module spi_slave #(
                         // Check if user provided new data in holding register
                         if (o_tx_ready == 1'b0) begin
                             tx_shift_reg <= tx_holding_reg;
-                            o_tx_ready   <= 1'b1; // Unlock buffer
+                            o_tx_ready   <= 1'b1; // Unlock buffer - ready for next TX
 `ifdef VERBOSE
                             $display("[spi_slave %0t] Loaded tx_shift_reg from holding: 0x%02x", $time, tx_holding_reg);
 `endif
@@ -128,7 +130,7 @@ module spi_slave #(
         end
     end
 
-    // Tri-state MISO
+    // Tri-state MISO (direct from shift register)
     assign o_miso = (cs_active) ? tx_shift_reg[DATA_WIDTH-1] : 1'bZ;
 
 endmodule // SPI_Slave

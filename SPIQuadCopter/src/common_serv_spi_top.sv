@@ -50,8 +50,12 @@ module common_serv_spi_top #(
     // NeoPixel Output
     output logic neopixel,
     
-    // Debug GPIO
-    output logic [2:0] debug_gpio,
+    // Debug GPIO (32 bits for ILA debugging)
+    output logic [31:0] debug_gpio,
+    
+    // SERV Debug Outputs (for ILA/GDB)
+    output logic [31:0] debug_pc,      // Current program counter
+    output logic        debug_pc_valid, // PC is valid (instruction fetch)
     
     // USB UART Interface
     input  logic usb_uart_rx,
@@ -108,15 +112,16 @@ module common_serv_spi_top #(
         .i_wb_mem_rdt(serv_mem_rdt),
         .i_wb_mem_ack(serv_mem_ack),
         
-        .o_debug_pc(),
-        .o_debug_valid()
+        // Debug outputs for ILA/GDB
+        .o_debug_pc(debug_pc),
+        .o_debug_valid(debug_pc_valid)
     );
 
     // =========================================================================
-    // Instruction/Data RAM (10KB)
+    // Instruction/Data RAM (8KB)
     // =========================================================================
     wb_ram #(
-        .DEPTH(10240),
+        .DEPTH(8192),
         .MEMFILE("serv/firmware/firmware.mem")
     ) u_serv_ram (
         .i_clk(clk),
