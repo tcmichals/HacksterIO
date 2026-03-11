@@ -1,24 +1,22 @@
 # =============================================================================
-# Arty S7-50 Vivado Build Script
+# Arty S7-50 Vivado Build Script (Pro Pattern)
 # =============================================================================
 # Usage:
 #   cd ArtS7-50/project/SPICopter
 #   vivado -mode batch -source build.tcl              # Create project only
-#   vivado -mode batch -source build.tcl -tclargs build  # Create + build bitstream
+#   vivado -mode batch -source build.tcl -tclargs build  # Build bitstream
+#   vivado -mode gui -source build.tcl                # Open in GUI
 #
-# Or open in GUI after creating:
-#   vivado SPICopter.xpr
-#
-# To update this script after GUI changes:
-#   In Vivado TCL console: write_project_tcl -force build.tcl
+# After GUI changes, update this script:
+#   write_project_tcl -force -no_copy_sources build.tcl
 # =============================================================================
 
 set script_dir [file dirname [info script]]
-set project_dir $script_dir
+set src_dir "$script_dir/src"
 set root_dir [file normalize "$script_dir/../../.."]
-set local_srcs "$script_dir/SPICopter.srcs/sources_1"
 
 set project_name "SPICopter"
+set project_dir "$script_dir/vivado_project"
 set part "xc7s50csga324-1"
 set top_module "arty_s7_spi_copter_top"
 
@@ -31,38 +29,34 @@ if {[llength $argv] > 0} {
 }
 
 # -----------------------------------------------------------------------------
-# Delete existing project files (but preserve SPICopter.srcs)
+# Clean Slate - Delete entire project directory
 # -----------------------------------------------------------------------------
-foreach item [list SPICopter.xpr SPICopter.cache SPICopter.hw SPICopter.ip_user_files SPICopter.runs SPICopter.sim] {
-    if {[file exists "$project_dir/$item"]} {
-        puts "Removing $item..."
-        file delete -force "$project_dir/$item"
-    }
+if {[file exists $project_dir]} {
+    puts "Cleaning existing project directory..."
+    file delete -force $project_dir
 }
 
 # -----------------------------------------------------------------------------
-# Create Project
+# Create Project (fresh, in vivado_project subdirectory)
 # -----------------------------------------------------------------------------
 puts "Creating project: $project_name"
-create_project $project_name $project_dir -part $part -force
-
-# Optional: Set board part if installed (uncomment if you have Digilent board files)
-# set_property board_part digilentinc.com:arty-s7-50:part0:1.1 [current_project]
+create_project $project_name $project_dir -part $part
 
 # Set project properties
 set_property target_language Verilog [current_project]
 set_property simulator_language Mixed [current_project]
 
-# -----------------------------------------------------------------------------
-# Add Local Source Files (in SPICopter.srcs - version controlled)
-# -----------------------------------------------------------------------------
-puts "Adding local source files..."
+# Optional: Set board part if installed
+# set_property board_part digilentinc.com:arty-s7-50:part0:1.1 [current_project]
 
-# Top-level (local)
-add_files -norecurse "$local_srcs/arty_s7_spi_copter_top.v"
-
-# Constraints (local)
-add_files -fileset constrs_1 -norecurse "$local_srcs/Arty-S7-50-Master.xdc"
+# -----------------------------------------------------------------------------
+# Add Local Source Files (from src/ - version controlled)
+# Using -norecurse so edits in Vivado save back to your real files
+# -----------------------------------------------------------------------------
+puts "Adding local source files from src/..."
+add_files -norecurse [glob -nocomplain $src_dir/*.v]
+add_files -norecurse [glob -nocomplain $src_dir/*.sv]
+add_files -fileset constrs_1 -norecurse [glob -nocomplain $src_dir/*.xdc]
 
 # -----------------------------------------------------------------------------
 # Add Shared Source Files (from main repo)
@@ -102,14 +96,14 @@ add_files -norecurse "$root_dir/verilog-uart/rtl/uart_rx.v"
 add_files -norecurse "$root_dir/verilog-wishbone/rtl/wb_mux.v"
 
 # -----------------------------------------------------------------------------
-# Set Top Module
+# Set Top Module and Update Compile Order
 # -----------------------------------------------------------------------------
 set_property top $top_module [current_fileset]
 update_compile_order -fileset sources_1
 
 puts ""
 puts "Project created successfully!"
-puts "Project file: $project_dir/SPICopter.xpr"
+puts "Project file: $project_dir/$project_name.xpr"
 puts ""
 
 # -----------------------------------------------------------------------------
@@ -134,23 +128,23 @@ if {$do_build} {
         exit 1
     }
     
-    # Copy bitstream to project root
-    set bitstream_file "$project_dir/SPICopter.runs/impl_1/${top_module}.bit"
+    # Copy bitstream to script directory
+    set bitstream_file "$project_dir/$project_name.runs/impl_1/${top_module}.bit"
     if {[file exists $bitstream_file]} {
-        file copy -force $bitstream_file "$project_dir/${project_name}.bit"
+        file copy -force $bitstream_file "$script_dir/${project_name}.bit"
         puts ""
-        puts "SUCCESS! Bitstream: $project_dir/${project_name}.bit"
+        puts "SUCCESS! Bitstream: $script_dir/${project_name}.bit"
     }
     
     puts "Build complete!"
 } else {
     puts ""
-    puts "To build bitstream, run:"
+    puts "To build bitstream:"
     puts "  vivado -mode batch -source build.tcl -tclargs build"
     puts ""
-    puts "Or open in GUI:"
-    puts "  vivado SPICopter.xpr"
+    puts "To open in GUI:"
+    puts "  vivado $project_dir/$project_name.xpr"
     puts ""
-    puts "After making changes in GUI, update this script:"
-    puts "  write_project_tcl -force build.tcl"
+    puts "After GUI changes, update this script:"
+    puts "  write_project_tcl -force -no_copy_sources build.tcl"
 }

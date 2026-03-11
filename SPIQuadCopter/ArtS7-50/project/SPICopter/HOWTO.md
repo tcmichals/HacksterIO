@@ -1,145 +1,106 @@
-# Arty S7-50 Vivado Project
+# Arty S7-50 Vivado Project (Pro Workflow)
+
+## Directory Structure
+
+```
+SPICopter/
+├── src/                    <- YOUR source files (version controlled)
+│   ├── arty_s7_spi_copter_top.v
+│   └── Arty-S7-50-Master.xdc
+├── build.tcl               <- Build script (version controlled)
+├── HOWTO.md                <- This file
+├── .gitignore
+└── vivado_project/         <- Vivado generates here (gitignored, disposable)
+```
 
 ## Quick Start
 
 ```bash
 cd ArtS7-50/project/SPICopter
 
-# Create project (first time or after clean)
+# Create project (opens GUI when done)
 vivado -mode batch -source build.tcl
+vivado vivado_project/SPICopter.xpr
 
-# Open in GUI
-vivado SPICopter.xpr
-```
-
-## Build Bitstream (Command Line)
-
-```bash
+# Or create and build bitstream in one command
 vivado -mode batch -source build.tcl -tclargs build
-```
-
-Output: `SPICopter.bit`
-
-## Directory Structure
-
-```
-SPICopter/
-├── build.tcl              # Project creation script (VERSION CONTROLLED)
-├── .gitignore             # Ignores Vivado-generated files
-├── HOWTO.md               # This file
-├── SPICopter.srcs/        # YOUR source files (VERSION CONTROLLED)
-│   └── sources_1/
-│       ├── arty_s7_spi_copter_top.v
-│       └── Arty-S7-50-Master.xdc
-├── SPICopter.xpr          # Vivado project (GENERATED - gitignored)
-├── SPICopter.runs/        # Build outputs (GENERATED - gitignored)
-├── SPICopter.cache/       # Cache (GENERATED - gitignored)
-└── SPICopter.bit          # Bitstream output (GENERATED)
 ```
 
 ## Workflow
 
-### Initial Setup
+### 1. Create/Recreate Project
 ```bash
-cd ArtS7-50/project/SPICopter
 vivado -mode batch -source build.tcl
-vivado SPICopter.xpr
+```
+This deletes `vivado_project/` and creates a fresh project every time.
+
+### 2. Open in GUI
+```bash
+vivado vivado_project/SPICopter.xpr
 ```
 
-### Daily Development (GUI)
-1. Open: `vivado SPICopter.xpr`
-2. Make changes (edit RTL, constraints, add IPs, etc.)
-3. Build: Flow → Generate Bitstream
-4. Program: Open Hardware Manager → Program Device
+### 3. Make Changes in GUI
+- Edit RTL, constraints, add IPs, change settings
+- Your edits to files in `src/` save directly (linked, not copied)
 
-### Saving Changes to Git
-
-After making changes in Vivado GUI that you want to keep:
-
+### 4. Update build.tcl After GUI Changes
+In Vivado TCL Console:
 ```tcl
-# In Vivado TCL Console:
-write_project_tcl -force build.tcl
+write_project_tcl -force -no_copy_sources ../build.tcl
 ```
 
-Then commit `build.tcl` to git.
-
-### Clean Rebuild
-
+### 5. Build Bitstream (Command Line)
 ```bash
-cd ArtS7-50/project/SPICopter
+vivado -mode batch -source build.tcl -tclargs build
+```
+Output: `SPICopter.bit`
 
-# Remove generated files (keeps SPICopter.srcs/)
-rm -rf SPICopter.xpr SPICopter.cache SPICopter.runs SPICopter.hw SPICopter.sim .Xil
+## Key Concepts
 
-# Regenerate project
+### Why This Structure?
+- **src/** = Your real code (version controlled)
+- **vivado_project/** = Disposable (gitignored)
+- **build.tcl** = Single source of truth for project settings
+
+### Idempotent Builds
+Run `build.tcl` as many times as you want - it always:
+1. Deletes `vivado_project/` completely
+2. Creates fresh project
+3. Links to your `src/` files (not copies)
+
+### Version Control
+**Commit these:**
+- `src/` - Your RTL and constraints
+- `build.tcl` - Project settings
+- `.gitignore`
+- `HOWTO.md`
+
+**Never commit:**
+- `vivado_project/` - Regenerated from build.tcl
+- `*.bit` - Build output
+- `*.jou`, `*.log` - Vivado logs
+
+## Troubleshooting
+
+### Project won't build?
+```bash
+rm -rf vivado_project/
 vivado -mode batch -source build.tcl
 ```
 
-## Adding New Source Files
+### Missing source files?
+Check `src/` has your `.v` and `.xdc` files.
 
-### Option 1: Add to SPICopter.srcs (local files)
-1. Put file in `SPICopter.srcs/sources_1/`
-2. In Vivado: Add Sources → Add Files
-3. Update build.tcl: `write_project_tcl -force build.tcl`
-
-### Option 2: Add shared files (from main repo)
-1. Edit `build.tcl` directly
-2. Add `add_files -norecurse "$root_dir/path/to/file.v"`
-3. Regenerate project
+### Need to add new shared files?
+Edit `build.tcl` and add them to the "Add Shared Source Files" section.
 
 ## Programming the Board
 
-### From Vivado GUI
-1. Open Hardware Manager
-2. Auto Connect
-3. Program Device → Select SPICopter.bit
-
-### From Command Line
 ```bash
-# Create program script
-cat > program.tcl << 'EOF'
+# In Vivado TCL Console after opening Hardware Manager:
 open_hw_manager
 connect_hw_server
 open_hw_target
 set_property PROGRAM.FILE {SPICopter.bit} [current_hw_device]
 program_hw_devices [current_hw_device]
-close_hw_manager
-EOF
-
-vivado -mode batch -source program.tcl
 ```
-
-## Troubleshooting
-
-### "Project already exists"
-The script auto-cleans generated files. If issues persist:
-```bash
-rm -rf SPICopter.xpr SPICopter.cache SPICopter.runs SPICopter.hw
-```
-
-### Missing source files
-Check `$root_dir` paths in build.tcl point to correct locations.
-
-### Synthesis errors
-Check the top module uses `common_vexriscv_spi_top` (not the old SERV version).
-
-## VexRiscv JTAG Debugging
-
-The Arty S7 build uses `VexRiscvJtag.v` which exposes hardware JTAG pins:
-- `jtag_tms`, `jtag_tck`, `jtag_tdi`, `jtag_tdo`
-
-Connect to OpenOCD or Vivado for CPU debugging.
-
-## Version Control Summary
-
-**Commit these files:**
-- `build.tcl` - Project script
-- `SPICopter.srcs/` - Your RTL and constraints
-- `.gitignore` - Ignore rules
-- `HOWTO.md` - This guide
-
-**Ignore these (auto-generated):**
-- `SPICopter.xpr` - Regenerated from build.tcl
-- `SPICopter.runs/` - Build outputs
-- `SPICopter.cache/` - Vivado cache
-- `*.bit` - Bitstream (regenerate as needed)
