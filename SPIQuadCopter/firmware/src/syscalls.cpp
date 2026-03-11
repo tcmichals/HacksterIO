@@ -17,7 +17,7 @@ extern "C" {
 // Minimal newlib stubs
 // ============================================================================
 
-void _exit(int status) {
+__attribute__((weak)) void _exit(int status) {
     (void)status;
     while (1) {
         __asm__ volatile("wfi");

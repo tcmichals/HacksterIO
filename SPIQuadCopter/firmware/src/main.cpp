@@ -28,10 +28,8 @@
 #include "task.h"
 #endif
 
-// Debug state values
-constexpr uint8_t DBG_RESET   = 1;
-constexpr uint8_t DBG_RUNNING = 2;
-constexpr uint8_t DBG_LOOP    = 3;
+// Debug state values defined in msp_loop.hpp:
+// DBG_RESET, DBG_RUNNING, DBG_LOOP, etc.
 
 // Debug helper: output N pulses
 static inline void dbg_pulse(uint8_t count) {
@@ -42,6 +40,13 @@ static inline void dbg_pulse(uint8_t count) {
 }
 
 #ifdef USE_FREERTOS
+
+// Static task buffers for xTaskCreateStatic
+static StackType_t msp_task_stack[512];
+static StaticTask_t msp_task_tcb;
+
+static StackType_t heartbeat_task_stack[128];
+static StaticTask_t heartbeat_task_tcb;
 
 // FreeRTOS task: MSP protocol handler
 static void msp_task(void* pvParameters) {
@@ -70,11 +75,13 @@ int main() {
     // Set mux to DSHOT mode initially
     mux_set_dshot();
     
-    // Create MSP handler task (high priority)
-    xTaskCreate(msp_task, "MSP", 512, nullptr, configMAX_PRIORITIES - 1, nullptr);
+    // Create MSP handler task (high priority) - static allocation
+    xTaskCreateStatic(msp_task, "MSP", 512, nullptr, configMAX_PRIORITIES - 1,
+                      msp_task_stack, &msp_task_tcb);
     
-    // Create heartbeat task (low priority)
-    xTaskCreate(heartbeat_task, "LED", 128, nullptr, 1, nullptr);
+    // Create heartbeat task (low priority) - static allocation
+    xTaskCreateStatic(heartbeat_task, "LED", 128, nullptr, 1,
+                      heartbeat_task_stack, &heartbeat_task_tcb);
     
     // Start scheduler - never returns
     vTaskStartScheduler();

@@ -46,11 +46,11 @@
 #define configNUM_THREAD_LOCAL_STORAGE_POINTERS 0
 
 // ============================================================================
-// Memory Allocation - STATIC ONLY
+// Memory Allocation - Static API + Dynamic Heap
 // ============================================================================
 #define configSUPPORT_STATIC_ALLOCATION         1
-#define configSUPPORT_DYNAMIC_ALLOCATION        0
-#define configTOTAL_HEAP_SIZE                   0   // Not used with static only
+#define configSUPPORT_DYNAMIC_ALLOCATION        1
+#define configTOTAL_HEAP_SIZE                   ((size_t)(4 * 1024))  // 4KB heap
 #define configAPPLICATION_ALLOCATED_HEAP        0
 
 // Stack overflow detection

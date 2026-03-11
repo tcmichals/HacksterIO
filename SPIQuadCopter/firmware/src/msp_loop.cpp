@@ -4,6 +4,11 @@
 #include "fourway.hpp"
 #include "wb_regs.h"
 
+#ifdef USE_FREERTOS
+#include "FreeRTOS.h"
+#include "task.h"
+#endif
+
 // Flag set by MSP_SET_PASSTHROUGH handler
 volatile bool enter_passthrough_mode = false;
 

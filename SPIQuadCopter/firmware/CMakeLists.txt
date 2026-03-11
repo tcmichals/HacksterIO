@@ -27,7 +27,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Common flags for RV32IMC
-set(RISCV_ARCH "rv32imc")
+# Note: _zicsr_zifencei required for GCC 12+ to enable CSR instructions
+set(RISCV_ARCH "rv32imc_zicsr_zifencei")
 set(RISCV_ABI "ilp32")
 
 set(COMMON_FLAGS
@@ -87,13 +88,14 @@ if(USE_FREERTOS)
     if(EXISTS ${FREERTOS_DIR})
         add_compile_definitions(USE_FREERTOS=1)
         
-        # Static allocation only - NO heap_*.c needed
+        # Static API with heap_4 for dynamic memory (4KB)
         set(FREERTOS_SOURCES
             ${FREERTOS_DIR}/tasks.c
             ${FREERTOS_DIR}/queue.c
             ${FREERTOS_DIR}/list.c
             ${FREERTOS_DIR}/portable/GCC/RISC-V/port.c
             ${FREERTOS_DIR}/portable/GCC/RISC-V/portASM.S
+            ${FREERTOS_DIR}/portable/MemMang/heap_4.c
         )
         
         set(FREERTOS_INCLUDES
@@ -146,14 +148,35 @@ add_custom_command(TARGET firmware POST_BUILD
 )
 
 # ============================================================================
-# Memory file for FPGA initialization (optional)
+# Memory file for FPGA initialization
 # ============================================================================
-add_custom_target(firmware_mem
+
+# .mem file (Verilog $readmemh format - for Gowin and simulation)
+add_custom_command(
+    OUTPUT ${CMAKE_BINARY_DIR}/firmware.mem
     COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/scripts/bin2mem.py
             ${CMAKE_BINARY_DIR}/firmware.bin
             ${CMAKE_BINARY_DIR}/firmware.mem
-    DEPENDS firmware
-    COMMENT "Generating firmware.mem for FPGA"
+    DEPENDS firmware ${CMAKE_BINARY_DIR}/firmware.bin
+    COMMENT "Generating firmware.mem for Gowin/simulation"
+)
+
+# .coe file (Vivado Block RAM initialization format)
+add_custom_command(
+    OUTPUT ${CMAKE_BINARY_DIR}/firmware.coe
+    COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/scripts/bin2coe.py
+            ${CMAKE_BINARY_DIR}/firmware.bin
+            ${CMAKE_BINARY_DIR}/firmware.coe
+    DEPENDS firmware ${CMAKE_BINARY_DIR}/firmware.bin
+    COMMENT "Generating firmware.coe for Vivado"
+)
+
+# Target to generate all memory files
+add_custom_target(firmware_mem ALL
+    DEPENDS 
+        ${CMAKE_BINARY_DIR}/firmware.mem
+        ${CMAKE_BINARY_DIR}/firmware.coe
+    COMMENT "Memory files ready: firmware.mem, firmware.coe"
 )
 
 # ============================================================================

@@ -2,7 +2,7 @@
  * Arty S7-50 Top Module
  *
  * Board-specific wrapper for Arty S7-50 with:
- * - PLL: External (Vivado Clock Wizard provides 72 MHz)
+ * - Clock: 12 MHz from on-board oscillator (add MMCM later for 72 MHz)
  * - Reset generation (sync + POR)
  * - Heartbeat LED
  * - common_vexriscv_spi_top (VexRiscv + RAM + wb_spisystem)
@@ -17,11 +17,8 @@ module arty_s7_spi_copter_top #(
     parameter USB_BAUD_RATE = 115200,
     parameter SERIAL_BAUD_RATE = 19200
 ) (
-    // System Clock (72 MHz from Vivado Clock Wizard)
+    // System Clock (12 MHz from on-board oscillator)
     input  wire        clk_sys,
-    
-    // PLL Locked signal (from Clock Wizard)
-    input  wire        pll_locked,
     
     // Reset Button (active-low, directly from board)
     input  wire        reset_n,
@@ -69,10 +66,8 @@ module arty_s7_spi_copter_top #(
     reg [2:0] reset_sync;
     wire sys_reset;
     
-    always @(posedge clk_80m or negedge reset_n) begin
+    always @(posedge clk_sys or negedge reset_n) begin
         if (!reset_n) begin
-            reset_sync <= 3'b111;
-        end else if (!pll_locked) begin
             reset_sync <= 3'b111;
         end else begin
             reset_sync <= {reset_sync[1:0], 1'b0};
@@ -83,17 +78,17 @@ module arty_s7_spi_copter_top #(
 
     // =========================================================================
     // Heartbeat LED (1 Hz blink)
-    // 80 MHz / 40M = 2 Hz (toggle every 0.5s for 1 Hz blink)
+    // 12 MHz / 6M = 2 Hz (toggle every 0.5s for 1 Hz blink)
     // =========================================================================
     reg [25:0] heartbeat_cnt;
     reg heartbeat_led;
     
-    always @(posedge clk_80m) begin
+    always @(posedge clk_sys) begin
         if (sys_reset) begin
             heartbeat_cnt <= 26'd0;
             heartbeat_led <= 1'b0;
         end else begin
-            if (heartbeat_cnt >= 26'd39_999_999) begin  // 0.5s at 80MHz
+            if (heartbeat_cnt >= 26'd5_999_999) begin  // 0.5s at 12MHz
                 heartbeat_cnt <= 26'd0;
                 heartbeat_led <= ~heartbeat_led;
             end else begin
@@ -105,20 +100,20 @@ module arty_s7_spi_copter_top #(
     assign led_heartbeat = heartbeat_led;
 
     // =========================================================================
-    // Unused LED (5th LED from common_serv_spi_top)
+    // Unused LED (5th LED from common_vexriscv_spi_top)
     // =========================================================================
     wire led_5_unused;
     wire neopixel_unused;  // NeoPixel not used on Arty S7
 
     // =========================================================================
-    // System Integration (SERV + RAM + Peripherals)
-    // Same module as Tang - 90% code sharing
+    // System Integration (VexRiscv + RAM + Peripherals)
+    // Same module as Tang Nano 20K - 90% code sharing
     // =========================================================================
-    common_serv_spi_top #(
+    common_vexriscv_spi_top #(
         .USB_BAUD_RATE(USB_BAUD_RATE),
         .SERIAL_BAUD_RATE(SERIAL_BAUD_RATE)
     ) u_system (
-        .clk(clk_80m),
+        .clk(clk_sys),
         .rst(sys_reset),
         
         // SPI Slave Interface
@@ -154,7 +149,7 @@ module arty_s7_spi_copter_top #(
         // Debug GPIO (32-bit for ILA)
         .debug_gpio(debug_gpio),
         
-        // SERV Debug (for ILA - trace PC execution)
+        // VexRiscv Debug (for ILA - trace PC execution)
         .debug_pc(debug_pc),
         .debug_pc_valid(debug_pc_valid),
         

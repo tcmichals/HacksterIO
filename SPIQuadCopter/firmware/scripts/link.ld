@@ -100,6 +100,7 @@ SECTIONS
     /* Symbols for FreeRTOS */
     _estack = __stack_top;
     _end = __bss_end;
+    __freertos_irq_stack_top = __stack_top;
     
     /* Debug info */
     /DISCARD/ :

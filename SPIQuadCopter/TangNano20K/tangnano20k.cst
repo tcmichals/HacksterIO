@@ -1,0 +1,104 @@
+// =============================================================================
+// Tang Nano 20K Constraints File
+// =============================================================================
+// Gowin GW2AR-18 FPGA
+// Clock: 27 MHz crystal
+// =============================================================================
+
+// Clock input (27 MHz crystal)
+IO_LOC "clk_27mhz" 4;
+IO_PORT "clk_27mhz" IO_TYPE=LVCMOS33;
+
+// User button (directly active low)
+IO_LOC "btn_n" 88;
+IO_PORT "btn_n" IO_TYPE=LVCMOS33;
+
+// =============================================================================
+// RGB LED (accent on accent accent accent board accent accent accent - accent accent accent accent accent accent accent accent accent accent accent accent accent accent accent accent accent)
+// =============================================================================
+IO_LOC "led_r" 15;
+IO_PORT "led_r" IO_TYPE=LVCMOS33 DRIVE=8;
+
+IO_LOC "led_g" 16;
+IO_PORT "led_g" IO_TYPE=LVCMOS33 DRIVE=8;
+
+IO_LOC "led_b" 17;
+IO_PORT "led_b" IO_TYPE=LVCMOS33 DRIVE=8;
+
+// =============================================================================
+// User LEDs (Tang Nano 20K only has 3 user LEDs on pins 18-20)
+// =============================================================================
+IO_LOC "led_1" 18;
+IO_PORT "led_1" IO_TYPE=LVCMOS33 DRIVE=8;
+
+IO_LOC "led_2" 19;
+IO_PORT "led_2" IO_TYPE=LVCMOS33 DRIVE=8;
+
+IO_LOC "led_3" 20;
+IO_PORT "led_3" IO_TYPE=LVCMOS33 DRIVE=8;
+
+// =============================================================================
+// SPI Slave Interface (PMOD Header directly directly directly 1)
+// =============================================================================
+IO_LOC "spi_clk" 27;
+IO_PORT "spi_clk" IO_TYPE=LVCMOS33;
+
+IO_LOC "spi_cs_n" 28;
+IO_PORT "spi_cs_n" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+
+IO_LOC "spi_mosi" 29;
+IO_PORT "spi_mosi" IO_TYPE=LVCMOS33;
+
+IO_LOC "spi_miso" 30;
+IO_PORT "spi_miso" IO_TYPE=LVCMOS33 DRIVE=8;
+
+// =============================================================================
+// PWM Decoder Inputs (directly directly directly directly 6 directly directly directly channels directly directly directly directly directly directly directly - directly directly directly directly directly PMOD directly directly directly directly Header directly directly directly directly directly directly 2)
+// =============================================================================
+IO_LOC "pwm_ch0" 31;
+IO_PORT "pwm_ch0" IO_TYPE=LVCMOS33;
+
+IO_LOC "pwm_ch1" 32;
+IO_PORT "pwm_ch1" IO_TYPE=LVCMOS33;
+
+IO_LOC "pwm_ch2" 33;
+IO_PORT "pwm_ch2" IO_TYPE=LVCMOS33;
+
+IO_LOC "pwm_ch3" 34;
+IO_PORT "pwm_ch3" IO_TYPE=LVCMOS33;
+
+IO_LOC "pwm_ch4" 35;
+IO_PORT "pwm_ch4" IO_TYPE=LVCMOS33;
+
+IO_LOC "pwm_ch5" 36;
+IO_PORT "pwm_ch5" IO_TYPE=LVCMOS33;
+
+// =============================================================================
+// Motor Outputs (directly directly directly directly DSHOT directly directly directly directly/directly directly directly directly ESC directly directly directly directly UART directly directly directly directly - directly directly directly directly bidirectional)
+// =============================================================================
+IO_LOC "motor1" 37;
+IO_PORT "motor1" IO_TYPE=LVCMOS33 DRIVE=8 PULL_MODE=UP;
+
+IO_LOC "motor2" 38;
+IO_PORT "motor2" IO_TYPE=LVCMOS33 DRIVE=8 PULL_MODE=UP;
+
+IO_LOC "motor3" 39;
+IO_PORT "motor3" IO_TYPE=LVCMOS33 DRIVE=8 PULL_MODE=UP;
+
+IO_LOC "motor4" 40;
+IO_PORT "motor4" IO_TYPE=LVCMOS33 DRIVE=8 PULL_MODE=UP;
+
+// =============================================================================
+// NeoPixel Output
+// =============================================================================
+IO_LOC "neopixel" 41;
+IO_PORT "neopixel" IO_TYPE=LVCMOS33 DRIVE=8;
+
+// =============================================================================
+// USB UART (on directly directly directly board directly directly directly USB directly directly directly-directly directly directly C directly directly directly connector)
+// =============================================================================
+IO_LOC "usb_uart_rx" 70;
+IO_PORT "usb_uart_rx" IO_TYPE=LVCMOS33;
+
+IO_LOC "usb_uart_tx" 69;
+IO_PORT "usb_uart_tx" IO_TYPE=LVCMOS33 DRIVE=8;
